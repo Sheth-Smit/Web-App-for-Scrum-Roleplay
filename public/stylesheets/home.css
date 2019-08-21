@@ -1,0 +1,49 @@
+h2{
+  margin-left: 23.2em;
+
+}
+table {
+  border-radius: 50px;
+  margin-left: 20em;
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 50%;
+  margin-top: 2em;
+}
+th{
+  color: white;
+  border: 2px solid #4d4f4e ;
+  text-align: left;
+  padding: 8px;
+  background-color: #5b5570;
+}
+tr{
+  border:2px solid black;
+
+}
+td{
+  height: 28px;
+  border: 1.4px solid black;
+}
+.odd{
+  border-radius: 2px;
+  text-align: left;
+  padding: 8px;
+  padding-top: 5px;
+  background-color:#abede9 ;
+}
+.evn{
+  border-radius: 2px;
+  text-align: left;
+  padding: 8px;
+  background-color: #64ded7;
+}
+#addStoryButton{
+  color:white;
+  margin-left: 23.9em;
+  margin-top: 1.5em;
+  border:1.2px solid #4d4f4e;
+  border-radius: 3px;
+  height: 2.4em;
+  background-color: #5b5570;
+}

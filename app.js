@@ -17,14 +17,16 @@ app.use(express.static("models"));
 passport.use(new localpassport(user.authenticate()));
 passport.serializeUser(user.serializeUser());
 passport.deserializeUser(user.deserializeUser());
+
+app.use(express.static("models"));
 app.use(require("express-session")({
-  secret: "Video Conferencing is not easy",
+  secret: "Scrum Roleplay",
   resave: false,
   saveUninitialized: false
 }));
 mongoose.connect("mongodb://localhost:27017/scrum-rolepaly");
 app.get("/",function(req,res){
-  res.redirect("/login");
+  res.render("home.ejs");
 });
 app.get("/login",function(req,res){
   res.render("chatbox.ejs");
