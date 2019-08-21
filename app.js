@@ -13,6 +13,7 @@ app.use(parser.urlencoded({extended:true}));
 app.use(express.static("public"));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.static("models"));
 passport.use(new localpassport(user.authenticate()));
 passport.serializeUser(user.serializeUser());
 passport.deserializeUser(user.deserializeUser());
@@ -28,7 +29,10 @@ app.get("/",function(req,res){
   res.render("home.ejs");
 });
 app.get("/login",function(req,res){
-  res.render("login.ejs");
+  res.render("chatbox.ejs");
+});
+app.get("/productBacklog",function(req,res){
+  res.render("productBacklog.ejs");
 });
 app.listen(3050,function(req,res){
   console.log("Server active on 3050");
