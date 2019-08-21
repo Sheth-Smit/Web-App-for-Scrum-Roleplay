@@ -14,11 +14,14 @@ app.use(parser.urlencoded({extended:true}));
 app.use(express.static("public"));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.static("models"));
 passport.use(new localpassport(user.authenticate()));
 passport.serializeUser(user.serializeUser());
 passport.deserializeUser(user.deserializeUser());
+
+app.use(express.static("models"));
 app.use(require("express-session")({
-  secret: "Video Conferencing is not easy",
+  secret: "Scrum Roleplay",
   resave: false,
   saveUninitialized: false
 }));
