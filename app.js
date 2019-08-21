@@ -26,7 +26,7 @@ app.get("/",function(req,res){
   res.redirect("/login");
 });
 app.get("/login",function(req,res){
-  res.render("login.ejs");
+  res.render("chatbox.ejs");
 });
 app.listen(3050,function(req,res){
   console.log("Server active on 3050");
