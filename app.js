@@ -41,6 +41,11 @@ app.get("/home", function (req, res) {
 app.get("/login",function(req,res){
   res.render("login");
 });
+
+app.get("/productBacklog", function(req, res){
+  res.render("productBacklog");
+});
+
 app.listen(3050,function(req,res){
   console.log("Server active on 3050");
 });

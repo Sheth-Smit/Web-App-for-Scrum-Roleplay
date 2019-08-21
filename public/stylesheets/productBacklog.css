@@ -1,13 +1,12 @@
 h2{
-  margin-left: 23.2em;
+  text-align: center;
 
 }
 table {
   border-radius: 50px;
-  margin-left: 20em;
   font-family: arial, sans-serif;
   border-collapse: collapse;
-  width: 50%;
+  width: 100%;
   margin-top: 2em;
 }
 th{
@@ -16,31 +15,32 @@ th{
   text-align: left;
   padding: 8px;
   background-color: #5b5570;
+  text-align: center;
 }
 tr{
   border:2px solid black;
 
 }
 td{
-  height: 28px;
+  height: 50px;
   border: 1.4px solid black;
+  text-align: center;
 }
 .odd{
   border-radius: 2px;
   text-align: left;
   padding: 8px;
   padding-top: 5px;
-  background-color:#abede9 ;
+  background-color:#AADBB6 ;
 }
 .evn{
   border-radius: 2px;
   text-align: left;
   padding: 8px;
-  background-color: #64ded7;
+  background-color: #BDE3C7;
 }
 #addStoryButton{
   color:white;
-  margin-left: 23.9em;
   margin-top: 1.5em;
   border:1.2px solid #4d4f4e;
   border-radius: 3px;
