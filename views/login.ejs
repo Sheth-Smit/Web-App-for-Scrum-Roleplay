@@ -1,12 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head></head>
-<body>
+<% include partials/sidebarHeader %>
+
   <form action="/login" method="POST">
     <input type="text" name="username">
     <input type="text" name="flag">
     <input type="password" name="password">
     <input type="submit">
   </form>
-</body>
-</html>
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>

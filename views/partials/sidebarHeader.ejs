@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Scrum Roleplay</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="stylesheets/sidebar.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"></script>
+  </head>
+  <body>
+
+  <div class="wrapper">
+      <!-- Sidebar  -->
+        <nav id="sidebar">
+          <div class="sticky">
+          <a href="/home" class="btn btn-outline-light text-dark" id="homeButton">
+            <i class="fas fa-home"></i>
+          </a>
+          <button type="button" id="sidebarCollapse" class="btn btn-info float-right">
+            <i class="fas fa-bars"></i>
+          </button>
+            <div class="sidebar-header">
+                <h3 class="text-center">Team Name</h3>
+                <h6 class="text-center">Scrum Role</h6>
+            </div>
+
+            <ul class="list-unstyled components">
+              <li>
+                <a href="/login">
+                    <i class="fas fa-cubes"></i>
+                    Product Backlog
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                    <i class="fas fa-chart-line"></i>
+                    Release Planning
+                </a>
+              </li>
+
+              <% for(let i = 0; i < 3; i++){ %>
+                  <li>
+                      <a href="<%= "#homeSubmenu" + i%>" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                          <i class="fas fa-bolt"></i>
+                          <%="Sprint " + (i+1)%>
+                      </a>
+                      <ul class="collapse list-unstyled" id="<%= "homeSubmenu" + i%>">
+                          <li>
+                              <a href="#">Select Estimated Stories</a>
+                          </li>
+                          <li>
+                              <a href="#">Plan Summary</a>
+                          </li>
+                          <li>
+                              <a href="#">Select User Stories</a>
+                          </li>
+                          <li>
+                              <a href="#">View User Stories</a>
+                          </li>
+                          <li>
+                              <a href="#">Sprint Retrospective</a>
+                          </li>
+                          <li>
+                              <a href="#">Sprint Review</a>
+                          </li>
+                      </ul>
+                  </li>
+                <% } %>
+
+                <li>
+                    <a href="#">
+                        <i class="fas fa-tasks"></i>
+                        Project Review
+                    </a>
+                </li>
+            </ul>
+          </div>
+        </nav>
+      <!-- Page Content  -->
+      <div id="content">
+
+        <% include navbar %>

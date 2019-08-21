@@ -9,6 +9,7 @@ var user=require("./models/user.js");
 var request=require("request");
 var html=require("html");
 var parser=require("body-parser");
+
 app.use(parser.urlencoded({extended:true}));
 app.use(express.static("public"));
 app.use(passport.initialize());
@@ -21,12 +22,21 @@ app.use(require("express-session")({
   resave: false,
   saveUninitialized: false
 }));
+app.set("view engine", "ejs");
 mongoose.connect("mongodb://localhost:27017/scrum-rolepaly");
+
+
+
 app.get("/",function(req,res){
-  res.redirect("/login");
+  res.redirect("/home");
 });
+
+app.get("/home", function (req, res) {
+  res.render("home");
+})
+
 app.get("/login",function(req,res){
-  res.render("login.ejs");
+  res.render("login");
 });
 app.listen(3050,function(req,res){
   console.log("Server active on 3050");
