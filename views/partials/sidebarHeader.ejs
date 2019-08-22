@@ -3,16 +3,20 @@
   <head>
     <meta charset="utf-8">
     <title>Scrum Roleplay</title>
+
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="/stylesheets/chatbox.css" rel="stylesheet" id="bootstrap-css">
     <link rel="stylesheet" href="stylesheets/sidebar.css">
     <link rel="stylesheet" href="stylesheets/productBacklog.css">
-    <link href="/stylesheets/chatbox.css" rel="stylesheet" id="bootstrap-css">
 
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"></script>
   </head>
-  <body>
 
+  <body>
+    <% include navbar %>
+    <% include ../chatbox%>
   <div class="wrapper">
       <!-- Sidebar  -->
         <nav id="sidebar">
@@ -80,7 +84,9 @@
             </ul>
           </div>
         </nav>
+
+
       <!-- Page Content  -->
       <div id="content">
-
-        <% include navbar %>
+        <!-- <% include navbar %> -->
+        <!-- <%include ../chatbox%> -->

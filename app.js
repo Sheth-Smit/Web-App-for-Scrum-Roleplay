@@ -46,6 +46,10 @@ app.get("/productBacklog", function(req, res){
   res.render("productBacklog");
 });
 
+app.get("/chatbox", function(req, res){
+  res.render("chatbox");
+});
+
 app.listen(3050,function(req,res){
   console.log("Server active on 3050");
 });
