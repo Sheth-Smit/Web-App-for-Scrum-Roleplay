@@ -26,7 +26,7 @@ app.use(require("express-session")({
   saveUninitialized: false
 }));
 app.set("view engine", "ejs");
-mongoose.connect("mongodb://localhost:27017/scrum-rolepaly");
+mongoose.connect("mongodb://localhost:27017/scrum-rolepaly",{useNewUrlParser: true});
 
 
 

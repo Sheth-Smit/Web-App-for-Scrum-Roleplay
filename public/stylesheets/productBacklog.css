@@ -47,3 +47,11 @@ td{
   height: 2.4em;
   background-color: #5b5570;
 }
+
+.delete{
+    color: grey;
+}
+
+.delete:hover{
+    color: red;
+}
