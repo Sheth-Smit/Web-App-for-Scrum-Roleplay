@@ -66,10 +66,15 @@ span {
   top: 70px;
 }
 
+.btn:focus,.btn:active {
+   outline: none !important;
+   box-shadow: none;
+}
+
 #sidebar {
     min-width: 250px;
     max-width: 250px;
-    background: #3AAFA9;
+    background: #1abc9c; /* Other option  #3AAFA9 */
     color: #fff;
     transition: all 0.3s;
 }
@@ -121,7 +126,7 @@ span {
 
 #sidebar .sidebar-header {
     padding: 20px;
-    background: #3AAFA9;
+    background: #1abc9c;
 }
 
 #sidebar .sidebar-header strong {
