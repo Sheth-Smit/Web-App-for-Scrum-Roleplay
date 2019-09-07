@@ -1,0 +1,45 @@
+<nav class="navbar navbar-expand-sm bg-dark sticky-top navbar-dark" style="margin-top: -5px;margin-bottom: 0;" >
+  <ul class="navbar-nav">
+    <li>
+      <a class="navbar-brand" href="/">Scrum</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/home">Home</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">Dashboard</a>
+    </li>
+  </ul>
+
+  <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+      <ul class="navbar-nav ml-auto">
+          <% if(!currentUser){ %>
+              <li class="nav-item">
+                  <a class="nav-link" href="/register">Sign In</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="/login">Login</a>
+              </li>
+          <% } else {%>
+              <li class="nav-item">
+                  <a class="nav-link" href="#"><strong><%= currentUser.username %></strong></a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="/logout">Logout</a>
+              </li>
+          <% } %>
+            <li>
+              <div class="btn-group">
+                <button type="button" class="btn btn-secondary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fas fa-bars"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                  <a class="dropdown-item">Action</a>
+                  <a class="dropdown-item">Another action</a>
+                  <a class="dropdown-item">Something else here</a>
+                </div>
+            </div>
+          </li>
+      </ul>
+  </div>
+</nav>

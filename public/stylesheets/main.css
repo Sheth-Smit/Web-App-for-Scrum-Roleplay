@@ -1,0 +1,29 @@
+body{
+  background: #1abc9c;
+}
+
+#btn-create{
+  background: #2c7022;
+  margin: 20% 0 0 37%;
+  height: 75px;
+  width: 200px;
+  padding: 0;
+}
+
+#btn-join{
+  background: #2c7022;
+  margin: 20% 0 0 10px;
+  height: 75px;
+  width: 200px;
+  padding: 0;
+}
+
+#myIcon{
+  margin-top: 10px;
+  margin-right: 10px;
+  font-size: 50px;
+}
+
+#btn-text{
+  text-align: center;
+}

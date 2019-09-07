@@ -1,0 +1,52 @@
+
+    </div>
+  </div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- Popper.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+
+        $('#menu').css("right","-300px");
+        $('#chat_icon').on('click',function(){
+          // alert("sgxh");
+            if($('#chat_icon').hasClass('open')){
+                $(this).removeClass('open');
+                $(this).animate({
+                    "right":"20px",
+                    "background-position":"0px"
+                }, 0.3);
+                $('#menu').animate({"right":"-300px"}, 0.5);
+                // $('#content').css("position","absolute");
+                $('#content').animate({
+                    "width":"98%",
+                    // "z-index":"999"
+                }, 0.5);
+            }
+            else{
+              // alert("Hi");
+              console.log("1");
+                $(this).addClass('open');
+                $(this).animate({
+                    "right":"310px",
+                    "background-position":"-40px"
+                }, 0.3);
+                $('#menu').animate({"right":"0px"}, 0.5);
+                // $('#content').css("position","absolute");
+                $('#content').animate({
+                    "width":"64%",
+                    // "z-index":"999"
+                }, 0.5);
+
+            }
+        });
+    });
+</script>
