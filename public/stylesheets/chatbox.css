@@ -1,7 +1,7 @@
 
 #menu {
 position: fixed;
-right:0;
+right: -300px;
 top: 10%;
 width: 300px;
 height: 90%;
@@ -54,7 +54,7 @@ transition-timing-function: ease-out;
 
 #chat_icon {
 position: fixed;
-right: 0;
+right: 20px;
 top: 10%;
 color: #acacac;
 /* background: url( data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD4AAAASCAYAAAADr20JAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAe5JREFUeNrUl0tLQkEUx+eGUPSggoi+Qd8hiiKyKBVJE7QXLWoV9FGCIChol1AQJlS7Fu0LWgRtKoJa9cBMxWdZt/+Jc2GymyncuXAHfgrOnPGeex7/GU3X9SchRLNQNy5Av4X70bOugTOwVadtCPjAitDVjysgLGSV982DSB12E+CVbaMueH8CmhRG/Nri/Y7BHOgC24B8iP5j4wW7oBVkwZGwOBp2MUAlKkU+XGXtGEjy2gzw0e9OdZwYBi/sUAlMm6wZB2npBQWMOSc7TgyBZ8mxkDTnll4MRdov22r46EHOawpr/B0kFO4/AvZAJ8iDGZAB+6ADFLknxH5YwfGs4q5+blPaG5HPcYSNSAfMbBrge4tQO9qE+kHKNAWSrPP0nwUwD+JmBi5OgUaFD3Ur7BkflMByMoPyX4u17w7n/DHIdd7NNf3JkU9z1A9/WTi8qxudPSF19iAYlWSMan6y0s7pTtNB5pEdLFZoOWl4iufo21MpZ72K5YxS705Resf46PoGFk2OrnQh2eGjao6l7sBI9bJiObtUEOk+8MD7F8BslbUe6XKS4suKsON2dmOx027pnE5BW6jBxs+1bmh7kORsU7Gc3Vu8n5e7dwks1XAzE5zeEb7NtYOAE+WM6nUdnIKNOm3DwA+WvwQYAAWqZfqMuV0VAAAAAElFTkSuQmCC) no-repeat; */
