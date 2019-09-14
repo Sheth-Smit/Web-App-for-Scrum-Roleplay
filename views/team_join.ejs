@@ -1,0 +1,45 @@
+<% include partials/header %>
+<% include partials/navbar %>
+
+
+  <div class="modal show" id="myModal" aria-modal = "true" style="display: block;" role="dialog" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Invitations</h4>
+        <a class="btn close" href="/">&times;</a>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body show">
+          <div class="overflow-auto container" style="height: 400px;">
+              <% cur_user.invitations.forEach(function(invite){ %>
+                <div class="form-group">
+                  <h7>An inviation from <%=invite.sender %> for joining the team: <%=invite.teamname %> as <%=invite.role%> </h7>
+                  <br><br>
+                  <form class="btn btn-danger btn-sm" action="/reject_request/<%=invite.teamname%>" method="post">
+                    <div name="team" value="<%=invite.teamname%>"></div>
+                    <div name="role" value="<%=invite.role%>"></div>
+                    <button class="btn btn-danger btn-sm" type="submit">Reject</button>
+                  </form>
+                  <form class="btn btn-primary btn-sm float-right" action="/accept_request/<%= invite.teamname%>/<%= invite.role%>" method="post">
+                    <div name="team" value=<%=invite.teamname%>></div>
+                    <div name="role" value=<%=invite.role%>></div>
+                    <button class="btn btn-primary btn-sm" type="submit">Accept</button>
+                  </form>
+                </div>
+                <hr>
+              <% }) %>
+          </div>
+          <hr>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop show"></div>
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>

@@ -14,7 +14,7 @@
         $('#sidebarCollapse').on('click', function () {
             $('#sidebar').toggleClass('active');
         });
-
+        // $('#chat_icon').removeClass('open');
         $('#menu').css("right","-300px");
         $('#chat_icon').on('click',function(){
           // alert("sgxh");
@@ -32,8 +32,6 @@
                 }, 0.5);
             }
             else{
-              // alert("Hi");
-              console.log("1");
                 $(this).addClass('open');
                 $(this).animate({
                     "right":"310px",
@@ -45,7 +43,6 @@
                     "width":"64%",
                     // "z-index":"999"
                 }, 0.5);
-
             }
         });
     });

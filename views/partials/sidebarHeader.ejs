@@ -6,8 +6,8 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link href="/stylesheets/chatbox.css" rel="stylesheet" id="bootstrap-css">
-    <link rel="stylesheet" href="stylesheets/sidebar.css">
-    <link rel="stylesheet" href="stylesheets/productBacklog.css">
+    <link rel="stylesheet" href="/stylesheets/sidebar.css">
+    <link rel="stylesheet" href="/stylesheets/productBacklog.css">
 
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"></script>
@@ -20,20 +20,21 @@
       <!-- Sidebar  -->
         <nav id="sidebar">
           <div class="sticky">
-          <a href="/home" class="btn btn-outline-light text-dark" id="homeButton">
+          <% var homePath = "/" + currentUser.currentTeam + "/home"; %>
+          <a href="<%= homePath %>" class="btn btn-outline-light text-dark" id="homeButton">
             <i class="fas fa-home"></i>
           </a>
           <button type="button" id="sidebarCollapse" class="btn btn-info float-right" style="background: #2B7A78; outline: none; border: none;">
             <i class="fas fa-bars"></i>
           </button>
             <div class="sidebar-header">
-                <h3 class="text-center">Team Name</h3>
-                <h6 class="text-center">Scrum Role</h6>
+                <h3 class="text-center"><%= team.username %></h3>
+                <h6 class="text-center"><%= currentUser.role %></h6>
             </div>
 
             <ul class="list-unstyled components">
               <li>
-                <a href="/productBacklog">
+                <a href="/<%= currentUser.currentTeam %>/productBacklog">
                     <i class="fas fa-cubes"></i>
                     Product Backlog
                 </a>
