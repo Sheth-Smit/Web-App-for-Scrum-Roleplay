@@ -15,14 +15,11 @@
       <ul class="navbar-nav ml-auto">
           <% if(!currentUser){ %>
               <li class="nav-item">
-                  <a class="nav-link" href="/register">Sign In</a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="/login">Login</a>
+                  <a class="nav-link" href="/auth/google">Login</a>
               </li>
           <% } else {%>
               <li class="nav-item">
-                  <a class="nav-link" href="#"><strong><%= currentUser.username %></strong></a>
+                  <a class="nav-link" href="#"><strong><%= currentUser.name %></strong></a>
               </li>
               <li class="nav-item">
                   <a class="nav-link" href="/logout">Logout</a>
