@@ -21,6 +21,15 @@ tr{
   border:2px solid black;
 
 }
+tbody tr:hover{
+  border: 3px solid black;
+  box-shadow: 7px 7px 5px grey;
+  cursor: grab;
+}
+tbody tr:active{
+  cursor: grabbing;
+}
+
 td{
   height: 50px;
   border: 1.4px solid black;
@@ -39,7 +48,7 @@ td{
   padding: 8px;
   background-color: #BDE3C7;
 }
-#addStoryButton{
+#addStoryButton, #pb-save{
   color:white;
   margin-top: 1.5em;
   border:1.2px solid #4d4f4e;
@@ -48,10 +57,16 @@ td{
   background-color: #5b5570;
 }
 
+#addStoryButton:hover, #pb-save:hover{
+  color: #5b5570;
+  background-color: white;
+}
+
 .delete{
     color: grey;
 }
 
 .delete:hover{
     color: red;
+    cursor: pointer;
 }

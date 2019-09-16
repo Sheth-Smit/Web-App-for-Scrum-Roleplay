@@ -102,7 +102,7 @@ app.get("/:team_id/productBacklog", function(req, res){
         res.redirect("/auth/google");
     Team.findById(req.params.team_id, function(err, team){
         res.render("productBacklog.ejs", {team: team});
-    })
+    });
 });
 
 app.get("/:team_id/productBacklog/new", function(req, res){
@@ -131,6 +131,24 @@ app.post("/:team_id/productBacklog/new", function(req, res){
 
 });
 
+app.post("/:team_id/productBacklog/update", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          team.productBacklog = [];
+          req.body.rearrangedStories.forEach(function(story){
+              team.productBacklog.push(story);
+              console.log("Pushing", story);
+          })
+          team.save();
+          console.log("Done");
+      }
+      res.redirect("/" + team._id + "/productBacklog");
+  })
+
+});
+
 app.get("/:team_id/releasePlan", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
@@ -144,8 +162,8 @@ app.post("/:team_id/releasePlan", function(req, res){
       for(let i=0;i < team.productBacklog.length; i++){
           team.productBacklog[i].releasePlan=req.body.releasePlanValue[i];
           console.log(team.productBacklog[i].releasePlan);
-          team.save();
       }
+      team.save();
     });
     res.redirect("/" + req.params.team_id + "/releasePlan")
 })
@@ -167,13 +185,22 @@ app.post("/:team_id/releasePlan/new", function(req, res){
       if(err){
           console.log("Error: ", err);
       } else {
-          console.log("Pushing", req.body.release);
-          team.releasePlanName.push(req.body.release);
-          team.save();
-      }
-      res.redirect("/" + team._id + "/releasePlan");
-  })
-
+            let f=0;
+            team.releasePlanName.forEach(function(rel){
+              if(rel.name==req.body.release.name)
+                f=1;
+            });
+            if(!f){
+              console.log("Pushing", req.body.release);
+              team.releasePlanName.push(req.body.release);
+              team.save();
+            }
+            else{
+              console.log("Release already exists");
+            }
+        }
+      res.redirect("/" + team._id + "/releasePlan");          
+    });
 });
 //===============
 // Creating teams
@@ -219,11 +246,10 @@ app.post("/team_create",sessionActive, function(req,res){
     Team.create({username:req.body.teamname},function(err,team){
       if(err)console.log("Error is:"+err);
       else  {
-      //  console.log("The team is: "+team);
         team_id = team._id;
         team.members.push(req.user._id);
         team.productBacklog = [];
-        team.releasePlanName.push({name: "Add release"});
+        team.releasePlanName.push({name: "Add to a release"});
         console.log(team.releasePlanName.length);
         team.save();
       }
