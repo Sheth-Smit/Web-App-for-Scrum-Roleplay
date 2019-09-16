@@ -15,6 +15,7 @@
   </thead>
 
   <tbody>
+    <% var releasePlanStr = "" %>
     <% for(var i = 0; i < team.productBacklog.length; i++){ %>
     <% var classAlt = "odd" %>
     <% if(i%2 == 0) {classAlt = "even";} %>
@@ -28,11 +29,11 @@
           <td> <i class="delete fas fa-trash-alt fa-2x"></i></td>
         </tr>
 
+        <% releasePlanStr += team.productBacklog[i].releasePlan + "," %>
     <% } %>
   </tbody>
 </table>
 <a class="btn" id="addStoryButton" href="/<%= team._id %>/productBacklog/new">Add User Story <i class="fas fa-plus"></i></a>
-<button class="btn float-right" id="pb-save" teamid=<%= team._id %>>Save</button>
-
+<button class="btn float-right" id="pb-save" teamid="<%= team._id %>" releasestr="<%= releasePlanStr %>">Save</button>
 <% include partials/sidebarFooter %>
 <% include partials/footer %>

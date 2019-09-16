@@ -1,7 +1,7 @@
 <% include partials/sidebarHeader %>
 <h1 class="text-center" >Release Plan</h1>
-<form action="/<%=team.id%>/releasePlan" method="POST"> 
-    
+<form action="/<%=team.id%>/releasePlan" method="POST">
+
     <% var x=0 %>
     <% for(var k=0; k < team.releasePlanName.length; k++) {%>
         <%var f=0;
@@ -30,7 +30,7 @@
             <% if(team.releasePlanName[k].name == team.productBacklog[i].releasePlan){%>
                 <% var classAlt = "odd" %>
                 <% if(x == 0) {
-                    classAlt = "even"; 
+                    classAlt = "even";
                 }
                 x^=1; %>
                         <tr class="<%= classAlt %>">
@@ -51,13 +51,13 @@
                             </select>
                         </td>
                         </tr>
-                        </tr>
+
             <%}
         } %>
         <% if((k>0&&f==1)||(k==0&&f==1)) { %>
             </table>
         <% } %>
-    
+
     <% } %>
     <a class="btn release-style"  href="/<%= team._id %>/releasePlan/new">Add Release <i class="fas fa-plus"></i></a>
     <button class="btn release-style float-right">Save Changes</button>
