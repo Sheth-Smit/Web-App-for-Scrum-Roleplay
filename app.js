@@ -141,7 +141,7 @@ app.post("/:team_id/productBacklog/update", function(req, res){
           team.save();
           console.log("Done");
       }
-      // Redirection to /team_id/productBacklog is managed by jQuery
+      res.redirect("/" + team._id + "/productBacklog");
   })
 
 });
