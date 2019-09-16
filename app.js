@@ -99,7 +99,7 @@ app.get("/:team_id/productBacklog", function(req, res){
         res.redirect("/auth/google");
     Team.findById(req.params.team_id, function(err, team){
         res.render("productBacklog.ejs", {team: team});
-    })
+    });
 });
 
 app.get("/:team_id/productBacklog/new", function(req, res){
@@ -124,6 +124,24 @@ app.post("/:team_id/productBacklog/new", function(req, res){
           team.save();
       }
       res.redirect("/" + team._id + "/productBacklog");
+  })
+
+});
+
+app.post("/:team_id/productBacklog/update", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          team.productBacklog = [];
+          req.body.rearrangedStories.forEach(function(story){
+              team.productBacklog.push(story);
+              console.log("Pushing", story);
+          })
+          team.save();
+          console.log("Done");
+      }
+      // Redirection to /team_id/productBacklog is managed by jQuery
   })
 
 });
