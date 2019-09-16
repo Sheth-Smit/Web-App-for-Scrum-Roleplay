@@ -10,14 +10,11 @@ var html=require("html");
 var parser=require("body-parser");
 var flash = require('connect-flash');
 const keys = require("./keys");
-<<<<<<< HEAD
-=======
 
 var User=require("./models/user.js");
 var Session=require("./models/session.js");
 var Team=require("./models/team.js");
 
->>>>>>> 471737abba7705fe1aed18d5e836d52259f630ef
 app.use(parser.urlencoded({extended:true}));
 app.use(express.static("public"));
 app.use(express.static("models"));
@@ -30,19 +27,8 @@ app.use(require("express-session")({
   saveUninitialized: false
 }));
 
-<<<<<<< HEAD
-
-app.set("view engine", "ejs");
-mongoose.connect("mongodb://localhost:27017/scrum-roleplay",{useNewUrlParser: true});
-
 app.use(passport.initialize());
 app.use(passport.session());
-// passport.use(new localpassport(User.authenticate()));
-var passport = require('passport');
-=======
-app.use(passport.initialize());
-app.use(passport.session());
->>>>>>> 471737abba7705fe1aed18d5e836d52259f630ef
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 // Use the GoogleStrategy within Passport.
@@ -55,34 +41,18 @@ passport.use(new GoogleStrategy({
     callbackURL: "http://localhost:3050/auth/google/callback"
   },
   function(accessToken, refreshToken, profile, done) {
-<<<<<<< HEAD
-    // console.log(profile);        
-      //check user table for anyone with a facebook ID of profile.id
-      User.findOne({
-          username: profile.id 
-=======
       User.findOne({
           username: profile.id
->>>>>>> 471737abba7705fe1aed18d5e836d52259f630ef
       }, function(err, user) {
           if (err) {
               return done(err);
           }
-<<<<<<< HEAD
-          //No user was found... so create a new user with values from Facebook (all the profile. stuff)
-=======
->>>>>>> 471737abba7705fe1aed18d5e836d52259f630ef
           if (!user) {
               user = new User({
                   name: profile.displayName,
                   email: profile.emails[0].value,
                   username: profile.id,
                   role : ""
-<<<<<<< HEAD
-                  //now in the future searching on User.findOne({'facebook.id': profile.id } will match because of this next line
-                  // facebook: profile._json
-=======
->>>>>>> 471737abba7705fe1aed18d5e836d52259f630ef
               });
               user.save(function(err) {
                   if (err) console.log(err);
@@ -94,10 +64,6 @@ passport.use(new GoogleStrategy({
           }
       });
   }
-<<<<<<< HEAD
-  
-=======
->>>>>>> 471737abba7705fe1aed18d5e836d52259f630ef
 ));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
@@ -108,22 +74,21 @@ app.use(function(req, res, next){
   next();
 });
 
-<<<<<<< HEAD
-=======
 app.set("view engine", "ejs");
 mongoose.connect("mongodb://localhost:27017/scrum-roleplay",{useNewUrlParser: true});
 
 
->>>>>>> 471737abba7705fe1aed18d5e836d52259f630ef
 //============
 // ROUTES
 //============
 
 app.get("/",function(req,res){
+  
   if(req.user!=undefined && req.user.role=="admin")
       res.render("admin_main");
   else
       res.render("main");
+  
 });
 
 app.get("/:team_id/home", partOfATeam, function (req, res) {
@@ -166,7 +131,50 @@ app.post("/:team_id/productBacklog/new", function(req, res){
 
 });
 
+app.get("/:team_id/releasePlan", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      res.render("releasePlan.ejs", {team: team});
+  })
+});
 
+app.post("/:team_id/releasePlan", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      for(let i=0;i < team.productBacklog.length; i++){
+          team.productBacklog[i].releasePlan=req.body.releasePlanValue[i];
+          console.log(team.productBacklog[i].releasePlan);
+          team.save();
+      }
+    });
+    res.redirect("/" + req.params.team_id + "/releasePlan")
+})
+
+app.get("/:team_id/releasePlan/new", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          res.render("addRelease", {team: team});
+      }
+  })
+});
+
+app.post("/:team_id/releasePlan/new", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          console.log("Pushing", req.body.release);
+          team.releasePlanName.push(req.body.release);
+          team.save();
+      }
+      res.redirect("/" + team._id + "/releasePlan");
+  })
+
+});
 //===============
 // Creating teams
 //===============
@@ -215,6 +223,8 @@ app.post("/team_create",sessionActive, function(req,res){
         team_id = team._id;
         team.members.push(req.user._id);
         team.productBacklog = [];
+        team.releasePlanName.push({name: "Add release"});
+        console.log(team.releasePlanName.length);
         team.save();
       }
       Session.findOne({status:1},function(err,ses){

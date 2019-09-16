@@ -10,7 +10,11 @@ var teamSchema=new mongoose.Schema({
     role: String,
     action: String,
     benefit: String,
-    value: String
+    value: String,
+    releasePlan : {type:String,default:"Add release"}
+  }],
+  releasePlanName : [{
+    name: String
   }]
 });
 teamSchema.plugin(passportLocalMongoose);
