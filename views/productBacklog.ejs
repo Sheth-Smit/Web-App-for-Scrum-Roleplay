@@ -1,0 +1,38 @@
+<% include partials/sidebarHeader %>
+
+
+<h2>Product Backlog</h2>
+<table id="pb-rearrange">
+  <thead>
+    <tr>
+      <th>US Ref</th>
+      <th>Role</th>
+      <th>Action</th>
+      <th>Benefit</th>
+      <th>Value</th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% for(var i = 0; i < team.productBacklog.length; i++){ %>
+    <% var classAlt = "odd" %>
+    <% if(i%2 == 0) {classAlt = "even";} %>
+
+        <tr class="<%= classAlt %>" id="<%= team.productBacklog[i]._id %>">
+          <td> US <%=i+1%> </td>
+          <td> <%= team.productBacklog[i].role    %></td>
+          <td> <%= team.productBacklog[i].action  %></td>
+          <td> <%= team.productBacklog[i].benefit %></td>
+          <td> <%= team.productBacklog[i].value   %></td>
+          <td> <i class="delete fas fa-trash-alt fa-2x"></i></td>
+        </tr>
+
+    <% } %>
+  </tbody>
+</table>
+<a class="btn" id="addStoryButton" href="/<%= team._id %>/productBacklog/new">Add User Story <i class="fas fa-plus"></i></a>
+<button class="btn float-right" id="pb-save" teamid=<%= team._id %>>Save</button>
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>

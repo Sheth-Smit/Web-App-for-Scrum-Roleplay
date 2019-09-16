@@ -1,0 +1,41 @@
+<% include partials/header %>
+<% include partials/navbar %>
+
+
+  <div class="modal show" id="myModal" aria-modal = "true" style="display: block;" role="dialog" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Login</h4>
+        <a class="btn close" href="/">&times;</a>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body show">
+        <form action="/login" method="post">
+            <div class="form-group">
+              <label for="reg-username">Username</label>
+              <input type="text" name="username" class="form-control" id="reg-username" placeholder="Enter your username" required>
+              <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+            </div>
+            <div class="form-group">
+              <label for="reg-password">Password</label>
+              <input type="password" name="password" class="form-control" id="reg-password" placeholder="Create a new password" required>
+            </div>
+            <!-- <button type="submit" class="btn btn-primary float-right">Submit</button> -->
+            <a href="/auth/google">Sign In with Google</a>
+          </form>
+          <hr>
+          <h7 class="form-text text-muted"><a href="/register">Register Here</a></h7>
+          <% if(messages.error){console.log(messages.error);} %>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop show"></div>
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>
