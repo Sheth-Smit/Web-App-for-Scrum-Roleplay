@@ -4,6 +4,8 @@
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
 <!-- Popper.JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
 <!-- Bootstrap JS -->
@@ -46,4 +48,73 @@
             }
         });
     });
+</script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $(function() {
+        wireReorderList();
+    });
+
+    function wireReorderList() {
+      var fixHelperModified = function(e, tr) {
+          var $originals = tr.children();
+          var $helper = tr.clone();
+          $helper.children().each(function(index) {
+              $(this).width($originals.eq(index).width())
+          });
+          return $helper;
+      },
+          updateIndex = function(e, ui) {
+              $('td.index', ui.item.parent()).each(function (i) {
+                  $(this).html("US " + (i + 1));
+              });
+          };
+
+      $("#pb-rearrange tbody").sortable({
+        helper: fixHelperModified,
+         stop: updateIndex
+      }).disableSelection();
+    }
+
+    function saveOrderClick() {
+        // ----- Retrieve the li items inside our sortable list
+        var items = $("#pb-rearrange tbody tr");
+
+        var rearrangedStories = [items.size];
+        var index = 0;
+
+        // ----- Iterate through each li, extracting the ID embedded as an attribute
+        items.each(
+            function(intIndex) {
+                var role = $(this).find("td").eq(1).text();
+                var action = $(this).find("td").eq(2).text();
+                var benefit = $(this).find("td").eq(3).text();
+                var value = $(this).find("td").eq(4).text();
+                var story = {
+                    role: role,
+                    action: action,
+                    benefit: benefit,
+                    value: value
+                };
+                rearrangedStories[index] = story;
+                index++;
+        });
+
+        var team_id = $("#pb-save").attr("teamid");
+        var url = "/"+team_id+"/productBacklog/update";
+        $.post(
+          url,
+          {rearrangedStories: rearrangedStories},
+          function(data, status, jqXHR) {// success callback
+              location.reload(true);
+        });
+    }
+
+
+    $("#pb-save").click(function(){
+        saveOrderClick();
+    });
+    // Submit post request
+  });
 </script>
