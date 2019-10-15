@@ -84,6 +84,8 @@
         var rearrangedStories = [items.size];
         var index = 0;
         var releasePlanArray = $("#pb-save").attr("releasestr").split(",");
+        var sprintIDArray = $("#pb-save").attr("sprintidstr").split(",");
+        var pointsArray = $("#pb-save").attr("pointsstr").split(",");
         // alert(productBacklog);
         // ----- Iterate through each li, extracting the ID embedded as an attribute
         items.each(
@@ -99,14 +101,15 @@
                     action: action,
                     benefit: benefit,
                     value: value,
-                    releasePlan: releasePlanArray[position-1]
+                    releasePlan: releasePlanArray[position-1],
+                    sprintID: sprintIDArray[position-1],
+                    points: pointsArray[position-1]
                 };
                 rearrangedStories[index] = story;
                 index++;
         });
 
         var team_id = $("#pb-save").attr("teamid");
-        console.log(team_id);
         var url = "/"+team_id+"/productBacklog/update";
         $.post(
           url,
@@ -121,5 +124,28 @@
         saveOrderClick();
     });
     // Submit post request
+
+    $("#po-select").click(function(){
+        console.log("Printing....");
+        var checkboxes = $(".po-check");
+        checked = []
+
+        for(var i = 0; i < checkboxes.length; i++){
+            if(checkboxes[i].checked)
+                checked.push(i);
+        }
+
+        var team_id = $("#po-select").attr("teamid");
+        var sprint_id = $("#po-select").attr("sprintid");
+        var url = "/"+team_id+"/"+sprint_id+"/selectStories/update";
+        $.post(
+          url,
+          {checked: checked},
+          function(data, status, jqXHR) {// success callback
+              location.reload(true);
+        });
+    });
+
+
   });
 </script>
