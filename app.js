@@ -83,12 +83,12 @@ mongoose.connect("mongodb://localhost:27017/scrum-roleplay",{useNewUrlParser: tr
 //============
 
 app.get("/",function(req,res){
-  
+
   if(req.user!=undefined && req.user.role=="admin")
       res.render("admin_main");
   else
       res.render("main");
-  
+
 });
 
 app.get("/:team_id/home", partOfATeam, function (req, res) {
@@ -199,9 +199,64 @@ app.post("/:team_id/releasePlan/new", function(req, res){
               console.log("Release already exists");
             }
         }
-      res.redirect("/" + team._id + "/releasePlan");          
+      res.redirect("/" + team._id + "/releasePlan");
     });
 });
+
+
+//===============
+// Sprint Routes
+//===============
+
+app.get("/:team_id/:sprint_id/selectStories", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      res.render("poSelectStories", {team: team, sprint_id: req.params.sprint_id});
+  });
+});
+
+app.post("/:team_id/:sprint_id/selectStories/update", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      var checked = req.body.checked;
+      var index = 0;
+      for(var i = 0; i < team.productBacklog.length; i++){
+        if(i == checked[index]){
+            team.productBacklog[i].sprintID = req.params.sprint_id;
+            index++;
+        }
+      }
+      team.save();
+      res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/selectStories");
+  });
+});
+
+app.get("/:team_id/:sprint_id/estimateStories", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      res.render("estimate_stories", {team: team, sprint_id: req.params.sprint_id});
+  });
+});
+
+app.post("/:team_id/:sprint_id/estimateStories", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      var points = req.body.points;
+      var index = 0;
+      for(var i = 0; i < team.productBacklog.length; i++){
+          if(team.productBacklog[i].sprintID == req.params.sprint_id){
+              team.productBacklog[i].points = points[index++];
+          }
+      }
+      team.save();
+      res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/estimateStories");
+  });
+});
+
 //===============
 // Creating teams
 //===============
@@ -323,6 +378,7 @@ app.post("/reject_request/:id",function(req,res){
   });
   res.redirect("/");
 });
+
 
 //===============
 // Auth Routes

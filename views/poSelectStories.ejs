@@ -1,0 +1,50 @@
+<% include partials/sidebarHeader %>
+
+<h2>Select Stories for Current Sprint</h2>
+<table>
+  <thead>
+    <tr>
+      <th>US Ref</th>
+      <th>Role</th>
+      <th>Action</th>
+      <th>Benefit</th>
+      <th>Value</th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% for(var i = 0; i < team.productBacklog.length; i++){ %>
+    <% var classAlt = "odd" %>
+    <% if(i%2 == 0) {classAlt = "even";} %>
+
+        <% if(team.productBacklog[i].sprintID) {%>
+        <%    classAlt += " grey-disabled" %>
+        <% } %>
+        <tr class="<%= classAlt %>" id="<%= team.productBacklog[i]._id %>">
+          <td> US <%=i+1%> </td>
+          <td> <%= team.productBacklog[i].role    %></td>
+          <td> <%= team.productBacklog[i].action  %></td>
+          <td> <%= team.productBacklog[i].benefit %></td>
+          <td> <%= team.productBacklog[i].value   %></td>
+          <td>
+            <label class = "cb-container">
+              <% if(team.productBacklog[i].sprintID == sprint_id) {%>
+                  <input type="checkbox" value="<%=i%>" class="po-check" checked disabled>
+              <%} else if(team.productBacklog[i].sprintID) {%>
+                  <input type="checkbox" value="<%=i%>" class="po-check" disabled>
+              <%} else {                                           %>
+                  <input type="checkbox" value="<%=i%>" class="po-check">
+              <%}                                                  %>
+              <span class="cb-checkmark"></span>
+            </label>
+          </td>
+        </tr>
+    <% } %>
+  </tbody>
+</table>
+
+<button class="btn float-right" id="po-select" teamid="<%= team._id %>" sprintid="<%=sprint_id%>">Select</button>
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>
