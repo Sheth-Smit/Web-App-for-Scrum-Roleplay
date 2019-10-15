@@ -202,6 +202,31 @@ app.post("/:team_id/releasePlan/new", function(req, res){
       res.redirect("/" + team._id + "/releasePlan");          
     });
 });
+
+app.get("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          res.render("addTask", {team: team,sprint_id: sprint_id,us_id: us_id});
+      }
+  })
+});
+
+app.post("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+            console.log("Pushing", req.body.task);
+            team.productBacklog[req.params.us_id].tasks.push(req.body.task);
+            team.save();
+        }
+      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks/" + req.params.us_id);          
+    });
+});
 //===============
 // Creating teams
 //===============
