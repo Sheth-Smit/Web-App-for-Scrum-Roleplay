@@ -354,7 +354,6 @@ app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
   });
 });
 
-
 //===============
 // Sprint Routes
 //===============
@@ -405,6 +404,85 @@ app.post("/:team_id/:sprint_id/estimateStories", function(req, res){
       }
       team.save();
       res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/estimateStories");
+  });
+});
+
+//===============
+// Task Routes
+//===============
+
+app.get("/:team_id/:sprint_id/devTasks", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      res.render("devTasks", {team: team, sprint_id: req.params.sprint_id});
+  });
+});
+
+app.get("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          res.render("addTask", {team: team,sprint_id: req.params.sprint_id,us_id: req.params.us_id});
+      }
+  })
+});
+
+app.post("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+            console.log("Pushing", req.body.task);
+            team.productBacklog[req.params.us_id].tasks.push(req.body.task);
+            team.save();
+        }
+      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");          
+    });
+});
+
+app.get("/:team_id/:sprint_id/devStorySelection", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      res.render("devStorySelection", {team: team, sprint_id: req.params.sprint_id});
+  });
+});
+
+app.post("/:team_id/:sprint_id/devStorySelection", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      var checkeddev = req.body.checkeddev;
+      console.log("Value of devselect "+checkeddev);
+      var f=0;
+      var index=0;
+      for(var i = 0; i < team.productBacklog.length; i++){
+        if(checkeddev && i == checkeddev[index]){
+            if(team.productBacklog[i].takenBy == "nought"){
+              team.productBacklog[i].takenBy = res.locals.currentUser.email;
+            }
+            else if(team.productBacklog[i].takenBy != res.locals.currentUser.email){
+              f=1;
+            }
+            index++;
+        }
+        else {
+          if(team.productBacklog[i].takenBy == res.locals.currentUser.email){
+            team.productBacklog[i].takenBy = "nought";
+          }
+        }
+      }
+      team.save();
+      if(f)
+        console.log("Couldn't Select Overlapping");
+      else {
+        console.log("Selection Done");
+      }
+      res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/devStorySelection");
   });
 });
 

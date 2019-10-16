@@ -1,0 +1,35 @@
+<% include partials/header %>
+<% include partials/navbar %>
+
+
+  <div class="modal show" id="myModal" aria-modal = "true" style="display: block;" role="dialog" tabindex="-1">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Add Task</h4>
+        <a class="btn close" href="/<%= team._id %>/<%= sprint_id %>/ devTasks">&times;</a>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body show">
+        <form action="/<%= team._id %>/<%= sprint_id %>/devTasks/<%= us_id %>/new" method="post">
+            <div class="form-group">
+              <input type="text" name="task[description]" class="form-control" id="task-description" placeholder="Description" required>
+            </div>
+            <div class="form-group">
+                <input type="number" name="task[points]" class="form-control" id="task-points" placeholder="Points" required>
+            </div>
+            <button type="submit" class="btn btn-primary float-right">Submit</button>
+          </form>
+          <hr>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop show"></div>
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>

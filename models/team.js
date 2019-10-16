@@ -12,8 +12,12 @@ var teamSchema=new mongoose.Schema({
     benefit: String,
     value: String,
     releasePlan : {type:String,default:"Add to a release"},
+    tasks: [{
+      description: String,
+      points: Number
+    }], 
     sprintID: {type: Number, default: 0},
-    takenBy: String,
+    takenBy: {type: String, default: "nought"},
     points: {type: Number, default: 0}
   }],
   releasePlanName : [{

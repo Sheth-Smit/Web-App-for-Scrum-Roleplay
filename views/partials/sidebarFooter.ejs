@@ -146,6 +146,27 @@
         });
     });
 
+    $("#dev-select").click(function(){
+        console.log("Printing....");
+        var checkboxesdev = $(".dev-check");
+        checkeddev = []
+
+        for(var i = 0; i < checkboxesdev.length; i++){
+            if(checkboxesdev[i].checked)
+                checkeddev.push(checkboxesdev[i].value);
+        }
+
+        var team_id = $("#dev-select").attr("teamid");
+        var sprint_id = $("#dev-select").attr("sprintid");
+        var url = "/"+team_id+"/"+sprint_id+"/devStorySelection";
+        $.post(
+          url,
+          {checkeddev: checkeddev},
+          function(data, status, jqXHR) {// success callback
+              location.reload(true);
+        });
+    });
+
 
   });
 </script>

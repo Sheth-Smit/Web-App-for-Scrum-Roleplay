@@ -1,0 +1,39 @@
+<% include partials/sidebarHeader %>
+<h1 class="text-center" >User Story Tasks</h1>
+ 
+<%for (var i = 0; i<team.productBacklog.length; i++){ %>
+  <%  if(team.productBacklog[i].takenBy == currentUser.email && team.productBacklog[i].sprintID == sprint_id){ %>
+      <%  var x=0;
+        var sumTasks=0; %>
+      <%  for(var j = 0; j < team.productBacklog[i].tasks.length; j++){ %>
+       <%     sumTasks+=team.productBacklog[i].tasks[j].points;
+        }
+        %>
+        <div><span>US <%=i+1%> Points Burned: <%=team.productBacklog[i].points%> Estimate in points (sum of tasks): <%=sumTasks%></span></div>
+        <table >
+            <tr>
+                <th></th>
+                <th>Description</th>
+                <th>Points</th>
+            </tr>
+            <%for(var j = 0; j < team.productBacklog[i].tasks.length; j++){
+                    var classAlt = "odd" %>
+                   <% if(x == 0) {
+                        classAlt = "even";
+                    }
+                    x^=1; %>
+                    <tr class="<%= classAlt %>">
+                        <td> Task <%=j+1%></td>
+                        <td> <%= team.productBacklog[i].tasks[j].description  %></td>
+                        <td> <%= team.productBacklog[i].tasks[j].points %></td>
+                    </tr>
+            <%}%>
+        <table>
+        <a class="btn release-style"  href="/<%= team._id %>/<%= sprint_id %>/devTasks/<%= i %>/new"> Add Task <i class="fas fa-plus"></i></a>
+    <%}
+}%>
+
+
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>

@@ -1,0 +1,52 @@
+<% include partials/sidebarHeader %>
+
+<h2>Pick Stories for Development</h2>
+
+    <% var flag = 0;%>
+      <table>
+        <thead>
+          <tr>
+            <th>US Ref</th>
+            <th>Role</th>
+            <th>Action</th>
+            <th>Benefit</th>
+            <th>Value</th>
+            <th>Points</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+      <% for(var i = 0; i < team.productBacklog.length; i++){ %>
+      <%    if(team.productBacklog[i].sprintID != sprint_id || (team.productBacklog[i].takenBy!="nought"&&team.productBacklog[i].takenBy!=currentUser.email))
+              continue;                                 %>
+          <% var classAlt = "odd" %>
+          <% if(flag%2 == 0) {classAlt = "even";} %>
+
+            <tr class="<%= classAlt %>" id="<%= team.productBacklog[i]._id %>">
+              <td> US <%=i+1%> </td>
+              <td> <%= team.productBacklog[i].role    %></td>
+              <td> <%= team.productBacklog[i].action  %></td>
+              <td> <%= team.productBacklog[i].benefit %></td>
+              <td> <%= team.productBacklog[i].value   %></td>
+              <td> <%= team.productBacklog[i].points   %></td>
+              <td>
+                <label class = "cb-container">
+                    <% if(team.productBacklog[i].takenBy==currentUser.email) {%>
+                        <input type="checkbox" value="<%=i%>" class="dev-check" checked>
+                    <%} else {%>
+                        <input type="checkbox" value="<%=i%>" class="dev-check">
+                    <%} %>  
+                    <span class="cb-checkmark"></span>                             
+                  </label>
+              </td>
+            </tr>
+            <% flag++; %>
+      <% } %>
+        </tbody>
+      </table>
+        <button class="btn float-right" id="dev-select" teamid="<%= team._id %>" sprintid="<%=sprint_id%>">Select</button>
+
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>
