@@ -9,6 +9,15 @@
     <link rel="stylesheet" href="/stylesheets/sidebar.css">
     <link rel="stylesheet" href="/stylesheets/productBacklog.css">
     <link rel="stylesheet" href="/stylesheets/releasePlan.css">
+    <link rel="stylesheet" href="/stylesheets/planSummary.css">
+    <link rel="stylesheet" href="/stylesheets/currentSummary.css">
+    <link rel="stylesheet" href="/stylesheets/emptySummary.css">
+    <link rel="stylesheet" href="/stylesheets/sprintReview.css">
+    <link rel="stylesheet" href="/stylesheets/emptyReview.css">
+    <link rel="stylesheet" href="/stylesheets/currentReview.css">
+    <link rel="stylesheet" href="/stylesheets/sprintRetrospective.css">
+    <link rel="stylesheet" href="/stylesheets/emptyRetrospective.css">
+    <link rel="stylesheet" href="/stylesheets/currentRetrospective.css">
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"></script>
   </head>
@@ -60,7 +69,7 @@
                               <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/estimateStories">Estimate Stories</a>
                           </li>
                           <li>
-                              <a href="#">Plan Summary</a>
+                            <a href="/<%= currentUser.currentTeam %>/<%= i+1 %>/planSummaryDisplay">Plan Summary</a>
                           </li>
                           <li>
                               <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/devStorySelection">Select User Stories(Dev)</a>
@@ -72,10 +81,10 @@
                               <a href="#">View User Stories</a>
                           </li>
                           <li>
-                              <a href="#">Sprint Retrospective</a>
+                            <a href="/<%= currentUser.currentTeam %>/<%= i+1 %>/sprintRetrospectiveDisplay">Sprint Retrospective</a>
                           </li>
                           <li>
-                              <a href="#">Sprint Review</a>
+                            <a href="/<%= currentUser.currentTeam %>/<%= i+1 %>/sprintReviewDisplay">Sprint Review</a>
                           </li>
                       </ul>
                   </li>
