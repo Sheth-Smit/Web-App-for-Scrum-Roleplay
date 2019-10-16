@@ -83,12 +83,12 @@ mongoose.connect("mongodb://localhost:27017/scrum-roleplay",{useNewUrlParser: tr
 //============
 
 app.get("/",function(req,res){
-  
+
   if(req.user!=undefined && req.user.role=="admin")
       res.render("admin_main");
   else
       res.render("main");
-  
+
 });
 
 app.get("/:team_id/home", partOfATeam, function (req, res) {
@@ -199,8 +199,154 @@ app.post("/:team_id/releasePlan/new", function(req, res){
               console.log("Release already exists");
             }
         }
-      res.redirect("/" + team._id + "/releasePlan");          
+      res.redirect("/" + team._id + "/releasePlan");
     });
+});
+app.get("/:team_id/:sprintNo/planSummaryDisplay",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    console.log(team.sprint.length+" : "+parseInt(req.params.sprintNo,10));
+    if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+      res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
+    }
+    else{
+      if(team.sprint[req.params.sprintNo-1].planSummary=="") {
+        res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
+      }
+      else{
+        res.render("currentSummary",{team:team,sprintNo:req.params.sprintNo});
+      }
+    }
+  });
+});
+app.get("/:team_id/:sprintNo/planSummary",function(req,res){
+  console.log("plan Summary : "+req.params.sprintNo);
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console,log(err);
+    }
+    else{
+      res.render("planSummary",{team:team,sprintNo:req.params.sprintNo});
+    }
+  });
+});
+app.post("/:team_id/:sprintNo/planSummary",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console.log(err);
+    }
+    else{
+      console.log("type of: "+typeof parseInt(req.params.sprintNo,10));
+      if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+        team.sprint.push(req.body.sprint);
+        team.save();
+        console.log("Plan Summary created: "+team.sprint);
+      }
+      else{
+        console.log("debug:"+req.body.sprint.planSummary);
+        team.sprint[parseInt(req.params.sprintNo,10)-1].planSummary=req.body.sprint.planSummary;
+        team.save();
+        console.log("team:"+team);
+      }
+      res.redirect("/"+team.id+"/"+req.params.sprintNo+"/planSummaryDisplay");
+    }
+  });
+});
+app.get("/:team_id/:sprintNo/sprintRetrospectiveDisplay",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    console.log(team.sprint.length+" : "+parseInt(req.params.sprintNo,10));
+    if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+      res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
+    }
+    else{
+      if(team.sprint[req.params.sprintNo-1].retrospective=="") {
+        res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
+      }
+      else{
+        res.render("currentRetrospective",{team:team,sprintNo:req.params.sprintNo});
+      }
+    }
+  });
+});
+app.get("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
+  console.log("Sprint Retrospective : "+req.params.sprintNo);
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console,log(err);
+    }
+    else{
+      res.render("sprintRetrospective",{team:team,sprintNo:req.params.sprintNo});
+    }
+  });
+});
+app.post("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console.log(err);
+    }
+    else{
+      console.log("type of: "+typeof parseInt(req.params.sprintNo,10));
+      if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+        team.sprint.push(req.body.sprint);
+        team.save();
+        console.log("Sprint Retrospective created: "+team.sprint);
+      }
+      else{
+        console.log("debug1:"+req.body.sprint.retrospective);
+        team.sprint[parseInt(req.params.sprintNo,10)-1].retrospective=req.body.sprint.retrospective;
+        team.save();
+        console.log("team:"+team);
+      }
+      res.redirect("/"+team.id+"/"+req.params.sprintNo+"/sprintRetrospectiveDisplay");
+    }
+  });
+});
+app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    console.log(team.sprint.length+" : "+parseInt(req.params.sprintNo,10));
+    if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+      res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
+    }
+    else{
+        if(team.sprint[req.params.sprintNo-1].review=="") {
+          res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
+        }
+        else{
+          res.render("currentReview",{team:team,sprintNo:req.params.sprintNo});
+        }
+    }
+  });
+});
+app.get("/:team_id/:sprintNo/sprintReview",function(req,res){
+  console.log("Sprint Review : "+req.params.sprintNo);
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console,log(err);
+    }
+    else{
+      res.render("sprintReview",{team:team,sprintNo:req.params.sprintNo});
+    }
+  });
+});
+app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console.log(err);
+    }
+    else{
+      if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+        team.sprint.push(req.body.sprint);
+        team.save();
+        console.log("Sprint Review created: "+team.sprint);
+      }
+      else{
+        console.log("debug2:"+req.body.sprint.review);
+        team.sprint[parseInt(req.params.sprintNo,10)-1].review=req.body.sprint.review;
+        team.save();
+        console.log("team:"+team);
+      }
+      res.redirect("/"+team.id+"/"+req.params.sprintNo+"/sprintReviewDisplay");
+    }
+  });
 });
 //===============
 // Creating teams

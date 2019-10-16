@@ -1,0 +1,8 @@
+<% include partials/sidebarHeader %>
+<h1 id="psHead">Plan Summary</h1>
+<form class="" action="/<%=team.id%>/<%=sprintNo%>/planSummary" method="post">
+  <textarea id="psText" name="sprint[planSummary]" rows="14" cols="70" placeholder="Write Plan Summary... "></textarea>
+  <button type="submit" id="SubBut" name="submit_button">Submit</button>
+</form>
+<% include partials/sidebarFooter %>
+<% include partials/footer %>

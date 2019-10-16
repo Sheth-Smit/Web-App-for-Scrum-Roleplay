@@ -15,6 +15,11 @@ var teamSchema=new mongoose.Schema({
   }],
   releasePlanName : [{
     name: String
+  }],
+  sprint:[{
+    planSummary: {type:String,default:""},
+    review:{type:String,default:""},
+    retrospective:{type:String,default:""}
   }]
 });
 teamSchema.plugin(passportLocalMongoose);
