@@ -1,0 +1,45 @@
+<% include partials/sidebarHeader %>
+
+<h2>Estimate Stories</h2>
+
+    <% var flag = 0; %>
+    <form action="/<%=team._id%>/<%=sprint_id%>/estimateStories" method="POST">
+      <table>
+        <thead>
+          <tr>
+            <th>US Ref</th>
+            <th>Role</th>
+            <th>Action</th>
+            <th>Benefit</th>
+            <th>Value</th>
+            <th>Points</th>
+          </tr>
+        </thead>
+
+        <tbody>
+      <% for(var i = 0; i < team.productBacklog.length; i++){ %>
+      <%    if(team.productBacklog[i].sprintID != sprint_id)
+              continue;                                 %>
+          <% var classAlt = "odd" %>
+          <% if(flag%2 == 0) {classAlt = "even";} %>
+
+            <tr class="<%= classAlt %>" id="<%= team.productBacklog[i]._id %>">
+              <td> US <%=i+1%> </td>
+              <td> <%= team.productBacklog[i].role    %></td>
+              <td> <%= team.productBacklog[i].action  %></td>
+              <td> <%= team.productBacklog[i].benefit %></td>
+              <td> <%= team.productBacklog[i].value   %></td>
+              <td>
+                <input type="number" name="points[<%=flag%>]" class="form-control" value="<%= team.productBacklog[i].points %>" min="1" required>
+            </td>
+            </tr>
+            <% flag++; %>
+      <% } %>
+        </tbody>
+      </table>
+      <button class="btn float-right" id="est-submit" type="submit">Submit</button>
+    </form>
+
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>

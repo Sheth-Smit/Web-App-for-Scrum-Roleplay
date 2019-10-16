@@ -9,12 +9,12 @@
       <!-- Modal Header -->
       <div class="modal-header">
         <h4 class="modal-title">Add Task</h4>
-        <a class="btn close" href="/<%= team._id %>/<%= sprint_id %>/<%= devTasks %>/<%= us_id %>">&times;</a>
+        <a class="btn close" href="/<%= team._id %>/<%= sprint_id %>/ devTasks">&times;</a>
       </div>
 
       <!-- Modal body -->
       <div class="modal-body show">
-        <form action="/<%= team._id %>/<%= sprint_id %>/<%= devTasks %>/<%= us_id %>/new" method="post">
+        <form action="/<%= team._id %>/<%= sprint_id %>/devTasks/<%= us_id %>/new" method="post">
             <div class="form-group">
               <input type="text" name="task[description]" class="form-control" id="task-description" placeholder="Description" required>
             </div>
