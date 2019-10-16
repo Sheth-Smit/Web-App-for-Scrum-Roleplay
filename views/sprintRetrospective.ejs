@@ -1,0 +1,8 @@
+<% include partials/sidebarHeader %>
+<h1 id="retrospectiveHead">Plan Summary</h1>
+<form class="" action="/<%=team.id%>/<%=sprintNo%>/sprintRetrospective" method="post">
+  <textarea id="retrospectiveText" name="sprint[retrospective]" rows="14" cols="70" placeholder="Write Sprint Retrospective..."></textarea>
+  <button type="submit" id="SubBut" name="submit_button">Submit</button>
+</form>
+<% include partials/sidebarFooter %>
+<% include partials/footer %>

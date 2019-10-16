@@ -1,0 +1,8 @@
+<% include partials/sidebarHeader %>
+<h2>Sprint Retrospective</h2>
+<p align="center" class="textContent"><%=team.sprint[sprintNo-1].retrospective%></p>
+<form class="" action="/<%=team.id%>/<%=sprintNo%>/sprintRetrospective" method="get">
+  <button type="submit" class="displayUpdateBut" name="button">Update</button>
+</form>
+<% include partials/sidebarFooter %>
+<% include partials/footer %>
