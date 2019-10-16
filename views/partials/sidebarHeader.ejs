@@ -63,7 +63,10 @@
                       </a>
                       <ul class="collapse list-unstyled" id="<%= "homeSubmenu" + i%>">
                           <li>
-                              <a href="#">Select Estimated Stories</a>
+                              <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/selectStories">Select Stories(PO)</a>
+                          </li>
+                          <li>
+                              <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/estimateStories">Estimate Stories</a>
                           </li>
                           <li>
                             <a href="/<%= currentUser.currentTeam %>/<%= i+1 %>/planSummaryDisplay">Plan Summary</a>
