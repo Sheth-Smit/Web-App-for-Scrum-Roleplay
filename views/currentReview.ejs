@@ -1,6 +1,10 @@
 <% include partials/sidebarHeader %>
-<h2>Sprint Review</h2>
-<p align="center" class="textContent"><%=team.sprint[sprintNo-1].review%></p>
+<div class="card-title" style="text-align: center;"><h2>Sprint Review</h2></div>
+<div class="card">
+  <div class="card-body">
+      <h5 class="text-justify"><%=team.sprint[sprintNo-1].review%></h5>
+  </div>
+</div>
 <form class="" action="/<%=team.id%>/<%=sprintNo%>/sprintReview" method="get">
   <button type="submit" class="displayUpdateBut" name="button">Update</button>
 </form>
