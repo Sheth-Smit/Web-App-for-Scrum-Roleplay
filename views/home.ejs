@@ -3,6 +3,8 @@
       <div class="header">
         Main Content
       </div>
-
+      <% if(currentUser.role == "Product Owner"){ %>
+          <button id="timer-button">Start</button>
+      <% } %>
 <% include partials/sidebarFooter %>
 <% include partials/footer%>

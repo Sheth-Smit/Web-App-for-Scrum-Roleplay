@@ -15,7 +15,7 @@ var teamSchema=new mongoose.Schema({
     tasks: [{
       description: String,
       points: Number
-    }], 
+    }],
     sprintID: {type: Number, default: 0},
     takenBy: {type: String, default: "nought"},
     points: {type: Number, default: 0}
@@ -27,7 +27,9 @@ var teamSchema=new mongoose.Schema({
     planSummary: {type:String,default:""},
     review:{type:String,default:""},
     retrospective:{type:String,default:""}
-  }]
+  }],
+  endTime: {type: String, default: ""},
+  timerFlag: {type: Number, default: 0}
 });
 teamSchema.plugin(passportLocalMongoose);
 module.exports=mongoose.model("Team",teamSchema);
