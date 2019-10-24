@@ -74,18 +74,18 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use(function(req, res, next){
   res.locals.currentUser = req.user;
-  res.locals.sprintStart = [1.5*60*1000, 2.5*60*1000, 3.5*60*1000];
-  res.locals.sprintEnd = [2.5*60*1000, 3.5*60*1000, 4.5*60*1000];
-  res.locals.totalTime = 5*60*1000;
+  res.locals.sprintStart = [2*60*1000, 4*60*1000, 6*60*1000];
+  res.locals.sprintEnd = [4*60*1000, 6*60*1000, 7.5*60*1000];
+  res.locals.totalTime = 8*60*1000;
   next();
 });
 
 app.set("view engine", "ejs");
 mongoose.connect("mongodb://localhost:27017/scrum-roleplay",{useNewUrlParser: true});
 
-var sprintStart = [1.5*60*1000, 2.5*60*1000, 3.5*60*1000];
-var sprintEnd = [2.5*60*1000, 3.5*60*1000, 4.5*60*1000];
-var totalTime = 5*60*1000;
+var sprintStart = [2*60*1000, 4*60*1000, 6*60*1000];
+var sprintEnd = [4*60*1000, 6*60*1000, 7.5*60*1000];
+var totalTime = 8*60*1000;
 
 //============
 // ROUTES
@@ -105,10 +105,10 @@ app.post("/:team_id/startActivity", function(req, res){
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
       var date = new Date();
-      team.endTime = (Date.parse(date) + 5 * 60 * 1000).toString();
+      team.endTime = (Date.parse(date) + totalTime).toString();
       team.timerFlag = 1;
-      console.log("Start Time: ", date.toString());
       team.save();
+      res.redirect("/" + team._id + "/productBacklog");
   });
 })
 
@@ -122,7 +122,6 @@ app.get("/:team_id/productBacklog", function(req, res){
     if(!req.user)
         res.redirect("/auth/google");
     Team.findById(req.params.team_id, function(err, team){
-      console.log("pb");
         res.render("productBacklog.ejs", {team: team});
     });
 });
@@ -136,7 +135,7 @@ app.get("/:team_id/productBacklog/new", function(req, res){
         } else {
             var date = new Date();
             var curTime = Date.parse(date);
-            if(team.endTime - curTime > 4 * 60 * 1000){
+            if(team.endTime - curTime > 6.5 * 60 * 1000){
               res.render("addUserStory", {team: team});
             } else {
               res.redirect("/" + team._id + "/productBacklog");
@@ -150,7 +149,6 @@ app.post("/:team_id/productBacklog/new", function(req, res){
       if(err){
           console.log("Error: ", err);
       } else {
-          console.log("Pushing", req.body.story);
           team.productBacklog.push(req.body.story);
           team.save();
       }
@@ -167,10 +165,8 @@ app.post("/:team_id/productBacklog/update", function(req, res){
           team.productBacklog = [];
           req.body.rearrangedStories.forEach(function(story){
               team.productBacklog.push(story);
-              console.log("Pushing", story);
           })
           team.save();
-          console.log("Done");
       }
       res.redirect("/" + team._id + "/productBacklog");
   })
@@ -189,7 +185,6 @@ app.post("/:team_id/releasePlan", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
       for(let i=0;i < team.productBacklog.length; i++){
           team.productBacklog[i].releasePlan=req.body.releasePlanValue[i];
-          console.log(team.productBacklog[i].releasePlan);
       }
       team.save();
     });
@@ -205,7 +200,7 @@ app.get("/:team_id/releasePlan/new", function(req, res){
       } else {
           var date = new Date();
           var curTime = Date.parse(date);
-          if(team.endTime - curTime > 3.5 * 60 * 1000){
+          if(team.endTime - curTime > 6 * 60 * 1000){
             res.render("addRelease", {team: team});
           } else {
             res.redirect("/" + team._id + "/releasePlan");
@@ -225,7 +220,6 @@ app.post("/:team_id/releasePlan/new", function(req, res){
                 f=1;
             });
             if(!f){
-              console.log("Pushing", req.body.release);
               team.releasePlanName.push(req.body.release);
               team.save();
             }
@@ -243,7 +237,6 @@ app.post("/:team_id/releasePlan/new", function(req, res){
 
 app.get("/:team_id/:sprintNo/planSummaryDisplay",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
-    console.log(team.sprint.length+" : "+parseInt(req.params.sprintNo,10));
     if(parseInt(req.params.sprintNo,10)>team.sprint.length){
       res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
     }
@@ -258,7 +251,6 @@ app.get("/:team_id/:sprintNo/planSummaryDisplay",function(req,res){
   });
 });
 app.get("/:team_id/:sprintNo/planSummary",function(req,res){
-  console.log("plan Summary : "+req.params.sprintNo);
   Team.findById(req.params.team_id,function(err,team){
     if(err){
       console.log(err);
@@ -295,7 +287,6 @@ app.post("/:team_id/:sprintNo/planSummary",function(req,res){
 });
 app.get("/:team_id/:sprintNo/sprintRetrospectiveDisplay",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
-    console.log(team.sprint.length+" : "+parseInt(req.params.sprintNo,10));
     if(parseInt(req.params.sprintNo,10)>team.sprint.length){
       res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
     }
@@ -310,7 +301,6 @@ app.get("/:team_id/:sprintNo/sprintRetrospectiveDisplay",function(req,res){
   });
 });
 app.get("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
-  console.log("Sprint Retrospective : "+req.params.sprintNo);
   Team.findById(req.params.team_id,function(err,team){
     if(err){
       console,log(err);
@@ -332,17 +322,13 @@ app.post("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
       console.log(err);
     }
     else{
-      console.log("type of: "+typeof parseInt(req.params.sprintNo,10));
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
         team.sprint.push(req.body.sprint);
         team.save();
-        console.log("Sprint Retrospective created: "+team.sprint);
       }
       else{
-        console.log("debug1:"+req.body.sprint.retrospective);
         team.sprint[parseInt(req.params.sprintNo,10)-1].retrospective=req.body.sprint.retrospective;
         team.save();
-        console.log("team:"+team);
       }
       res.redirect("/"+team.id+"/"+req.params.sprintNo+"/sprintRetrospectiveDisplay");
     }
@@ -350,7 +336,6 @@ app.post("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
 });
 app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
-    console.log(team.sprint.length+" : "+parseInt(req.params.sprintNo,10));
     if(parseInt(req.params.sprintNo,10)>team.sprint.length){
       res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
     }
@@ -365,7 +350,6 @@ app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
   });
 });
 app.get("/:team_id/:sprintNo/sprintReview",function(req,res){
-  console.log("Sprint Review : "+req.params.sprintNo);
   Team.findById(req.params.team_id,function(err,team){
     if(err){
       console,log(err);
@@ -390,13 +374,10 @@ app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
         team.sprint.push(req.body.sprint);
         team.save();
-        console.log("Sprint Review created: "+team.sprint);
       }
       else{
-        console.log("debug2:"+req.body.sprint.review);
         team.sprint[parseInt(req.params.sprintNo,10)-1].review=req.body.sprint.review;
         team.save();
-        console.log("team:"+team);
       }
       res.redirect("/"+team.id+"/"+req.params.sprintNo+"/sprintReviewDisplay");
     }
@@ -491,8 +472,19 @@ app.post("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
       if(err){
           console.log("Error: ", err);
       } else {
-            console.log("Pushing", req.body.task);
             team.productBacklog[req.params.us_id].tasks.push(req.body.task);
+            team.save();
+        }
+      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
+    });
+});
+
+app.post("/:team_id/:sprint_id/devTasks/:us_id/finish", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+            team.productBacklog[req.params.us_id].status=1;
             team.save();
         }
       res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
@@ -512,7 +504,6 @@ app.post("/:team_id/:sprint_id/devStorySelection", function(req, res){
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
       var checkeddev = req.body.checkeddev;
-      console.log("Value of devselect "+checkeddev);
       var f=0;
       var index=0;
       for(var i = 0; i < team.productBacklog.length; i++){
@@ -526,7 +517,7 @@ app.post("/:team_id/:sprint_id/devStorySelection", function(req, res){
             index++;
         }
         else {
-          if(team.productBacklog[i].takenBy == res.locals.currentUser.email){
+          if(team.productBacklog[i].takenBy == res.locals.currentUser.email && team.productBacklog[i].sprintID == req.params.sprint_id){
             team.productBacklog[i].takenBy = "nought";
           }
         }
@@ -539,6 +530,43 @@ app.post("/:team_id/:sprint_id/devStorySelection", function(req, res){
       }
       res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/devStorySelection");
   });
+});
+
+//===============
+// Accept/Reject
+//===============
+
+app.get("/:team_id/:sprint_id/finishedUserStories", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          res.render("finishedUserStories", {team: team,sprint_id: req.params.sprint_id});
+      }
+  })
+});
+
+app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+            console.log("reached",req.params.status);
+            if(req.params.status == "accept")
+              team.productBacklog[req.params.us_id].status=2;
+            else{
+              team.productBacklog[req.params.us_id].takenBy="nought";
+              team.productBacklog[req.params.us_id].status=0;
+              team.productBacklog[req.params.us_id].sprintID=0;
+              team.productBacklog[req.params.us_id].points=0;
+              team.productBacklog[req.params.us_id].tasks=[];
+            }
+            team.save();
+        }
+      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
+    });
 });
 
 //===============
@@ -579,7 +607,6 @@ app.get("/team_create", function (req, res) {
 app.post("/team_create",sessionActive, function(req,res){
     req.user.role="Product Owner";
     req.user.save();
-    console.log(req.body.teamname);
     var team_id;
 
     Team.create({username:req.body.teamname},function(err,team){
@@ -589,7 +616,6 @@ app.post("/team_create",sessionActive, function(req,res){
         team.members.push(req.user._id);
         team.productBacklog = [];
         team.releasePlanName.push({name: "Add to a release"});
-        console.log(team.releasePlanName.length);
         team.save();
       }
       Session.findOne({status:1},function(err,ses){
@@ -711,12 +737,8 @@ function sessionActive(req, res, next){
 
   Session.find({status:1},function(err,ses){
     if(ses.length > 0){
-      console.log("length: ",ses.length);
-      console.log(ses);
-      console.log("sessions found");
       return next();
     } else {
-      console.log("No sessions found");
       res.redirect("/");
     }
   });
@@ -739,7 +761,6 @@ function partOfATeam(req, res, next){
             // alert the user that he is not part of any team
             if(req.user){
                 res.redirect("/");
-                console.log("Not part of any team");
             } else {
                 res.redirect("/auth/google");
             }

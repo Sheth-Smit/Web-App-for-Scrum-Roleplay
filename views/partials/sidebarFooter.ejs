@@ -126,7 +126,6 @@
     // Submit post request
 
     $("#po-select").click(function(){
-        console.log("Printing....");
         var checkboxes = $(".po-check");
         checked = []
 
@@ -147,7 +146,6 @@
     });
 
     $("#dev-select").click(function(){
-        console.log("Printing....");
         var checkboxesdev = $(".dev-check");
         checkeddev = []
 
@@ -216,7 +214,6 @@
       var endTime = $("#clockdiv").attr("endTime");
       if(timerFlag == 0){
         var clock = document.getElementById("clockdiv");
-        console.log(clock);
         var hoursSpan = clock.querySelector('.hours');
         var minutesSpan = clock.querySelector('.minutes');
         var secondsSpan = clock.querySelector('.seconds');
@@ -226,20 +223,17 @@
         $("#timer-button").click(function(){
             var team_id = $("#clockdiv").attr("teamid");
             var url = "/"+team_id+"/startActivity";
-            var getUrl = "/" + team_id + "productBacklog";
+            var getUrl = "/" + team_id + "/productBacklog";
             $.post(
               url,
               function(data, status, jqXHR) {// success callback
-
+                  window.location.replace(getUrl);
             });
-            $.get(getUrl, function(data, status){
 
-            });
         });
       } else {
           initializeClock('clockdiv', parseInt(endTime, 10));
       }
-
 
   });
 </script>
