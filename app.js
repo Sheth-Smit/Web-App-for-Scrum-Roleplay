@@ -9,6 +9,9 @@ var request=require("request");
 var html=require("html");
 var parser=require("body-parser");
 var flash = require('connect-flash');
+var Stopwatch = require("node-stopwatch").Stopwatch;
+var stopwatch = Stopwatch.create();
+
 const keys = require("./keys");
 
 var User=require("./models/user.js");
@@ -71,12 +74,18 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use(function(req, res, next){
   res.locals.currentUser = req.user;
+  res.locals.sprintStart = [1.5*60*1000, 2.5*60*1000, 3.5*60*1000];
+  res.locals.sprintEnd = [2.5*60*1000, 3.5*60*1000, 4.5*60*1000];
+  res.locals.totalTime = 5*60*1000;
   next();
 });
 
 app.set("view engine", "ejs");
 mongoose.connect("mongodb://localhost:27017/scrum-roleplay",{useNewUrlParser: true});
 
+var sprintStart = [1.5*60*1000, 2.5*60*1000, 3.5*60*1000];
+var sprintEnd = [2.5*60*1000, 3.5*60*1000, 4.5*60*1000];
+var totalTime = 5*60*1000;
 
 //============
 // ROUTES
@@ -91,6 +100,18 @@ app.get("/",function(req,res){
 
 });
 
+app.post("/:team_id/startActivity", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      var date = new Date();
+      team.endTime = (Date.parse(date) + 5 * 60 * 1000).toString();
+      team.timerFlag = 1;
+      console.log("Start Time: ", date.toString());
+      team.save();
+  });
+})
+
 app.get("/:team_id/home", partOfATeam, function (req, res) {
     Team.findById(req.params.team_id, function(err, team){
         res.render("home.ejs", {team: team});
@@ -101,6 +122,7 @@ app.get("/:team_id/productBacklog", function(req, res){
     if(!req.user)
         res.redirect("/auth/google");
     Team.findById(req.params.team_id, function(err, team){
+      console.log("pb");
         res.render("productBacklog.ejs", {team: team});
     });
 });
@@ -112,7 +134,13 @@ app.get("/:team_id/productBacklog/new", function(req, res){
         if(err){
             console.log("Error: ", err);
         } else {
-            res.render("addUserStory", {team: team});
+            var date = new Date();
+            var curTime = Date.parse(date);
+            if(team.endTime - curTime > 4 * 60 * 1000){
+              res.render("addUserStory", {team: team});
+            } else {
+              res.redirect("/" + team._id + "/productBacklog");
+            }
         }
     })
 });
@@ -175,7 +203,13 @@ app.get("/:team_id/releasePlan/new", function(req, res){
       if(err){
           console.log("Error: ", err);
       } else {
-          res.render("addRelease", {team: team});
+          var date = new Date();
+          var curTime = Date.parse(date);
+          if(team.endTime - curTime > 3.5 * 60 * 1000){
+            res.render("addRelease", {team: team});
+          } else {
+            res.redirect("/" + team._id + "/releasePlan");
+          }
       }
   })
 });
@@ -227,10 +261,17 @@ app.get("/:team_id/:sprintNo/planSummary",function(req,res){
   console.log("plan Summary : "+req.params.sprintNo);
   Team.findById(req.params.team_id,function(err,team){
     if(err){
-      console,log(err);
+      console.log(err);
     }
     else{
-      res.render("planSummary",{team:team,sprintNo:req.params.sprintNo});
+      var date = new Date();
+      var curTime = Date.parse(date);
+      if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
+        res.render("planSummary",{team:team,sprintNo:req.params.sprintNo});
+      } else {
+        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/planSummaryDisplay");
+      }
+
     }
   });
 });
@@ -240,17 +281,13 @@ app.post("/:team_id/:sprintNo/planSummary",function(req,res){
       console.log(err);
     }
     else{
-      console.log("type of: "+typeof parseInt(req.params.sprintNo,10));
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
         team.sprint.push(req.body.sprint);
         team.save();
-        console.log("Plan Summary created: "+team.sprint);
       }
       else{
-        console.log("debug:"+req.body.sprint.planSummary);
         team.sprint[parseInt(req.params.sprintNo,10)-1].planSummary=req.body.sprint.planSummary;
         team.save();
-        console.log("team:"+team);
       }
       res.redirect("/"+team.id+"/"+req.params.sprintNo+"/planSummaryDisplay");
     }
@@ -279,7 +316,13 @@ app.get("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
       console,log(err);
     }
     else{
-      res.render("sprintRetrospective",{team:team,sprintNo:req.params.sprintNo});
+      var date = new Date();
+      var curTime = Date.parse(date);
+      if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
+        res.render("sprintRetrospective",{team:team,sprintNo:req.params.sprintNo});
+      } else {
+        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/sprintRetrospective");
+      }
     }
   });
 });
@@ -328,7 +371,13 @@ app.get("/:team_id/:sprintNo/sprintReview",function(req,res){
       console,log(err);
     }
     else{
-      res.render("sprintReview",{team:team,sprintNo:req.params.sprintNo});
+      var date = new Date();
+      var curTime = Date.parse(date);
+      if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
+        res.render("sprintReview",{team:team,sprintNo:req.params.sprintNo});
+      } else {
+        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/sprintReview");
+      }
     }
   });
 });
@@ -426,7 +475,13 @@ app.get("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
       if(err){
           console.log("Error: ", err);
       } else {
-          res.render("addTask", {team: team,sprint_id: req.params.sprint_id,us_id: req.params.us_id});
+          var date = new Date();
+          var curTime = Date.parse(date);
+          if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprint_id-1]){
+            res.render("addTask", {team: team,sprint_id: req.params.sprint_id,us_id: req.params.us_id});
+          } else {
+            res.redirect("/" + team._id + "/" + req.params.sprint_id + "/devTasks");
+          }
       }
   })
 });
@@ -440,7 +495,7 @@ app.post("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
             team.productBacklog[req.params.us_id].tasks.push(req.body.task);
             team.save();
         }
-      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");          
+      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
     });
 });
 
@@ -564,7 +619,7 @@ app.post("/team_create",sessionActive, function(req,res){
                   });
                 }
           }
-          res.redirect("/"+team._id+"/productBacklog");
+          res.redirect("/" + team._id + "/home");
       });
     });
 
@@ -593,7 +648,7 @@ app.post("/accept_request/:tn/:rl",function(req,res){
               user.currentTeam = team._id;
               user.currentSession = session._id;
               user.save();
-              res.redirect("/"+team_id+"/productBacklog");
+              res.redirect("/" + team._id + "/home");
           });
       });
   });

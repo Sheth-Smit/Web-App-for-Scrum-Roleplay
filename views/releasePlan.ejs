@@ -59,8 +59,12 @@
         <% } %>
 
     <% } %>
-    <a class="btn release-style"  href="/<%= team._id %>/releasePlan/new">Add Release <i class="fas fa-plus"></i></a>
-    <button class="btn release-style float-right">Save Changes</button>
+    <% var date = new Date(); %>
+    <% var curTime = Date.parse(date); %>
+    <% if(team.endTime - curTime > 3.5 * 60 * 1000){ %>
+      <a class="btn release-style"  href="/<%= team._id %>/releasePlan/new">Add Release <i class="fas fa-plus"></i></a>
+      <button class="btn release-style float-right">Save Changes</button>
+    <% } %>
 </form>
 
 

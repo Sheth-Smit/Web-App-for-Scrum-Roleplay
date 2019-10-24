@@ -5,8 +5,14 @@
       <h5 class="text-justify"><%=team.sprint[sprintNo-1].review%></h5>
   </div>
 </div>
-<form class="" action="/<%=team.id%>/<%=sprintNo%>/sprintReview" method="get">
-  <button type="submit" class="displayUpdateBut" name="button">Update</button>
-</form>
+
+<% var date = new Date(); %>
+<% var curTime = Date.parse(date); %>
+<% if(team.endTime - curTime > totalTime - sprintEnd[sprintNo-1]){ %>
+    <form class="" action="/<%=team.id%>/<%=sprintNo%>/sprintReview" method="get">
+      <button type="submit" class="displayUpdateBut" name="button">Update</button>
+    </form>
+<% } %>
+
 <% include partials/sidebarFooter %>
 <% include partials/footer %>

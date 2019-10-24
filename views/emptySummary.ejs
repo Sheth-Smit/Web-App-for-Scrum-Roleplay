@@ -1,8 +1,14 @@
 <% include partials/sidebarHeader %>
 <h2 class="h2text">No Plan Summary</h2>
-<h4 align="center" class="h4text">Please Create a Plan Summary</h4>
-<form class="" action="/<%=team.id%>/<%=sprintNo%>/planSummary" method="get">
-  <button type="submit" class="displayCreateBut" name="button">Create</button>
-</form>
+
+<% var date = new Date(); %>
+<% var curTime = Date.parse(date); %>
+<% if(team.endTime - curTime > totalTime - sprintEnd[sprintNo-1]){ %>
+    <form class="" action="/<%=team.id%>/<%=sprintNo%>/planSummary" method="get">
+      <h4 align="center" class="h4text">Please Create a Plan Summary</h4>
+      <button type="submit" class="displayCreateBut" name="button">Create</button>
+    </form>
+<% } %>
+
 <% include partials/sidebarFooter %>
 <% include partials/footer %>
