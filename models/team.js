@@ -18,7 +18,8 @@ var teamSchema=new mongoose.Schema({
     }], 
     sprintID: {type: Number, default: 0},
     takenBy: {type: String, default: "nought"},
-    points: {type: Number, default: 0}
+    points: {type: Number, default: 0},
+    status:{type: Number, default: 0}
   }],
   releasePlanName : [{
     name: String

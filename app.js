@@ -444,6 +444,18 @@ app.post("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
     });
 });
 
+app.post("/:team_id/:sprint_id/devTasks/:us_id/finish", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+            team.productBacklog[req.params.us_id].status=1;
+            team.save();
+        }
+      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");          
+    });
+});
+
 app.get("/:team_id/:sprint_id/devStorySelection", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
@@ -471,7 +483,7 @@ app.post("/:team_id/:sprint_id/devStorySelection", function(req, res){
             index++;
         }
         else {
-          if(team.productBacklog[i].takenBy == res.locals.currentUser.email){
+          if(team.productBacklog[i].takenBy == res.locals.currentUser.email && team.productBacklog[i].sprintID == req.params.sprint_id){
             team.productBacklog[i].takenBy = "nought";
           }
         }
@@ -484,6 +496,43 @@ app.post("/:team_id/:sprint_id/devStorySelection", function(req, res){
       }
       res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/devStorySelection");
   });
+});
+
+//===============
+// Accept/Reject
+//===============
+
+app.get("/:team_id/:sprint_id/finishedUserStories", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          res.render("finishedUserStories", {team: team,sprint_id: req.params.sprint_id});
+      }
+  })
+});
+
+app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+            console.log("reached",req.params.status);
+            if(req.params.status == "accept")
+              team.productBacklog[req.params.us_id].status=2;
+            else{
+              team.productBacklog[req.params.us_id].takenBy="nought";
+              team.productBacklog[req.params.us_id].status=0;
+              team.productBacklog[req.params.us_id].sprintID=0;
+              team.productBacklog[req.params.us_id].points=0;
+              team.productBacklog[req.params.us_id].tasks=[];
+            }
+            team.save();
+        }
+      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");          
+    });
 });
 
 //===============
