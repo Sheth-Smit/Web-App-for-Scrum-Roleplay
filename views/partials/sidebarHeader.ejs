@@ -123,7 +123,7 @@
                               <% if(team.endTime - curTime > totalTime - sprintStart[i]){ %>
                                 <a href="javascript:window.location.href=window.location.href">View User Stories</a>
                               <%} else {%>
-                                <a href="#">View User Stories</a>
+                                <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/finishedUserStories">View User Stories</a>
                               <% } %>
                           </li>
                           <li>

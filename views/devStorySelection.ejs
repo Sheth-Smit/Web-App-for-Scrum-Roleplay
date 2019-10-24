@@ -22,7 +22,9 @@
               continue;                                 %>
           <% var classAlt = "odd" %>
           <% if(flag%2 == 0) {classAlt = "even";} %>
-
+        <% if(team.productBacklog[i].status != 0) {%>
+        <%    classAlt += " grey-disabled" %>
+        <% } %>
             <tr class="<%= classAlt %>" id="<%= team.productBacklog[i]._id %>">
               <td> US <%=i+1%> </td>
               <td> <%= team.productBacklog[i].role    %></td>
@@ -32,7 +34,9 @@
               <td> <%= team.productBacklog[i].points   %></td>
               <td>
                 <label class = "cb-container">
-                    <% if(team.productBacklog[i].takenBy==currentUser.email) {%>
+                    <% if(team.productBacklog[i].status != 0){ %>    
+                        <input type="checkbox" value="<%=i%>" class="dev-check" checked disabled>
+                     <% }else if(team.productBacklog[i].takenBy==currentUser.email) {%>
                         <input type="checkbox" value="<%=i%>" class="dev-check" checked>
                     <%} else {%>
                         <input type="checkbox" value="<%=i%>" class="dev-check">
