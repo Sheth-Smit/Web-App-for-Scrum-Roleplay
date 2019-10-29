@@ -28,7 +28,7 @@
           <td> <%= team.productBacklog[i].action  %></td>
           <td> <%= team.productBacklog[i].benefit %></td>
           <td> <%= team.productBacklog[i].value   %></td>
-          <td> <i class="delete fas fa-trash-alt fa-2x"></i></td>
+          <td> <i class="delete fas fa-trash-alt fa-2x pb-delete" index="<%= i %>"></i></td>
         </tr>
 
         <% releasePlanStr += team.productBacklog[i].releasePlan + "," %>
