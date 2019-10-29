@@ -81,31 +81,15 @@
         // ----- Retrieve the li items inside our sortable list
         var items = $("#pb-rearrange tbody tr");
 
-        var rearrangedStories = [items.size];
+        var rearrangedIndex = [items.size];
         var index = 0;
-        var releasePlanArray = $("#pb-save").attr("releasestr").split(",");
-        var sprintIDArray = $("#pb-save").attr("sprintidstr").split(",");
-        var pointsArray = $("#pb-save").attr("pointsstr").split(",");
-        // alert(productBacklog);
+        
         // ----- Iterate through each li, extracting the ID embedded as an attribute
         items.each(
             function(intIndex) {
                 var str = $(this).find("td").eq(0).text()
                 var position = str.substr(3, str.length);
-                var role = $(this).find("td").eq(1).text();
-                var action = $(this).find("td").eq(2).text();
-                var benefit = $(this).find("td").eq(3).text();
-                var value = $(this).find("td").eq(4).text();
-                var story = {
-                    role: role,
-                    action: action,
-                    benefit: benefit,
-                    value: value,
-                    releasePlan: releasePlanArray[position-1],
-                    sprintID: sprintIDArray[position-1],
-                    points: pointsArray[position-1]
-                };
-                rearrangedStories[index] = story;
+                rearrangedIndex[index] = position-1;
                 index++;
         });
 
@@ -113,7 +97,7 @@
         var url = "/"+team_id+"/productBacklog/update";
         $.post(
           url,
-          {rearrangedStories: rearrangedStories},
+          {rearrangedIndex: rearrangedIndex},
           function(data, status, jqXHR) {// success callback
               location.reload(true);
         });
@@ -242,7 +226,17 @@
 <script type="text/javascript">
     $(document).ready(function(){
         $(".pb-delete").click(function(){
-            
+            var team_id = $("#pb-rearrange").attr("teamid");
+            var index = $(this).attr("index");
+            var url = "/" + team_id + "/productBacklog/delete";
+
+            $.post(
+                url,
+                {index: index},
+                function(data, status, jqXHR){
+                    location.reload(true);
+                }
+            )
         })
     });
 </script>
