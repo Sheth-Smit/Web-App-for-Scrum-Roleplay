@@ -9,6 +9,7 @@ var request=require("request");
 var html=require("html");
 var parser=require("body-parser");
 var flash = require('connect-flash');
+var numofSprints = 3;
 const keys = require("./keys");
 
 var User=require("./models/user.js");
@@ -148,6 +149,33 @@ app.post("/:team_id/productBacklog/update", function(req, res){
   })
 
 });
+
+//============
+// Sprint Points
+//============
+
+app.get("/:team_id/estimateSprintPoints", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      res.render("estimateSprintPoints", {team: team});
+  })
+});
+
+app.post("/:team_id/estimateSprintPoints", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      for(let i=0;i < team.productBacklog.length; i++){
+          team.productBacklog[i].releasePlan=req.body.releasePlanValue[i];
+          console.log(team.productBacklog[i].releasePlan);
+      }
+      team.save();
+    });
+    res.redirect("/" + req.params.team_id + "/releasePlan")
+})
+
+//============
+// Release Plan
+//============
 
 app.get("/:team_id/releasePlan", function(req, res){
   if(!req.user)

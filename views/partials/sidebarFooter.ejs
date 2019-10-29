@@ -103,7 +103,8 @@
                     value: value,
                     releasePlan: releasePlanArray[position-1],
                     sprintID: sprintIDArray[position-1],
-                    points: pointsArray[position-1]
+                    points: pointsArray[position-1],
+                    
                 };
                 rearrangedStories[index] = story;
                 index++;
@@ -167,6 +168,14 @@
         });
     });
 
+    $(".sprintPoints").change(function(){
+        var sum = 0;
+        var sprintPoints = $(".sprintPoints");
+        for(var i = 0; i < sprintPoints.length; i++){
+            sum += sprintPoints[i].attr("value"); 
+        }
+        $("#totalSprintPoints").attr("value")=sum;
+    });
 
   });
 </script>
