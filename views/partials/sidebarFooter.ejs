@@ -217,8 +217,8 @@
         var hoursSpan = clock.querySelector('.hours');
         var minutesSpan = clock.querySelector('.minutes');
         var secondsSpan = clock.querySelector('.seconds');
-        hoursSpan.innerHTML = "01";
-        minutesSpan.innerHTML = "00";
+        hoursSpan.innerHTML = "00";
+        minutesSpan.innerHTML = "08";
         secondsSpan.innerHTML = "00";
         $("#timer-button").click(function(){
             var team_id = $("#clockdiv").attr("teamid");
@@ -236,4 +236,13 @@
       }
 
   });
+</script>
+
+<!-- Delete Script -->
+<script type="text/javascript">
+    $(document).ready(function(){
+        $(".pb-delete").click(function(){
+            
+        })
+    });
 </script>

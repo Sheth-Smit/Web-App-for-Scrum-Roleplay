@@ -311,7 +311,7 @@ app.get("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
       if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
         res.render("sprintRetrospective",{team:team,sprintNo:req.params.sprintNo});
       } else {
-        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/sprintRetrospective");
+        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/sprintRetrospectiveDisplay");
       }
     }
   });
@@ -360,7 +360,7 @@ app.get("/:team_id/:sprintNo/sprintReview",function(req,res){
       if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
         res.render("sprintReview",{team:team,sprintNo:req.params.sprintNo});
       } else {
-        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/sprintReview");
+        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/sprintReviewDisplay");
       }
     }
   });
