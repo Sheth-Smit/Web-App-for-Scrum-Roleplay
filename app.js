@@ -198,16 +198,33 @@ app.post("/:team_id/productBacklog/update", function(req, res){
       if(err){
           console.log("Error: ", err);
       } else {
-          team.productBacklog = [];
-          req.body.rearrangedStories.forEach(function(story){
-              team.productBacklog.push(story);
-          })
+          var rearrangedIndex = req.body.rearrangedIndex
+          var temp = []
+          for(var i = 0; i < rearrangedIndex.length; i++){
+              temp.push(team.productBacklog[rearrangedIndex[i]]);
+          }
+          team.productBacklog = temp;
           team.save();
       }
+
       res.redirect("/" + team._id + "/productBacklog");
   })
 
 });
+
+app.post("/:team_id/productBacklog/delete", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          var index = req.body.index;
+          team.productBacklog.splice(index, 1);
+          console.log("Deleted pb" + index);
+          team.save();
+      }
+      res.redirect("/" + team._id + "/productBacklog");
+  })
+})
 
 //============
 // Sprint Points
@@ -235,6 +252,8 @@ app.post("/:team_id/estimateSprintPoints", function(req, res){
 //============
 // Release Plan
 //============
+
+
 
 app.get("/:team_id/releasePlan", function(req, res){
   if(!req.user)
@@ -278,10 +297,12 @@ app.post("/:team_id/releasePlan/new", function(req, res){
           console.log("Error: ", err);
       } else {
             let f=0;
-            team.releasePlanName.forEach(function(rel){
-              if(rel.name==req.body.release.name)
-                f=1;
-            });
+            if(team.releasePlanName){
+                team.releasePlanName.forEach(function(rel){
+                  if(rel.name==req.body.release.name)
+                    f=1;
+                });
+            }
             if(!f){
               team.releasePlanName.push(req.body.release);
               team.save();
