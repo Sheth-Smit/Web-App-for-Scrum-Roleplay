@@ -511,14 +511,11 @@ app.post("/:team_id/:sprint_id/estimateStories", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
       var points = req.body.points;
       var index = 0;
-      var sum = 0;
       for(var i = 0; i < team.productBacklog.length; i++){
           if(team.productBacklog[i].sprintID == req.params.sprint_id){
               team.productBacklog[i].points = points[index++];
-              sum += team.productBacklog[i].points;
           }
       }
-      team.sprintPoints[req.params.sprint_id-1].burned = sum;
       team.save();
       res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/estimateStories");
   });
@@ -641,8 +638,10 @@ app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req
           console.log("Error: ", err);
       } else {
             console.log("reached",req.params.status);
-            if(req.params.status == "accept")
+            if(req.params.status == "accept"){
               team.productBacklog[req.params.us_id].status=2;
+              team.sprintPoints[team.productBacklog[req.params.us_id].sprintID-1].burned += team.productBacklog[req.params.us_id].points;
+            }
             else{
               team.productBacklog[req.params.us_id].takenBy="nought";
               team.productBacklog[req.params.us_id].status=0;

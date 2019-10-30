@@ -85,25 +85,7 @@
             function(intIndex) {
                 var str = $(this).find("td").eq(0).text()
                 var position = str.substr(3, str.length);
-<<<<<<< HEAD
-                var role = $(this).find("td").eq(1).text();
-                var action = $(this).find("td").eq(2).text();
-                var benefit = $(this).find("td").eq(3).text();
-                var value = $(this).find("td").eq(4).text();
-                var story = {
-                    role: role,
-                    action: action,
-                    benefit: benefit,
-                    value: value,
-                    releasePlan: releasePlanArray[position-1],
-                    sprintID: sprintIDArray[position-1],
-                    points: pointsArray[position-1],
-                    
-                };
-                rearrangedStories[index] = story;
-=======
                 rearrangedIndex[index] = position-1;
->>>>>>> 715667b253d1f2225321b7dc1d932cfac9f1c859
                 index++;
         });
 
@@ -310,7 +292,7 @@
             type: "line",
             lineThickness: 5,
             showInLegend: true,
-            name: "Burned",
+            name: "Actual",
             markerType: "square",
             color: "#F08080",
             dataPoints: burned
