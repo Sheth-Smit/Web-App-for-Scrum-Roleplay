@@ -9,7 +9,8 @@ var request=require("request");
 var html=require("html");
 var parser=require("body-parser");
 var flash = require('connect-flash');
-var numofSprints = 3;
+// var plotly = require('plotly')(, "");
+
 const keys = require("./keys");
 
 var User=require("./models/user.js");
@@ -72,12 +73,21 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use(function(req, res, next){
   res.locals.currentUser = req.user;
+  res.locals.sprintStart = [2*60*1000, 4*60*1000, 6*60*1000];
+  res.locals.sprintEnd = [4*60*1000, 6*60*1000, 7.5*60*1000];
+  res.locals.totalTime = 8*60*1000;
+  res.locals.numofSprints = 3;
+
   next();
 });
 
 app.set("view engine", "ejs");
 mongoose.connect("mongodb://localhost:27017/scrum-roleplay",{useNewUrlParser: true});
 
+var sprintStart = [2*60*1000, 4*60*1000, 6*60*1000];
+var sprintEnd = [4*60*1000, 6*60*1000, 7.5*60*1000];
+var totalTime = 8*60*1000;
+var numofSprints = 3;
 
 //============
 // ROUTES
@@ -92,11 +102,57 @@ app.get("/",function(req,res){
 
 });
 
+app.post("/:team_id/startActivity", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      var date = new Date();
+      team.endTime = (Date.parse(date) + totalTime).toString();
+      team.timerFlag = 1;
+      team.save();
+      res.redirect("/" + team._id + "/productBacklog");
+  });
+})
+
 app.get("/:team_id/home", partOfATeam, function (req, res) {
     Team.findById(req.params.team_id, function(err, team){
         res.render("home.ejs", {team: team});
     });
 });
+
+//============
+// DashBoard
+//============
+
+app.get("/:team_id/dashBoard", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      var burned = [];
+      var estimate = [];
+      for(var i = 0; i < numofSprints+1; i++){
+        burned.push({x:0,y:0});
+        estimate.push({x:0,y:0});
+      }
+      estimate[team.sprintPoints.length].x = team.sprintPoints.length+1;
+      estimate[team.sprintPoints.length].y = 0;
+      for(var i = team.sprintPoints.length-1; i >= 0; i--){
+        estimate[i].x = i+1;
+        estimate[i].y = team.sprintPoints[i].estimate + estimate[i+1].y;
+      }
+      burned[0].x = 1;
+      burned[0].y = estimate[0].y;
+      for(var i = 1; i < numofSprints + 1; i++){
+        burned[i].x = i+1;
+        burned[i].y = burned[i-1].y - team.sprintPoints[i-1].burned;
+      }
+      res.render("dashboard", {team: team, burned: burned, estimate: estimate});
+  });
+});
+
+//============
+// Product Backlog
+//============
 
 app.get("/:team_id/productBacklog", function(req, res){
     if(!req.user)
@@ -113,7 +169,13 @@ app.get("/:team_id/productBacklog/new", function(req, res){
         if(err){
             console.log("Error: ", err);
         } else {
-            res.render("addUserStory", {team: team});
+            var date = new Date();
+            var curTime = Date.parse(date);
+            if(team.endTime - curTime > 6.5 * 60 * 1000){
+              res.render("addUserStory", {team: team});
+            } else {
+              res.redirect("/" + team._id + "/productBacklog");
+            }
         }
     })
 });
@@ -123,7 +185,6 @@ app.post("/:team_id/productBacklog/new", function(req, res){
       if(err){
           console.log("Error: ", err);
       } else {
-          console.log("Pushing", req.body.story);
           team.productBacklog.push(req.body.story);
           team.save();
       }
@@ -140,10 +201,8 @@ app.post("/:team_id/productBacklog/update", function(req, res){
           team.productBacklog = [];
           req.body.rearrangedStories.forEach(function(story){
               team.productBacklog.push(story);
-              console.log("Pushing", story);
           })
           team.save();
-          console.log("Done");
       }
       res.redirect("/" + team._id + "/productBacklog");
   })
@@ -164,9 +223,9 @@ app.get("/:team_id/estimateSprintPoints", function(req, res){
 
 app.post("/:team_id/estimateSprintPoints", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
-      for(let i=0;i < team.productBacklog.length; i++){
-          team.productBacklog[i].releasePlan=req.body.releasePlanValue[i];
-          console.log(team.productBacklog[i].releasePlan);
+      for(let i=0;i < numofSprints; i++){
+          team.sprintPoints[i].estimate=req.body.estimatedSprintPoints[i];
+          console.log(team.sprintPoints[i].estimate);
       }
       team.save();
     });
@@ -189,7 +248,6 @@ app.post("/:team_id/releasePlan", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
       for(let i=0;i < team.productBacklog.length; i++){
           team.productBacklog[i].releasePlan=req.body.releasePlanValue[i];
-          console.log(team.productBacklog[i].releasePlan);
       }
       team.save();
     });
@@ -203,7 +261,13 @@ app.get("/:team_id/releasePlan/new", function(req, res){
       if(err){
           console.log("Error: ", err);
       } else {
-          res.render("addRelease", {team: team});
+          var date = new Date();
+          var curTime = Date.parse(date);
+          if(team.endTime - curTime > 6 * 60 * 1000){
+            res.render("addRelease", {team: team});
+          } else {
+            res.redirect("/" + team._id + "/releasePlan");
+          }
       }
   })
 });
@@ -219,7 +283,6 @@ app.post("/:team_id/releasePlan/new", function(req, res){
                 f=1;
             });
             if(!f){
-              console.log("Pushing", req.body.release);
               team.releasePlanName.push(req.body.release);
               team.save();
             }
@@ -237,7 +300,6 @@ app.post("/:team_id/releasePlan/new", function(req, res){
 
 app.get("/:team_id/:sprintNo/planSummaryDisplay",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
-    console.log(team.sprint.length+" : "+parseInt(req.params.sprintNo,10));
     if(parseInt(req.params.sprintNo,10)>team.sprint.length){
       res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
     }
@@ -252,13 +314,19 @@ app.get("/:team_id/:sprintNo/planSummaryDisplay",function(req,res){
   });
 });
 app.get("/:team_id/:sprintNo/planSummary",function(req,res){
-  console.log("plan Summary : "+req.params.sprintNo);
   Team.findById(req.params.team_id,function(err,team){
     if(err){
-      console,log(err);
+      console.log(err);
     }
     else{
-      res.render("planSummary",{team:team,sprintNo:req.params.sprintNo});
+      var date = new Date();
+      var curTime = Date.parse(date);
+      if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
+        res.render("planSummary",{team:team,sprintNo:req.params.sprintNo});
+      } else {
+        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/planSummaryDisplay");
+      }
+
     }
   });
 });
@@ -268,17 +336,13 @@ app.post("/:team_id/:sprintNo/planSummary",function(req,res){
       console.log(err);
     }
     else{
-      console.log("type of: "+typeof parseInt(req.params.sprintNo,10));
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
         team.sprint.push(req.body.sprint);
         team.save();
-        console.log("Plan Summary created: "+team.sprint);
       }
       else{
-        console.log("debug:"+req.body.sprint.planSummary);
         team.sprint[parseInt(req.params.sprintNo,10)-1].planSummary=req.body.sprint.planSummary;
         team.save();
-        console.log("team:"+team);
       }
       res.redirect("/"+team.id+"/"+req.params.sprintNo+"/planSummaryDisplay");
     }
@@ -286,7 +350,6 @@ app.post("/:team_id/:sprintNo/planSummary",function(req,res){
 });
 app.get("/:team_id/:sprintNo/sprintRetrospectiveDisplay",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
-    console.log(team.sprint.length+" : "+parseInt(req.params.sprintNo,10));
     if(parseInt(req.params.sprintNo,10)>team.sprint.length){
       res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
     }
@@ -301,13 +364,18 @@ app.get("/:team_id/:sprintNo/sprintRetrospectiveDisplay",function(req,res){
   });
 });
 app.get("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
-  console.log("Sprint Retrospective : "+req.params.sprintNo);
   Team.findById(req.params.team_id,function(err,team){
     if(err){
       console,log(err);
     }
     else{
-      res.render("sprintRetrospective",{team:team,sprintNo:req.params.sprintNo});
+      var date = new Date();
+      var curTime = Date.parse(date);
+      if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
+        res.render("sprintRetrospective",{team:team,sprintNo:req.params.sprintNo});
+      } else {
+        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/sprintRetrospectiveDisplay");
+      }
     }
   });
 });
@@ -317,17 +385,13 @@ app.post("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
       console.log(err);
     }
     else{
-      console.log("type of: "+typeof parseInt(req.params.sprintNo,10));
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
         team.sprint.push(req.body.sprint);
         team.save();
-        console.log("Sprint Retrospective created: "+team.sprint);
       }
       else{
-        console.log("debug1:"+req.body.sprint.retrospective);
         team.sprint[parseInt(req.params.sprintNo,10)-1].retrospective=req.body.sprint.retrospective;
         team.save();
-        console.log("team:"+team);
       }
       res.redirect("/"+team.id+"/"+req.params.sprintNo+"/sprintRetrospectiveDisplay");
     }
@@ -335,7 +399,6 @@ app.post("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
 });
 app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
-    console.log(team.sprint.length+" : "+parseInt(req.params.sprintNo,10));
     if(parseInt(req.params.sprintNo,10)>team.sprint.length){
       res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
     }
@@ -350,13 +413,18 @@ app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
   });
 });
 app.get("/:team_id/:sprintNo/sprintReview",function(req,res){
-  console.log("Sprint Review : "+req.params.sprintNo);
   Team.findById(req.params.team_id,function(err,team){
     if(err){
       console,log(err);
     }
     else{
-      res.render("sprintReview",{team:team,sprintNo:req.params.sprintNo});
+      var date = new Date();
+      var curTime = Date.parse(date);
+      if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
+        res.render("sprintReview",{team:team,sprintNo:req.params.sprintNo});
+      } else {
+        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/sprintReviewDisplay");
+      }
     }
   });
 });
@@ -369,13 +437,10 @@ app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
         team.sprint.push(req.body.sprint);
         team.save();
-        console.log("Sprint Review created: "+team.sprint);
       }
       else{
-        console.log("debug2:"+req.body.sprint.review);
         team.sprint[parseInt(req.params.sprintNo,10)-1].review=req.body.sprint.review;
         team.save();
-        console.log("team:"+team);
       }
       res.redirect("/"+team.id+"/"+req.params.sprintNo+"/sprintReviewDisplay");
     }
@@ -425,11 +490,14 @@ app.post("/:team_id/:sprint_id/estimateStories", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
       var points = req.body.points;
       var index = 0;
+      var sum = 0;
       for(var i = 0; i < team.productBacklog.length; i++){
           if(team.productBacklog[i].sprintID == req.params.sprint_id){
               team.productBacklog[i].points = points[index++];
+              sum += team.productBacklog[i].points;
           }
       }
+      team.sprintPoints[req.params.sprint_id-1].burned = sum;
       team.save();
       res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/estimateStories");
   });
@@ -454,7 +522,13 @@ app.get("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
       if(err){
           console.log("Error: ", err);
       } else {
-          res.render("addTask", {team: team,sprint_id: req.params.sprint_id,us_id: req.params.us_id});
+          var date = new Date();
+          var curTime = Date.parse(date);
+          if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprint_id-1]){
+            res.render("addTask", {team: team,sprint_id: req.params.sprint_id,us_id: req.params.us_id});
+          } else {
+            res.redirect("/" + team._id + "/" + req.params.sprint_id + "/devTasks");
+          }
       }
   })
 });
@@ -464,11 +538,10 @@ app.post("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
       if(err){
           console.log("Error: ", err);
       } else {
-            console.log("Pushing", req.body.task);
             team.productBacklog[req.params.us_id].tasks.push(req.body.task);
             team.save();
         }
-      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");          
+      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
     });
 });
 
@@ -480,7 +553,7 @@ app.post("/:team_id/:sprint_id/devTasks/:us_id/finish", function(req, res){
             team.productBacklog[req.params.us_id].status=1;
             team.save();
         }
-      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");          
+      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
     });
 });
 
@@ -497,7 +570,6 @@ app.post("/:team_id/:sprint_id/devStorySelection", function(req, res){
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
       var checkeddev = req.body.checkeddev;
-      console.log("Value of devselect "+checkeddev);
       var f=0;
       var index=0;
       for(var i = 0; i < team.productBacklog.length; i++){
@@ -559,7 +631,7 @@ app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req
             }
             team.save();
         }
-      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");          
+      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
     });
 });
 
@@ -601,7 +673,6 @@ app.get("/team_create", function (req, res) {
 app.post("/team_create",sessionActive, function(req,res){
     req.user.role="Product Owner";
     req.user.save();
-    console.log(req.body.teamname);
     var team_id;
 
     Team.create({username:req.body.teamname},function(err,team){
@@ -611,7 +682,9 @@ app.post("/team_create",sessionActive, function(req,res){
         team.members.push(req.user._id);
         team.productBacklog = [];
         team.releasePlanName.push({name: "Add to a release"});
-        console.log(team.releasePlanName.length);
+        for(var i = 0; i < numofSprints; i++){
+          team.sprintPoints.push({burned:0,estimate:0});
+        }
         team.save();
       }
       Session.findOne({status:1},function(err,ses){
@@ -641,7 +714,7 @@ app.post("/team_create",sessionActive, function(req,res){
                   });
                 }
           }
-          res.redirect("/"+team._id+"/productBacklog");
+          res.redirect("/" + team._id + "/home");
       });
     });
 
@@ -670,7 +743,7 @@ app.post("/accept_request/:tn/:rl",function(req,res){
               user.currentTeam = team._id;
               user.currentSession = session._id;
               user.save();
-              res.redirect("/"+team_id+"/productBacklog");
+              res.redirect("/" + team._id + "/home");
           });
       });
   });
@@ -733,12 +806,8 @@ function sessionActive(req, res, next){
 
   Session.find({status:1},function(err,ses){
     if(ses.length > 0){
-      console.log("length: ",ses.length);
-      console.log(ses);
-      console.log("sessions found");
       return next();
     } else {
-      console.log("No sessions found");
       res.redirect("/");
     }
   });
@@ -761,7 +830,6 @@ function partOfATeam(req, res, next){
             // alert the user that he is not part of any team
             if(req.user){
                 res.redirect("/");
-                console.log("Not part of any team");
             } else {
                 res.redirect("/auth/google");
             }

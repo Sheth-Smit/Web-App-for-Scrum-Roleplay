@@ -37,7 +37,12 @@
       <% } %>
         </tbody>
       </table>
-      <button class="btn float-right" id="est-submit" type="submit">Submit</button>
+      <% var date = new Date(); %>
+      <% var curTime = Date.parse(date); %>
+      <% if(team.endTime - curTime > totalTime - sprintEnd[sprint_id-1]){ %>
+          <button class="btn float-right" id="est-submit" type="submit">Submit</button>
+      <% } %>
+
     </form>
 
 

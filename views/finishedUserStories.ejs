@@ -9,6 +9,7 @@
             <th>Action</th>
             <th>Taken By</th>
             <th>Points</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -27,10 +28,10 @@
               <td> <%= burnedPoints   %></td>
               <td>
               <form action="/<%= team._id %>/<%= sprint_id %>/finishedUserStories/<%=i%>/accept" method="POST">
-                <button class="btn btn-success btn-transparent">Accept</button>
+                <button class="btn btn-outline-success" style="margin-top: 1em;">Accept</button>
               </form>
               <form action="/<%= team._id %>/<%= sprint_id %>/finishedUserStories/<%=i%>/reject" method="POST">
-                <button class="btn btn-danger btn-transparent">Reject</button>
+                <button class="btn btn-outline-danger">Reject</button>
               </form>
               </td>
             </tr>

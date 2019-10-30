@@ -5,15 +5,17 @@
     </li>
     <li class="nav-item">
       <% var homePath = "/";                                    %>
+      <% var dashPath = "/";                                    %>
       <% if(currentUser) {                                      %>
       <%    homePath = "/" + currentUser.currentTeam + "/home"; %>
+      <%    dashPath = "/" + currentUser.currentTeam + "/dashboard"; %>
       <% } else {                                               %>
       <%    homePath = "/auth/google";                          %>
       <% }                                                      %>
       <a class="nav-link" href="<%= homePath %>">Home</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="#">Dashboard</a>
+      <a class="nav-link" href="<%= dashPath %>">Dashboard</a>
     </li>
   </ul>
 

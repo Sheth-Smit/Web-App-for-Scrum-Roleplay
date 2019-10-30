@@ -1,0 +1,18 @@
+<% include partials/sidebarHeader %>
+
+
+<h2>Burn Down Chart</h2>
+<%var burnedStr=""%>
+<%var estimateStr=""%>
+<% for( var i = 0; i < burned.length; i++){%>
+    <% burnedStr+= burned[i].x+":"+burned[i].y+","; %>
+    <% estimateStr+= estimate[i].x+":"+estimate[i].y+","; %>
+<%}%>
+
+
+<div id="chartContainer" style="height: 370px; width: 100%;" burnedStr="<%=burnedStr%>" estimateStr="<%=estimateStr%>"></div>
+
+
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>

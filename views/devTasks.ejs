@@ -1,6 +1,6 @@
 <% include partials/sidebarHeader %>
 <h1 class="text-center" >User Story Tasks</h1>
- 
+
 <%for (var i = 0; i<team.productBacklog.length; i++){ %>
   <%  if(team.productBacklog[i].takenBy == currentUser.email && team.productBacklog[i].sprintID == sprint_id ){ %>
       <%  var x=0;
@@ -29,8 +29,13 @@
                     </tr>
             <%}%>
         <table>
+
         <%if(team.productBacklog[i].status == 0){%>
-        <a class="btn release-style"  href="/<%= team._id %>/<%= sprint_id %>/devTasks/<%= i %>/new"> Add Task <i class="fas fa-plus"></i></a>
+          <% var date = new Date(); %>
+          <% var curTime = Date.parse(date); %>
+          <% if(team.endTime - curTime > totalTime - sprintEnd[sprint_id-1]){ %>
+            <a class="btn release-style"  href="/<%= team._id %>/<%= sprint_id %>/devTasks/<%= i %>/new"> Add Task <i class="fas fa-plus"></i></a>
+          <% } %>
         <form action="/<%= team._id %>/<%= sprint_id %>/devTasks/<%= i %>/finish" method="POST">
             <button class="btn release-style float-right">Finish</button>
         </form>

@@ -1,6 +1,3 @@
-
-    </div>
-  </div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -10,7 +7,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
 <!-- Bootstrap JS -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-
 <script type="text/javascript">
     $(document).ready(function () {
         $('#sidebarCollapse').on('click', function () {
@@ -127,7 +123,6 @@
     // Submit post request
 
     $("#po-select").click(function(){
-        console.log("Printing....");
         var checkboxes = $(".po-check");
         checked = []
 
@@ -148,7 +143,6 @@
     });
 
     $("#dev-select").click(function(){
-        console.log("Printing....");
         var checkboxesdev = $(".dev-check");
         checkeddev = []
 
@@ -172,10 +166,166 @@
         var sum = 0;
         var sprintPoints = $(".sprintPoints");
         for(var i = 0; i < sprintPoints.length; i++){
-            sum += sprintPoints[i].attr("value"); 
+            sum += parseInt(sprintPoints[i].value); 
         }
-        $("#totalSprintPoints").attr("value")=sum;
+        $("#totalSprintPoints").val(sum);
+        console.log(sum);
     });
 
   });
 </script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+      function getTimeRemaining(endtime) {
+        var t = Date.parse(new Date(endtime)) - Date.parse(new Date());
+        var seconds = Math.floor((t / 1000) % 60);
+        var minutes = Math.floor((t / 1000 / 60) % 60);
+        var hours = Math.floor((t / (1000 * 60 * 60)) % 24);
+        var days = Math.floor(t / (1000 * 60 * 60 * 24));
+        return {
+          'total': t,
+          'days': days,
+          'hours': hours,
+          'minutes': minutes,
+          'seconds': seconds
+        };
+      }
+
+      function initializeClock(id, endtime) {
+        var clock = document.getElementById(id);
+        var hoursSpan = clock.querySelector('.hours');
+        var minutesSpan = clock.querySelector('.minutes');
+        var secondsSpan = clock.querySelector('.seconds');
+        function updateClock() {
+          var t = getTimeRemaining(endtime);
+          if(t.total <= 0){
+            clearInterval(timeinterval);
+            hoursSpan.innerHTML = "00";
+            minutesSpan.innerHTML = "00";
+            secondsSpan.innerHTML = "00";
+          } else {
+            hoursSpan.innerHTML = ('0' + t.hours).slice(-2);
+            minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
+            secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
+          }
+
+        }
+
+        updateClock();
+        clearInterval(timeinterval);
+        var timeinterval = setInterval(updateClock, 1000);
+      }
+      var timerFlag = $("#clockdiv").attr("timerFlag");
+      var endTime = $("#clockdiv").attr("endTime");
+      if(timerFlag == 0){
+        var clock = document.getElementById("clockdiv");
+        var hoursSpan = clock.querySelector('.hours');
+        var minutesSpan = clock.querySelector('.minutes');
+        var secondsSpan = clock.querySelector('.seconds');
+        hoursSpan.innerHTML = "00";
+        minutesSpan.innerHTML = "08";
+        secondsSpan.innerHTML = "00";
+        $("#timer-button").click(function(){
+            var team_id = $("#clockdiv").attr("teamid");
+            var url = "/"+team_id+"/startActivity";
+            var getUrl = "/" + team_id + "/productBacklog";
+            $.post(
+              url,
+              function(data, status, jqXHR) {// success callback
+                  window.location.replace(getUrl);
+            });
+
+        });
+      } else {
+          initializeClock('clockdiv', parseInt(endTime, 10));
+      }
+
+  });
+</script>
+
+<!-- Delete Script -->
+<script type="text/javascript">
+    $(document).ready(function(){
+        $(".pb-delete").click(function(){
+            
+        })
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+    var burnedArray = $("#chartContainer").attr("burnedStr").split(",");
+    var burned=[];
+    for(var i = 0; i < burnedArray.length-1; i++){
+        var temp = burnedArray[i].split(":");
+        burned.push({x: parseInt(temp[0]),y: parseInt(temp[1])});
+    }
+    var estimateArray = $("#chartContainer").attr("estimateStr").split(",");
+    var estimate=[];
+    for(var i = 0; i < estimateArray.length-1; i++){
+        var temp = estimateArray[i].split(":");
+        estimate.push({x:parseInt(temp[0]),y: parseInt(temp[1])});
+    }
+    var chart = new CanvasJS.Chart("chartContainer", {
+        animationEnabled: true,
+        theme: "light2",
+        axisX:{
+            title: "Sprint",
+            interval: 1,
+            includeZero: false,
+            crosshair: {
+                enabled: true,
+                snapToDataPoint: true
+            }
+        },
+        axisY: {
+            title: "Points Remaining",
+            crosshair: {
+                enabled: true
+            }
+        },
+        toolTip:{
+            shared:true
+        },  
+        legend:{
+            cursor:"pointer",
+            verticalAlign: "bottom",
+            horizontalAlign: "left",
+            dockInsidePlotArea: true,
+            itemclick: toogleDataSeries
+        },
+        data: [{
+            type: "line",
+            lineThickness: 5,
+            showInLegend: true,
+            name: "Burned",
+            markerType: "square",
+            color: "#F08080",
+            dataPoints: burned
+        },
+        {
+            type: "line",
+            lineThickness: 5,
+            showInLegend: true,
+            name: "Estimate",
+            lineDashType: "dash",
+            dataPoints: estimate
+        }]
+    });
+    chart.render();
+    
+    function toogleDataSeries(e){
+        if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+            e.dataSeries.visible = false;
+        } else{
+            e.dataSeries.visible = true;
+        }
+        chart.render();
+    }
+    
+})
+
+</script>
+
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>

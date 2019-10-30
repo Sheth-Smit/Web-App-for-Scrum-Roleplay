@@ -1,8 +1,13 @@
 <% include partials/sidebarHeader %>
 <h2 class="h2text">No Sprint Review</h2>
-<h4 align="center" class="h4text">Please Enter a Sprint Review</h4>
-<form class="" action="/<%=team.id%>/<%=sprintNo%>/sprintReview" method="get">
-  <button type="submit" class="displayCreateBut" name="button">Create</button>
-</form>
+<% var date = new Date(); %>
+<% var curTime = Date.parse(date); %>
+<% if(team.endTime - curTime > totalTime - sprintEnd[sprintNo-1]){ %>
+    <h4 align="center" class="h4text">Please Enter a Sprint Review</h4>
+    <form class="" action="/<%=team.id%>/<%=sprintNo%>/sprintReview" method="get">
+      <button type="submit" class="displayCreateBut" name="button">Create</button>
+    </form>
+<% } %>
+
 <% include partials/sidebarFooter %>
 <% include partials/footer %>

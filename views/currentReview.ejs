@@ -1,8 +1,18 @@
 <% include partials/sidebarHeader %>
-<h2>Sprint Review</h2>
-<p align="center" class="textContent"><%=team.sprint[sprintNo-1].review%></p>
-<form class="" action="/<%=team.id%>/<%=sprintNo%>/sprintReview" method="get">
-  <button type="submit" class="displayUpdateBut" name="button">Update</button>
-</form>
+<div class="card-title" style="text-align: center;"><h2>Sprint Review</h2></div>
+<div class="card">
+  <div class="card-body">
+      <h5 class="text-justify"><%=team.sprint[sprintNo-1].review%></h5>
+  </div>
+</div>
+
+<% var date = new Date(); %>
+<% var curTime = Date.parse(date); %>
+<% if(team.endTime - curTime > totalTime - sprintEnd[sprintNo-1]){ %>
+    <form class="" action="/<%=team.id%>/<%=sprintNo%>/sprintReview" method="get">
+      <button type="submit" class="displayUpdateBut" name="button">Update</button>
+    </form>
+<% } %>
+
 <% include partials/sidebarFooter %>
 <% include partials/footer %>

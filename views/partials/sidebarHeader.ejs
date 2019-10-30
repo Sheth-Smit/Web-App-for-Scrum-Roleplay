@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="/stylesheets/currentRetrospective.css">
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"></script>
-  </head>
+</head>
 
   <body>
     <% include navbar %>
@@ -41,6 +41,22 @@
                 <h6 class="text-center"><%= currentUser.role %></h6>
             </div>
 
+          <!-- TIMER -->
+          <div id="clockdiv" teamid="<%= team._id %>" timerFlag="<%= team.timerFlag %>" endTime="<%= team.endTime %>">
+            <div>
+              <span class="hours"></span>
+              <div class="smalltext">Hours</div>
+            </div>
+            <div>
+              <span class="minutes"></span>
+              <div class="smalltext">Minutes</div>
+            </div>
+            <div>
+              <span class="seconds"></span>
+              <div class="smalltext">Seconds</div>
+            </div>
+          </div>
+
             <ul class="list-unstyled components">
               <li>
                 <a href="/<%= currentUser.currentTeam %>/productBacklog">
@@ -48,6 +64,12 @@
                     Product Backlog
                 </a>
               </li>
+              <li>
+                  <a href="/<%= currentUser.currentTeam %>/estimateSprintPoints">
+                      <i class="fas fa-chart-line"></i>
+                      Estimate Sprint Points
+                  </a>
+                </li>
               <li>
                 <a href="/<%= currentUser.currentTeam %>/releasePlan">
                     <i class="fas fa-chart-line"></i>
@@ -61,37 +83,75 @@
                           <i class="fas fa-bolt"></i>
                           <%="Sprint " + (i+1)%>
                       </a>
-                      <ul class="collapse list-unstyled" id="<%= "homeSubmenu" + i%>">
+                      <% var date = new Date(); %>
+                      <% var curTime = Date.parse(date); %>
+                      <% var classList =  "list-unstyled" %>
+                      <% if(team.endTime - curTime < totalTime - sprintEnd[i] || team.endTime - curTime > totalTime - sprintStart[i]){ %>
+                          <% classList += " collapse"; %>
+                      <% } %>
+                      <ul class="<%= classList %>" id="<%= "homeSubmenu" + i%>">
                           <li>
-                              <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/selectStories">Select Stories(PO)</a>
+                              <% if(team.endTime - curTime > totalTime - sprintStart[i]){ %>
+                                <a href="javascript:window.location.href=window.location.href">Select Stories(PO)</a>
+                              <%} else {%>
+                                <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/selectStories">Select Stories(PO)</a>
+                              <%}%>
                           </li>
                           <li>
-                              <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/estimateStories">Estimate Stories</a>
+                              <% if(team.endTime - curTime > totalTime - sprintStart[i]){ %>
+                                <a href="javascript:window.location.href=window.location.href">Estimate Stories</a>
+                              <%} else {%>
+                                <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/estimateStories">Estimate Stories</a>
+                              <% } %>
                           </li>
                           <li>
-                            <a href="/<%= currentUser.currentTeam %>/<%= i+1 %>/planSummaryDisplay">Plan Summary</a>
+                              <% if(team.endTime - curTime > totalTime - sprintStart[i]){ %>
+                                <a href="javascript:window.location.href=window.location.href">Plan Summary</a>
+                              <%} else {%>
+                                <a href="/<%= currentUser.currentTeam %>/<%= i+1 %>/planSummaryDisplay">Plan Summary</a>
+                              <% } %>
                           </li>
                           <li>
-                              <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/devStorySelection">Select User Stories(Dev)</a>
+                              <% if(team.endTime - curTime > totalTime - sprintStart[i]){ %>
+                                <a href="javascript:window.location.href=window.location.href">Select User Stories(Dev)</a>
+                              <%} else {%>
+                                <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/devStorySelection">Select User Stories(Dev)</a>
+                              <% } %>
                           </li>
                           <li>
-                            <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/devTasks">Add Tasks to Story</a>
+                              <% if(team.endTime - curTime > totalTime - sprintStart[i]){ %>
+                                <a href="javascript:window.location.href=window.location.href">Add Tasks to Story</a>
+                              <%} else {%>
+                                <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/devTasks">Add Tasks to Story</a>
+                              <% } %>
                           </li>
                           <li>
-                              <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/finishedUserStories">View User Stories</a>
+                              <% if(team.endTime - curTime > totalTime - sprintStart[i]){ %>
+                                <a href="javascript:window.location.href=window.location.href">View User Stories</a>
+                              <%} else {%>
+                                <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/finishedUserStories">View User Stories</a>
+                              <% } %>
                           </li>
                           <li>
-                            <a href="/<%= currentUser.currentTeam %>/<%= i+1 %>/sprintRetrospectiveDisplay">Sprint Retrospective</a>
+                              <% if(team.endTime - curTime > totalTime - sprintStart[i]){ %>
+                                <a href="javascript:window.location.href=window.location.href">Sprint Retrospective</a>
+                              <%} else {%>
+                              <a href="/<%= currentUser.currentTeam %>/<%= i+1 %>/sprintRetrospectiveDisplay">Sprint Retrospective</a>
+                              <% } %>
                           </li>
                           <li>
-                            <a href="/<%= currentUser.currentTeam %>/<%= i+1 %>/sprintReviewDisplay">Sprint Review</a>
+                              <% if(team.endTime - curTime > totalTime - sprintStart[i]){ %>
+                                <a href="javascript:window.location.href=window.location.href">Sprint Review</a>
+                              <%} else {%>
+                                <a href="/<%= currentUser.currentTeam %>/<%= i+1 %>/sprintReviewDisplay">Sprint Review</a>
+                              <% } %>
                           </li>
                       </ul>
                   </li>
                 <% } %>
 
                 <li>
-                    <a href="#">
+                    <a href="javascript:window.location.href=window.location.href">
                         <i class="fas fa-tasks"></i>
                         Project Review
                     </a>
