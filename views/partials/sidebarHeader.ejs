@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="/stylesheets/currentRetrospective.css">
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"></script>
-  </head>
+</head>
 
   <body>
     <% include navbar %>
@@ -64,6 +64,12 @@
                     Product Backlog
                 </a>
               </li>
+              <li>
+                  <a href="/<%= currentUser.currentTeam %>/estimateSprintPoints">
+                      <i class="fas fa-chart-line"></i>
+                      Estimate Sprint Points
+                  </a>
+                </li>
               <li>
                 <a href="/<%= currentUser.currentTeam %>/releasePlan">
                     <i class="fas fa-chart-line"></i>

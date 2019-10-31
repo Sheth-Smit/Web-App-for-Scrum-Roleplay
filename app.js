@@ -9,8 +9,7 @@ var request=require("request");
 var html=require("html");
 var parser=require("body-parser");
 var flash = require('connect-flash');
-var Stopwatch = require("node-stopwatch").Stopwatch;
-var stopwatch = Stopwatch.create();
+// var plotly = require('plotly')(, "");
 
 const keys = require("./keys");
 
@@ -77,6 +76,8 @@ app.use(function(req, res, next){
   res.locals.sprintStart = [2*60*1000, 4*60*1000, 6*60*1000];
   res.locals.sprintEnd = [4*60*1000, 6*60*1000, 7.5*60*1000];
   res.locals.totalTime = 8*60*1000;
+  res.locals.numofSprints = 3;
+
   next();
 });
 
@@ -86,6 +87,7 @@ mongoose.connect("mongodb://localhost:27017/scrum-roleplay",{useNewUrlParser: tr
 var sprintStart = [2*60*1000, 4*60*1000, 6*60*1000];
 var sprintEnd = [4*60*1000, 6*60*1000, 7.5*60*1000];
 var totalTime = 8*60*1000;
+var numofSprints = 3;
 
 //============
 // ROUTES
@@ -117,6 +119,40 @@ app.get("/:team_id/home", partOfATeam, function (req, res) {
         res.render("home.ejs", {team: team});
     });
 });
+
+//============
+// DashBoard
+//============
+
+app.get("/:team_id/dashBoard", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      var burned = [];
+      var estimate = [];
+      for(var i = 0; i < numofSprints+1; i++){
+        burned.push({x:0,y:0});
+        estimate.push({x:0,y:0});
+      }
+      estimate[team.sprintPoints.length].x = team.sprintPoints.length+1;
+      estimate[team.sprintPoints.length].y = 0;
+      for(var i = team.sprintPoints.length-1; i >= 0; i--){
+        estimate[i].x = i+1;
+        estimate[i].y = team.sprintPoints[i].estimate + estimate[i+1].y;
+      }
+      burned[0].x = 1;
+      burned[0].y = estimate[0].y;
+      for(var i = 1; i < numofSprints + 1; i++){
+        burned[i].x = i+1;
+        burned[i].y = burned[i-1].y - team.sprintPoints[i-1].burned;
+      }
+      res.render("dashboard", {team: team, burned: burned, estimate: estimate});
+  });
+});
+
+//============
+// Product Backlog
+//============
 
 app.get("/:team_id/productBacklog", function(req, res){
     if(!req.user)
@@ -189,6 +225,35 @@ app.post("/:team_id/productBacklog/delete", function(req, res){
       res.redirect("/" + team._id + "/productBacklog");
   })
 })
+
+//============
+// Sprint Points
+//============
+
+app.get("/:team_id/estimateSprintPoints", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      res.render("estimateSprintPoints", {team: team});
+  })
+});
+
+app.post("/:team_id/estimateSprintPoints", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      for(let i=0;i < numofSprints; i++){
+          team.sprintPoints[i].estimate=req.body.estimatedSprintPoints[i];
+          console.log(team.sprintPoints[i].estimate);
+      }
+      team.save();
+    });
+    res.redirect("/" + req.params.team_id + "/releasePlan")
+})
+
+//============
+// Release Plan
+//============
+
+
 
 app.get("/:team_id/releasePlan", function(req, res){
   if(!req.user)
@@ -573,8 +638,10 @@ app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req
           console.log("Error: ", err);
       } else {
             console.log("reached",req.params.status);
-            if(req.params.status == "accept")
+            if(req.params.status == "accept"){
               team.productBacklog[req.params.us_id].status=2;
+              team.sprintPoints[team.productBacklog[req.params.us_id].sprintID-1].burned += team.productBacklog[req.params.us_id].points;
+            }
             else{
               team.productBacklog[req.params.us_id].takenBy="nought";
               team.productBacklog[req.params.us_id].status=0;
@@ -635,6 +702,9 @@ app.post("/team_create",sessionActive, function(req,res){
         team.members.push(req.user._id);
         team.productBacklog = [];
         team.releasePlanName.push({name: "Add to a release"});
+        for(var i = 0; i < numofSprints; i++){
+          team.sprintPoints.push({burned:0,estimate:0});
+        }
         team.save();
       }
       Session.findOne({status:1},function(err,ses){

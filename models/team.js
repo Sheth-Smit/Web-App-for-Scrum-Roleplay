@@ -24,6 +24,10 @@ var teamSchema=new mongoose.Schema({
   releasePlanName : [{
     name: String
   }],
+  sprintPoints: [{
+    burned : Number,
+    estimate : Number 
+  }],
   sprint:[{
     planSummary: {type:String,default:""},
     review:{type:String,default:""},

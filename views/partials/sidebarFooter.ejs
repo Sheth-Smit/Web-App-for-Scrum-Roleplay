@@ -1,6 +1,3 @@
-
-    </div>
-  </div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -10,7 +7,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
 <!-- Bootstrap JS -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-
 <script type="text/javascript">
     $(document).ready(function () {
         $('#sidebarCollapse').on('click', function () {
@@ -149,6 +145,15 @@
         });
     });
 
+    $(".sprintPoints").change(function(){
+        var sum = 0;
+        var sprintPoints = $(".sprintPoints");
+        for(var i = 0; i < sprintPoints.length; i++){
+            sum += parseInt(sprintPoints[i].value); 
+        }
+        $("#totalSprintPoints").val(sum);
+        console.log(sum);
+    });
 
   });
 </script>
@@ -240,3 +245,80 @@
         })
     });
 </script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+    var burnedArray = $("#chartContainer").attr("burnedStr").split(",");
+    var burned=[];
+    for(var i = 0; i < burnedArray.length-1; i++){
+        var temp = burnedArray[i].split(":");
+        burned.push({x: parseInt(temp[0]),y: parseInt(temp[1])});
+    }
+    var estimateArray = $("#chartContainer").attr("estimateStr").split(",");
+    var estimate=[];
+    for(var i = 0; i < estimateArray.length-1; i++){
+        var temp = estimateArray[i].split(":");
+        estimate.push({x:parseInt(temp[0]),y: parseInt(temp[1])});
+    }
+    var chart = new CanvasJS.Chart("chartContainer", {
+        animationEnabled: true,
+        theme: "light2",
+        axisX:{
+            title: "Sprint",
+            interval: 1,
+            includeZero: false,
+            crosshair: {
+                enabled: true,
+                snapToDataPoint: true
+            }
+        },
+        axisY: {
+            title: "Points Remaining",
+            crosshair: {
+                enabled: true
+            }
+        },
+        toolTip:{
+            shared:true
+        },  
+        legend:{
+            cursor:"pointer",
+            verticalAlign: "bottom",
+            horizontalAlign: "left",
+            dockInsidePlotArea: true,
+            itemclick: toogleDataSeries
+        },
+        data: [{
+            type: "line",
+            lineThickness: 5,
+            showInLegend: true,
+            name: "Actual",
+            markerType: "square",
+            color: "#F08080",
+            dataPoints: burned
+        },
+        {
+            type: "line",
+            lineThickness: 5,
+            showInLegend: true,
+            name: "Estimate",
+            lineDashType: "dash",
+            dataPoints: estimate
+        }]
+    });
+    chart.render();
+    
+    function toogleDataSeries(e){
+        if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+            e.dataSeries.visible = false;
+        } else{
+            e.dataSeries.visible = true;
+        }
+        chart.render();
+    }
+    
+})
+
+</script>
+
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
