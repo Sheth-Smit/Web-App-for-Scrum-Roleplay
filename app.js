@@ -77,7 +77,7 @@ app.use(function(req, res, next){
   res.locals.sprintEnd = [4*60*1000, 6*60*1000, 7.5*60*1000];
   res.locals.totalTime = 8*60*1000;
   res.locals.numofSprints = 3;
-
+  res.locals.currentSprint = 0;
   next();
 });
 
@@ -171,7 +171,7 @@ app.get("/:team_id/productBacklog/new", function(req, res){
         } else {
             var date = new Date();
             var curTime = Date.parse(date);
-            if(team.endTime - curTime > 6.5 * 60 * 1000){
+            if(team.endTime - curTime > totalTime - sprintStart[0]){
               res.render("addUserStory", {team: team});
             } else {
               res.redirect("/" + team._id + "/productBacklog");
@@ -234,7 +234,13 @@ app.get("/:team_id/estimateSprintPoints", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
-      res.render("estimateSprintPoints", {team: team});
+      var date = new Date();
+      var curTime = Date.parse(date);
+      if(team.endTime - curTime > totalTime - sprintStart[0]){
+        res.render("estimateSprintPoints", {team: team});
+      } else {
+        res.redirect("/" + team._id + "/productBacklog");
+      }
   })
 });
 
@@ -282,7 +288,7 @@ app.get("/:team_id/releasePlan/new", function(req, res){
       } else {
           var date = new Date();
           var curTime = Date.parse(date);
-          if(team.endTime - curTime > 6 * 60 * 1000){
+          if(team.endTime - curTime > totalTime - sprintStart[0]){
             res.render("addRelease", {team: team});
           } else {
             res.redirect("/" + team._id + "/releasePlan");
@@ -315,158 +321,6 @@ app.post("/:team_id/releasePlan/new", function(req, res){
     });
 });
 
-//===================
-// Sprint Text Routes
-//===================
-
-app.get("/:team_id/:sprintNo/planSummaryDisplay",function(req,res){
-  Team.findById(req.params.team_id,function(err,team){
-    if(parseInt(req.params.sprintNo,10)>team.sprint.length){
-      res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
-    }
-    else{
-      if(team.sprint[req.params.sprintNo-1].planSummary=="") {
-        res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
-      }
-      else{
-        res.render("currentSummary",{team:team,sprintNo:req.params.sprintNo});
-      }
-    }
-  });
-});
-app.get("/:team_id/:sprintNo/planSummary",function(req,res){
-  Team.findById(req.params.team_id,function(err,team){
-    if(err){
-      console.log(err);
-    }
-    else{
-      var date = new Date();
-      var curTime = Date.parse(date);
-      if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
-        res.render("planSummary",{team:team,sprintNo:req.params.sprintNo});
-      } else {
-        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/planSummaryDisplay");
-      }
-
-    }
-  });
-});
-app.post("/:team_id/:sprintNo/planSummary",function(req,res){
-  Team.findById(req.params.team_id,function(err,team){
-    if(err){
-      console.log(err);
-    }
-    else{
-      if(parseInt(req.params.sprintNo,10)>team.sprint.length){
-        team.sprint.push(req.body.sprint);
-        team.save();
-      }
-      else{
-        team.sprint[parseInt(req.params.sprintNo,10)-1].planSummary=req.body.sprint.planSummary;
-        team.save();
-      }
-      res.redirect("/"+team.id+"/"+req.params.sprintNo+"/planSummaryDisplay");
-    }
-  });
-});
-app.get("/:team_id/:sprintNo/sprintRetrospectiveDisplay",function(req,res){
-  Team.findById(req.params.team_id,function(err,team){
-    if(parseInt(req.params.sprintNo,10)>team.sprint.length){
-      res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
-    }
-    else{
-      if(team.sprint[req.params.sprintNo-1].retrospective=="") {
-        res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
-      }
-      else{
-        res.render("currentRetrospective",{team:team,sprintNo:req.params.sprintNo});
-      }
-    }
-  });
-});
-app.get("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
-  Team.findById(req.params.team_id,function(err,team){
-    if(err){
-      console,log(err);
-    }
-    else{
-      var date = new Date();
-      var curTime = Date.parse(date);
-      if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
-        res.render("sprintRetrospective",{team:team,sprintNo:req.params.sprintNo});
-      } else {
-        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/sprintRetrospectiveDisplay");
-      }
-    }
-  });
-});
-app.post("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
-  Team.findById(req.params.team_id,function(err,team){
-    if(err){
-      console.log(err);
-    }
-    else{
-      if(parseInt(req.params.sprintNo,10)>team.sprint.length){
-        team.sprint.push(req.body.sprint);
-        team.save();
-      }
-      else{
-        team.sprint[parseInt(req.params.sprintNo,10)-1].retrospective=req.body.sprint.retrospective;
-        team.save();
-      }
-      res.redirect("/"+team.id+"/"+req.params.sprintNo+"/sprintRetrospectiveDisplay");
-    }
-  });
-});
-app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
-  Team.findById(req.params.team_id,function(err,team){
-    if(parseInt(req.params.sprintNo,10)>team.sprint.length){
-      res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
-    }
-    else{
-        if(team.sprint[req.params.sprintNo-1].review=="") {
-          res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
-        }
-        else{
-          res.render("currentReview",{team:team,sprintNo:req.params.sprintNo});
-        }
-    }
-  });
-});
-app.get("/:team_id/:sprintNo/sprintReview",function(req,res){
-  Team.findById(req.params.team_id,function(err,team){
-    if(err){
-      console,log(err);
-    }
-    else{
-      var date = new Date();
-      var curTime = Date.parse(date);
-      if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
-        res.render("sprintReview",{team:team,sprintNo:req.params.sprintNo});
-      } else {
-        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/sprintReviewDisplay");
-      }
-    }
-  });
-});
-app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
-  Team.findById(req.params.team_id,function(err,team){
-    if(err){
-      console.log(err);
-    }
-    else{
-      if(parseInt(req.params.sprintNo,10)>team.sprint.length){
-        team.sprint.push(req.body.sprint);
-        team.save();
-      }
-      else{
-        team.sprint[parseInt(req.params.sprintNo,10)-1].review=req.body.sprint.review;
-        team.save();
-      }
-      res.redirect("/"+team.id+"/"+req.params.sprintNo+"/sprintReviewDisplay");
-    }
-  });
-});
 
 //===============
 // Sprint Routes
@@ -476,6 +330,7 @@ app.get("/:team_id/:sprint_id/selectStories", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
+      res.locals.currentSprint = req.params.sprint_id;
       res.render("poSelectStories", {team: team, sprint_id: req.params.sprint_id});
   });
 });
@@ -501,6 +356,7 @@ app.get("/:team_id/:sprint_id/estimateStories", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
+      res.locals.currentSprint = req.params.sprint_id;
       res.render("estimate_stories", {team: team, sprint_id: req.params.sprint_id});
   });
 });
@@ -529,6 +385,7 @@ app.get("/:team_id/:sprint_id/devTasks", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
+      res.locals.currentSprint = req.params.sprint_id;
       res.render("devTasks", {team: team, sprint_id: req.params.sprint_id});
   });
 });
@@ -540,6 +397,7 @@ app.get("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
       if(err){
           console.log("Error: ", err);
       } else {
+          res.locals.currentSprint = req.params.sprint_id;
           var date = new Date();
           var curTime = Date.parse(date);
           if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprint_id-1]){
@@ -579,6 +437,7 @@ app.get("/:team_id/:sprint_id/devStorySelection", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
+      res.locals.currentSprint = req.params.sprint_id;
       res.render("devStorySelection", {team: team, sprint_id: req.params.sprint_id});
   });
 });
@@ -627,6 +486,7 @@ app.get("/:team_id/:sprint_id/finishedUserStories", function(req, res){
       if(err){
           console.log("Error: ", err);
       } else {
+          res.locals.currentSprint = req.params.sprint_id;
           res.render("finishedUserStories", {team: team,sprint_id: req.params.sprint_id});
       }
   })
@@ -654,6 +514,192 @@ app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req
       res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
     });
 });
+
+app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+            for(var i = 0; i < team.productBacklog.length; i++){
+                if(team.productBacklog[i].sprintID == req.params.sprint_id && team.productBacklog[i].status != 2){
+                    team.productBacklog[i].takenBy="nought";
+                    team.productBacklog[i].status=0;
+                    team.productBacklog[i].sprintID=0;
+                    team.productBacklog[i].points=0;
+                    team.productBacklog[i].tasks=[];
+                }
+            }
+            team.save();
+        }
+        if(req.params.sprint_id < numofSprints){
+            res.redirect("/" + team._id + "/"+ (req.params.sprint_id + 1) + "/selectStories");
+        } else {
+          // Route to project Review
+            res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/selectStories");
+        }
+    });
+});
+
+//===================
+// Sprint Text Routes
+//===================
+
+app.get("/:team_id/:sprintNo/planSummaryDisplay",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    res.locals.currentSprint = req.params.sprintNo;
+    console.log(req.params.currentSprint);
+    if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+      res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
+    }
+    else{
+      if(team.sprint[req.params.sprintNo-1].planSummary=="") {
+        res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
+      }
+      else{
+        res.render("currentSummary",{team:team,sprintNo:req.params.sprintNo});
+      }
+    }
+  });
+});
+app.get("/:team_id/:sprintNo/planSummary",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console.log(err);
+    }
+    else{
+      res.locals.currentSprint = req.params.sprintNo;
+      var date = new Date();
+      var curTime = Date.parse(date);
+      if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
+        res.render("planSummary",{team:team,sprintNo:req.params.sprintNo});
+      } else {
+        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/planSummaryDisplay");
+      }
+
+    }
+  });
+});
+app.post("/:team_id/:sprintNo/planSummary",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console.log(err);
+    }
+    else{
+      if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+        team.sprint.push(req.body.sprint);
+        team.save();
+      }
+      else{
+        team.sprint[parseInt(req.params.sprintNo,10)-1].planSummary=req.body.sprint.planSummary;
+        team.save();
+      }
+      res.redirect("/"+team.id+"/"+req.params.sprintNo+"/planSummaryDisplay");
+    }
+  });
+});
+app.get("/:team_id/:sprintNo/sprintRetrospectiveDisplay",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    res.locals.currentSprint = req.params.sprintNo;
+    if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+      res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
+    }
+    else{
+      if(team.sprint[req.params.sprintNo-1].retrospective=="") {
+        res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
+      }
+      else{
+        res.render("currentRetrospective",{team:team,sprintNo:req.params.sprintNo});
+      }
+    }
+  });
+});
+app.get("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console,log(err);
+    }
+    else{
+      res.locals.currentSprint = req.params.sprintNo;
+      var date = new Date();
+      var curTime = Date.parse(date);
+      if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
+        res.render("sprintRetrospective",{team:team,sprintNo:req.params.sprintNo});
+      } else {
+        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/sprintRetrospectiveDisplay");
+      }
+    }
+  });
+});
+app.post("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console.log(err);
+    }
+    else{
+      if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+        team.sprint.push(req.body.sprint);
+        team.save();
+      }
+      else{
+        team.sprint[parseInt(req.params.sprintNo,10)-1].retrospective=req.body.sprint.retrospective;
+        team.save();
+      }
+      res.redirect("/"+team.id+"/"+req.params.sprintNo+"/sprintRetrospectiveDisplay");
+    }
+  });
+});
+app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    res.locals.currentSprint = req.params.sprintNo;
+    if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+      res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
+    }
+    else{
+        if(team.sprint[req.params.sprintNo-1].review=="") {
+          res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
+        }
+        else{
+          res.render("currentReview",{team:team,sprintNo:req.params.sprintNo});
+        }
+    }
+  });
+});
+app.get("/:team_id/:sprintNo/sprintReview",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console,log(err);
+    }
+    else{
+      res.locals.currentSprint = req.params.sprintNo;
+      var date = new Date();
+      var curTime = Date.parse(date);
+      if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
+        res.render("sprintReview",{team:team,sprintNo:req.params.sprintNo});
+      } else {
+        res.redirect("/" + team._id + "/" + req.params.sprintNo + "/sprintReviewDisplay");
+      }
+    }
+  });
+});
+app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console.log(err);
+    }
+    else{
+      if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+        team.sprint.push(req.body.sprint);
+        team.save();
+      }
+      else{
+        team.sprint[parseInt(req.params.sprintNo,10)-1].review=req.body.sprint.review;
+        team.save();
+      }
+      res.redirect("/"+team.id+"/"+req.params.sprintNo+"/sprintReviewDisplay");
+    }
+  });
+});
+
 
 //===============
 // Creating teams
