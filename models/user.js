@@ -3,8 +3,9 @@ var passportLocalMongoose=require("passport-local-mongoose");
 var userSchema=new mongoose.Schema({
   username: String,
   email: String,
-  role: String,
-  name: String,
+  password: String,
+  role: {type:String,default:""},
+  name: {type:String,default:""},
   invitations:[{
     sender: String,
     receiver:String,
@@ -17,8 +18,8 @@ var userSchema=new mongoose.Schema({
       ref: "Team"
     }
   ],
-  currentTeam: String,
-  currentSession: String
+  currentTeam: {type:String,default:""},
+  currentSession: {type:String,default:""}
 });
 userSchema.plugin(passportLocalMongoose);
 module.exports=mongoose.model("User",userSchema);

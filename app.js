@@ -31,45 +31,18 @@ app.use(require("express-session")({
 
 app.use(passport.initialize());
 app.use(passport.session());
+passport.use(new localpassport(User.authenticate()));
+
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 // Use the GoogleStrategy within Passport.
 //   Strategies in Passport require a `verify` function, which accept
 //   credentials (in this case, an accessToken, refreshToken, and Google
 //   profile), and invoke a callback with a user object.
-passport.use(new GoogleStrategy({
-    clientID: keys.google.clientID,
-    clientSecret: keys.google.clientSecret,
-    callbackURL: "/auth/google/callback"
-  },
-  function(accessToken, refreshToken, profile, done) {
-      User.findOne({
-          username: profile.id
-      }, function(err, user) {
-          if (err) {
-              return done(err);
-          }
-          if (!user) {
-              user = new User({
-                  name: profile.displayName,
-                  email: profile.emails[0].value,
-                  username: profile.id,
-                  role : ""
-              });
-              user.save(function(err) {
-                  if (err) console.log(err);
-                  return done(err, user);
-              });
-          } else {
-              //found user. Return
-              return done(err, user);
-          }
-      });
-  }
-));
+
+
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
-
 
 app.use(function(req, res, next){
   res.locals.currentUser = req.user;
@@ -79,6 +52,41 @@ app.use(function(req, res, next){
   res.locals.numofSprints = 3;
 
   next();
+});
+
+app.get('/auth/google',function(req,res){
+  res.render("login");
+});
+
+app.get("/register",function(req,res){
+  res.render("register");
+});
+app.get("/login",function(req,res){
+  res.render("login");
+});
+app.post("/login",passport.authenticate("local",{
+  successRedirect:"/",
+  failureRedirect:"/login"
+}),function(req,res){
+  console.log("authentication: ");
+});
+app.post("/register",function(req,res){
+  console.log("Register start");
+  User.register(new User({username:req.body.email }), req.body.password, function(err,user){
+    if(err){
+      console.log("Error Generated : "+err);
+    }else {
+      user.name = req.body.username;
+      user.email = req.body.email;
+      user.save();
+      passport.authenticate("local")(req,res,function(){
+        console.log("New User: "+user);
+        res.redirect("/");
+        //res.redirect("/")
+      });
+    }
+});
+  console.log("Regsiter end");
 });
 
 app.set("view engine", "ejs");
@@ -695,7 +703,7 @@ app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/accept/actualPoints", 
       } else {
         team.productBacklog[req.params.us_id].status=2;
         team.productBacklog[req.params.us_id].points = req.body.actualPoints;
-        team.sprintPoints[req.params.sprint_id-1].burned += req.body.actualPoints;
+        team.sprintPoints[req.params.sprint_id-1].burned += parseInt(req.body.actualPoints,10);
         team.save();
       }
     res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
@@ -876,22 +884,6 @@ app.get('/flash', function(req, res){
   res.redirect('/');
 });
 
-app.get('/auth/google',
-    passport.authenticate('google',
-    {
-      scope: ['https://www.googleapis.com/auth/plus.login',
-              'https://www.googleapis.com/auth/userinfo.email']
-    })
-);
-
-
-app.get('/auth/google/callback',
-    passport.authenticate('google', {
-      failureRedirect: '/auth/google' }),
-    function(req, res) {
-      res.redirect("/");
-    }
-);
 app.get("/logout", function(req, res){
     req.logout();
     res.redirect("/");

@@ -16,20 +16,19 @@
       <div class="modal-body show">
         <form action="/login" method="post">
             <div class="form-group">
-              <label for="reg-username">Username</label>
+              <label for="reg-username">Email</label>
               <input type="text" name="username" class="form-control" id="reg-username" placeholder="Enter your username" required>
               <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
             </div>
             <div class="form-group">
               <label for="reg-password">Password</label>
-              <input type="password" name="password" class="form-control" id="reg-password" placeholder="Create a new password" required>
+              <input type="password" name="password" class="form-control" id="reg-password" placeholder="Enter password" required>
             </div>
             <!-- <button type="submit" class="btn btn-primary float-right">Submit</button> -->
-            <a href="/auth/google">Sign In with Google</a>
+            <button class="btn btn-primary float-right" type="submit">Login</button>
           </form>
           <hr>
           <h7 class="form-text text-muted"><a href="/register">Register Here</a></h7>
-          <% if(messages.error){console.log(messages.error);} %>
       </div>
 
     </div>
