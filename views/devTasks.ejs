@@ -9,12 +9,14 @@
        <%     sumTasks+=team.productBacklog[i].tasks[j].points;
         }
         %>
-        <div><span>US <%=i+1%> Points Burned: <%=team.productBacklog[i].points%> Estimate in points (sum of tasks): <%=sumTasks%></span></div>
+        <hr>
+        <div><h5><span>US: <%=i+1%> Action: <%=team.productBacklog[i].action%>  Estimate in points(sum of tasks): <%=sumTasks%></span></h5></div>
         <table >
             <tr>
                 <th></th>
                 <th>Description</th>
                 <th>Points</th>
+                <th></th>
             </tr>
             <%for(var j = 0; j < team.productBacklog[i].tasks.length; j++){
                     var classAlt = "odd" %>
@@ -26,6 +28,7 @@
                         <td> Task <%=j+1%></td>
                         <td> <%= team.productBacklog[i].tasks[j].description  %></td>
                         <td> <%= team.productBacklog[i].tasks[j].points %></td>
+                        <td class="tasks-delete" sprintid="<%=sprint_id%>" usid="<%= i %>" index="<%= j %>" teamid="<%= team.id %>"> <i class="delete fas fa-trash-alt fa-2x"></i></td>
                     </tr>
             <%}%>
         <table>
@@ -39,7 +42,7 @@
         <form action="/<%= team._id %>/<%= sprint_id %>/devTasks/<%= i %>/finish" method="POST">
             <button class="btn release-style float-right">Finish</button>
         </form>
-
+        <hr>
     <%}}
 }%>
 

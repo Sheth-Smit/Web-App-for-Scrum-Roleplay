@@ -33,6 +33,7 @@ var teamSchema=new mongoose.Schema({
     review:{type:String,default:""},
     retrospective:{type:String,default:""}
   }],
+  productReview: {type: String, default: ""},
   endTime: {type: String, default: ""},
   timerFlag: {type: Number, default: 0}
 });

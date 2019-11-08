@@ -31,45 +31,12 @@ app.use(require("express-session")({
 
 app.use(passport.initialize());
 app.use(passport.session());
+passport.use(new localpassport(User.authenticate()));
+
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
-// Use the GoogleStrategy within Passport.
-//   Strategies in Passport require a `verify` function, which accept
-//   credentials (in this case, an accessToken, refreshToken, and Google
-//   profile), and invoke a callback with a user object.
-passport.use(new GoogleStrategy({
-    clientID: keys.google.clientID,
-    clientSecret: keys.google.clientSecret,
-    callbackURL: "http://localhost:3050/auth/google/callback"
-  },
-  function(accessToken, refreshToken, profile, done) {
-      User.findOne({
-          username: profile.id
-      }, function(err, user) {
-          if (err) {
-              return done(err);
-          }
-          if (!user) {
-              user = new User({
-                  name: profile.displayName,
-                  email: profile.emails[0].value,
-                  username: profile.id,
-                  role : ""
-              });
-              user.save(function(err) {
-                  if (err) console.log(err);
-                  return done(err, user);
-              });
-          } else {
-              //found user. Return
-              return done(err, user);
-          }
-      });
-  }
-));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
-
 
 app.use(function(req, res, next){
   res.locals.currentUser = req.user;
@@ -77,8 +44,43 @@ app.use(function(req, res, next){
   res.locals.sprintEnd = [4*60*1000, 6*60*1000, 7.5*60*1000];
   res.locals.totalTime = 8*60*1000;
   res.locals.numofSprints = 3;
-  res.locals.currentSprint = 0;
+
   next();
+});
+
+app.get('/auth/google',function(req,res){
+  res.render("login");
+});
+
+app.get("/register",function(req,res){
+  res.render("register");
+});
+app.get("/login",function(req,res){
+  res.render("login");
+});
+app.post("/login",passport.authenticate("local",{
+  successRedirect:"/",
+  failureRedirect:"/login"
+}),function(req,res){
+  console.log("authentication: ");
+});
+app.post("/register",function(req,res){
+  console.log("Register start");
+  User.register(new User({username:req.body.email }), req.body.password, function(err,user){
+    console.log("User created");
+    if(err){
+      console.log("Error Generated : "+err);
+    }else {
+      user.name = req.body.username;
+      user.email = req.body.email;
+      user.save();
+      console.log("Saved");
+      passport.authenticate("local")(req,res,function(){
+        console.log("New User: "+user);
+      });
+      res.redirect("/");
+    }
+  });
 });
 
 app.set("view engine", "ejs");
@@ -88,7 +90,6 @@ var sprintStart = [2*60*1000, 4*60*1000, 6*60*1000];
 var sprintEnd = [4*60*1000, 6*60*1000, 7.5*60*1000];
 var totalTime = 8*60*1000;
 var numofSprints = 3;
-
 //============
 // ROUTES
 //============
@@ -433,6 +434,20 @@ app.post("/:team_id/:sprint_id/devTasks/:us_id/finish", function(req, res){
     });
 });
 
+app.post("/:team_id/:sprintID/devTasks/:us_id/delete", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          var index = req.body.index;
+          team.productBacklog[req.params.us_id].tasks.splice(index, 1);
+          console.log("Deleted task" + index + "from "+ req.params.us_id);
+          team.save();
+      }
+      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
+  })
+})
+
 app.get("/:team_id/:sprint_id/devStorySelection", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
@@ -494,13 +509,14 @@ app.get("/:team_id/:sprint_id/finishedUserStories", function(req, res){
 
 app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
+    var flag = 0;
       if(err){
           console.log("Error: ", err);
       } else {
             console.log("reached",req.params.status);
             if(req.params.status == "accept"){
-              team.productBacklog[req.params.us_id].status=2;
-              team.sprintPoints[team.productBacklog[req.params.us_id].sprintID-1].burned += team.productBacklog[req.params.us_id].points;
+            flag = 1;
+            // console.log("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories/" + req.params.us_id + "/accept/actualPoints");
             }
             else{
               team.productBacklog[req.params.us_id].takenBy="nought";
@@ -511,32 +527,53 @@ app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req
             }
             team.save();
         }
-      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
+        if(flag)
+            res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories/" + req.params.us_id + "/accept/actualPoints");
+        else
+            res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
     });
 });
 
-app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
+
+app.get("/:team_id/:sprint_id/finishedUserStories/:us_id/accept/actualPoints", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
       } else {
-            for(var i = 0; i < team.productBacklog.length; i++){
-                if(team.productBacklog[i].sprintID == req.params.sprint_id && team.productBacklog[i].status != 2){
-                    team.productBacklog[i].takenBy="nought";
-                    team.productBacklog[i].status=0;
-                    team.productBacklog[i].sprintID=0;
-                    team.productBacklog[i].points=0;
-                    team.productBacklog[i].tasks=[];
-                }
-            }
-            team.save();
-        }
-        if(req.params.sprint_id < numofSprints){
-            res.redirect("/" + team._id + "/"+ (req.params.sprint_id + 1) + "/selectStories");
-        } else {
-          // Route to project Review
-            res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/selectStories");
-        }
+
+
+
+          res.render("actualPoints", {team: team,sprint_id: req.params.sprint_id,us_id: req.params.us_id});
+      }
+  })
+});
+
+app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+      for(var i = 0; i < team.productBacklog.length; i++){
+          if(team.productBacklog[i].sprintID == req.params.sprint_id && team.productBacklog[i].status != 2){
+              team.productBacklog[i].takenBy="nought";
+              team.productBacklog[i].status=0;
+              team.productBacklog[i].sprintID=0;
+              team.productBacklog[i].points=0;
+              team.productBacklog[i].tasks=[];
+          }
+      }
+      team.save();
+      }
+      if(req.params.sprint_id < numofSprints){
+          res.redirect("/" + team._id + "/"+ (req.params.sprint_id + 1) + "/selectStories");
+      } else {
+      // Route to project Review
+          res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/selectStories");
+      }
     });
 });
 
@@ -546,8 +583,6 @@ app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
 
 app.get("/:team_id/:sprintNo/planSummaryDisplay",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
-    res.locals.currentSprint = req.params.sprintNo;
-    console.log(req.params.currentSprint);
     if(parseInt(req.params.sprintNo,10)>team.sprint.length){
       res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
     }
@@ -561,13 +596,13 @@ app.get("/:team_id/:sprintNo/planSummaryDisplay",function(req,res){
     }
   });
 });
+
 app.get("/:team_id/:sprintNo/planSummary",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
     if(err){
       console.log(err);
     }
     else{
-      res.locals.currentSprint = req.params.sprintNo;
       var date = new Date();
       var curTime = Date.parse(date);
       if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
@@ -599,7 +634,6 @@ app.post("/:team_id/:sprintNo/planSummary",function(req,res){
 });
 app.get("/:team_id/:sprintNo/sprintRetrospectiveDisplay",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
-    res.locals.currentSprint = req.params.sprintNo;
     if(parseInt(req.params.sprintNo,10)>team.sprint.length){
       res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
     }
@@ -619,7 +653,6 @@ app.get("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
       console,log(err);
     }
     else{
-      res.locals.currentSprint = req.params.sprintNo;
       var date = new Date();
       var curTime = Date.parse(date);
       if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
@@ -650,7 +683,6 @@ app.post("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
 });
 app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
-    res.locals.currentSprint = req.params.sprintNo;
     if(parseInt(req.params.sprintNo,10)>team.sprint.length){
       res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
     }
@@ -670,7 +702,6 @@ app.get("/:team_id/:sprintNo/sprintReview",function(req,res){
       console,log(err);
     }
     else{
-      res.locals.currentSprint = req.params.sprintNo;
       var date = new Date();
       var curTime = Date.parse(date);
       if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
@@ -700,6 +731,63 @@ app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
   });
 });
 
+
+
+app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/accept/actualPoints", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+        team.productBacklog[req.params.us_id].status=2;
+        team.productBacklog[req.params.us_id].points = req.body.actualPoints;
+        team.sprintPoints[req.params.sprint_id-1].burned += parseInt(req.body.actualPoints,10);
+        team.save();
+      }
+    res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
+  })
+});
+
+//===============
+// Product Review
+//===============
+
+app.get("/:team_id/productReview", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          res.render("productReview", {team: team});
+      }
+  })
+});
+
+app.get("/:team_id/productReview/update", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          res.render("updateProductReview", {team: team});
+      }
+  })
+});
+
+app.post("/:team_id/productReview/update", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          team.productReview = req.body.productReview;
+          team.save();
+      }
+      res.redirect("/" + team._id + "/productReview");
+  })
+});
 
 //===============
 // Creating teams
@@ -835,22 +923,6 @@ app.get('/flash', function(req, res){
   res.redirect('/');
 });
 
-app.get('/auth/google',
-    passport.authenticate('google',
-    {
-      scope: ['https://www.googleapis.com/auth/plus.login',
-              'https://www.googleapis.com/auth/userinfo.email']
-    })
-);
-
-
-app.get('/auth/google/callback',
-    passport.authenticate('google', {
-      failureRedirect: '/auth/google' }),
-    function(req, res) {
-      res.redirect("/");
-    }
-);
 app.get("/logout", function(req, res){
     req.logout();
     res.redirect("/");

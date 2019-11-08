@@ -1,0 +1,20 @@
+<% include partials/sidebarHeader %>
+<% if( team.productReview == "" ){ %>
+    <h2>No Product Review</h2>
+    <form action="/<%=team.id%>/productReview/update" method="get">
+      <h4 align="center" class="h4text">Please Create a Plan Summary</h4>
+      <button id="SubBut" type="submit" class="btn release-style float-centre" name="button">Create</button>
+    </form>
+<% } else { %>
+    <div class="card-title" style="text-align: center;"><h2>Product Review</h2></div>
+    <div class="card">
+    <div class="card-body">
+        <h5 class="text-justify "><%=team.productReview%></h5>
+    </div>
+    </div>
+    <form action="/<%=team.id%>/productReview/update" method="get">
+        <button id="SubBut" class="btn release-style float-centre" type="submit" name="button">Update</button>
+    </form>
+<% } %>
+<% include partials/sidebarFooter %>
+<% include partials/footer %>
