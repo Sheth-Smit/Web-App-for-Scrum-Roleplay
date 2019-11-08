@@ -40,11 +40,11 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use(function(req, res, next){
   res.locals.currentUser = req.user;
-  res.locals.sprintStart = [2*60*1000, 4*60*1000, 6*60*1000];
-  res.locals.sprintEnd = [4*60*1000, 6*60*1000, 7.5*60*1000];
-  res.locals.totalTime = 8*60*1000;
+  res.locals.sprintStart = [5*60*1000, 10*60*1000, 15*60*1000];
+  res.locals.sprintEnd = [10*60*1000, 15*60*1000, 20*60*1000];
+  res.locals.totalTime = 22*60*1000;
   res.locals.numofSprints = 3;
-
+  res.locals.currentSprint = 0;
   next();
 });
 
@@ -86,9 +86,9 @@ app.post("/register",function(req,res){
 app.set("view engine", "ejs");
 mongoose.connect("mongodb://localhost:27017/scrum-roleplay",{useNewUrlParser: true});
 
-var sprintStart = [2*60*1000, 4*60*1000, 6*60*1000];
-var sprintEnd = [4*60*1000, 6*60*1000, 7.5*60*1000];
-var totalTime = 8*60*1000;
+var sprintStart = [5*60*1000, 10*60*1000, 15*60*1000];
+var sprintEnd = [10*60*1000, 15*60*1000, 20*60*1000];
+var totalTime = 22*60*1000;
 var numofSprints = 3;
 //============
 // ROUTES
@@ -542,9 +542,7 @@ app.get("/:team_id/:sprint_id/finishedUserStories/:us_id/accept/actualPoints", f
       if(err){
           console.log("Error: ", err);
       } else {
-
-
-
+          res.locals.currentSprint = req.params.sprint_id;
           res.render("actualPoints", {team: team,sprint_id: req.params.sprint_id,us_id: req.params.us_id});
       }
   })
@@ -572,7 +570,7 @@ app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
           res.redirect("/" + team._id + "/"+ (req.params.sprint_id + 1) + "/selectStories");
       } else {
       // Route to project Review
-          res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/selectStories");
+          res.redirect("/" + team._id + "/productReview");
       }
     });
 });
@@ -583,6 +581,7 @@ app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
 
 app.get("/:team_id/:sprintNo/planSummaryDisplay",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
+    res.locals.currentSprint = req.params.sprintNo;
     if(parseInt(req.params.sprintNo,10)>team.sprint.length){
       res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
     }
@@ -603,6 +602,7 @@ app.get("/:team_id/:sprintNo/planSummary",function(req,res){
       console.log(err);
     }
     else{
+      res.locals.currentSprint = req.params.sprintNo;
       var date = new Date();
       var curTime = Date.parse(date);
       if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
@@ -634,6 +634,8 @@ app.post("/:team_id/:sprintNo/planSummary",function(req,res){
 });
 app.get("/:team_id/:sprintNo/sprintRetrospectiveDisplay",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
+    res.locals.currentSprint = req.params.sprintNo;
+
     if(parseInt(req.params.sprintNo,10)>team.sprint.length){
       res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
     }
@@ -653,6 +655,8 @@ app.get("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
       console,log(err);
     }
     else{
+      res.locals.currentSprint = req.params.sprintNo;
+
       var date = new Date();
       var curTime = Date.parse(date);
       if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
@@ -683,6 +687,8 @@ app.post("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
 });
 app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
+    res.locals.currentSprint = req.params.sprintNo;
+
     if(parseInt(req.params.sprintNo,10)>team.sprint.length){
       res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
     }
@@ -718,6 +724,8 @@ app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
       console.log(err);
     }
     else{
+      res.locals.currentSprint = req.params.sprintNo;
+      
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
         team.sprint.push(req.body.sprint);
         team.save();

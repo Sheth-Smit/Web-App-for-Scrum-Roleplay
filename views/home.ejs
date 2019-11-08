@@ -1,18 +1,20 @@
 <% include partials/sidebarHeader %>
+<div class="card-title" style="text-align: center;"><h2>Case Study</h2></div>
+<div class="card">
+  <div class="card-body">
+    <h5>
+      Our client – a medium-sized hotel in New York- wanted to integrate an automated solution to its customer service department which processes a large number of requests on a daily basis.
 
-      <div class="header">
-        Main Content
-      </div>
-      <h5>
-        Our client – a medium-sized hotel in New York- wanted to integrate an automated solution to its customer service department which processes a large number of requests on a daily basis.
+It’s worth noting that the majority of those requests are mostly identical or related to a particular topic – e.g. reservations or background information. Therefore, the client decided to develop a chatbot application that would answer typical questions and reduce both the working time and costs of the support team. In order to provide the application with a natural feel close to a real support specialist, the application has been crafted using machine learning techniques which have drastically improved its “communication skills”.
+    </h5>
+    <h5>
+      The key feature of this chatbot is an API provided by Dialogflow and its webhook. Thus, our bot can learn via the list of created data or go outside Dialogflow to search for more information. The user graphic interface (GUI) is intuitive and comes in two versions: the first one is based on React Native for mobile, and the other one represents a web version built in React.js.
+    </h5>
+  </div>
+</div>
 
-  It’s worth noting that the majority of those requests are mostly identical or related to a particular topic – e.g. reservations or background information. Therefore, the client decided to develop a chatbot application that would answer typical questions and reduce both the working time and costs of the support team. In order to provide the application with a natural feel close to a real support specialist, the application has been crafted using machine learning techniques which have drastically improved its “communication skills”.
-      </h5>
-      <h5>
-        The key feature of this chatbot is an API provided by Dialogflow and its webhook. Thus, our bot can learn via the list of created data or go outside Dialogflow to search for more information. The user graphic interface (GUI) is intuitive and comes in two versions: the first one is based on React Native for mobile, and the other one represents a web version built in React.js.
-      </h5>
-      <% if(currentUser.role == "Product Owner"){ %>
-          <button class="btn" id="timer-button">Start</button>
-      <% } %>
+<% if(currentUser.role == "Product Owner"){ %>
+    <button class="btn" id="timer-button">Start</button>
+<% } %>
 <% include partials/sidebarFooter %>
 <% include partials/footer%>
