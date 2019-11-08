@@ -99,13 +99,6 @@
                           </li>
                           <li>
                               <% if(team.endTime - curTime > totalTime - sprintStart[i]){ %>
-                                <a href="javascript:window.location.href=window.location.href">Estimate Stories</a>
-                              <%} else {%>
-                                <a href="/<%= currentUser.currentTeam %>/<%=i+1%>/estimateStories">Estimate Stories</a>
-                              <% } %>
-                          </li>
-                          <li>
-                              <% if(team.endTime - curTime > totalTime - sprintStart[i]){ %>
                                 <a href="javascript:window.location.href=window.location.href">Plan Summary</a>
                               <%} else {%>
                                 <a href="/<%= currentUser.currentTeam %>/<%= i+1 %>/planSummaryDisplay">Plan Summary</a>
@@ -151,7 +144,7 @@
                 <% } %>
 
                 <li>
-                    <a href="javascript:window.location.href=window.location.href">
+                    <a href="/<%= currentUser.currentTeam %>/productReview">
                         <i class="fas fa-tasks"></i>
                         Project Review
                     </a>

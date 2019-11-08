@@ -244,6 +244,23 @@
             )
         })
     });
+    $(document).ready(function(){
+        $(".tasks-delete").click(function(){
+            var team_id = $(this).attr("teamid");
+            var index = $(this).attr("index");
+            var usid = $(this).attr("usid");
+            var sprintid = $(this).attr("sprintid");
+            var url = "/" + team_id + "/" + sprintid + "/devTasks/"+usid+"/delete";
+
+            $.post(
+                url,
+                {index: index},
+                function(data, status, jqXHR){
+                    location.reload(true);
+                }
+            )
+        })
+    });
 </script>
 
 <script type="text/javascript">

@@ -1,0 +1,32 @@
+<% include partials/header %>
+<% include partials/navbar %>
+
+
+  <div class="modal show" id="myModal" aria-modal = "true" style="display: block;" role="dialog" tabindex="-1">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Actual Points Burned</h4>
+        <a class="btn close" href="/<%= team._id %>/<%= sprint_id %>/finishedUserStories">&times;</a>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body show">
+        <form action="/<%= team._id %>/<%= sprint_id %>/finishedUserStories/<%=us_id%>/accept/actualPoints" method="post">
+            <div class="form-group">
+              <input type="number" name="actualPoints" class="form-control" id="actualPoints-name" required>
+            </div>
+            <button type="submit" class="btn btn-primary float-right">Submit</button>
+          </form>
+          <hr>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop show"></div>
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>

@@ -40,7 +40,7 @@ var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 passport.use(new GoogleStrategy({
     clientID: keys.google.clientID,
     clientSecret: keys.google.clientSecret,
-    callbackURL: "http://localhost:3050/auth/google/callback"
+    callbackURL: "/auth/google/callback"
   },
   function(accessToken, refreshToken, profile, done) {
       User.findOne({
@@ -334,6 +334,7 @@ app.get("/:team_id/:sprintNo/planSummaryDisplay",function(req,res){
     }
   });
 });
+
 app.get("/:team_id/:sprintNo/planSummary",function(req,res){
   Team.findById(req.params.team_id,function(err,team){
     if(err){
@@ -575,6 +576,20 @@ app.post("/:team_id/:sprint_id/devTasks/:us_id/finish", function(req, res){
     });
 });
 
+app.post("/:team_id/:sprintID/devTasks/:us_id/delete", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          var index = req.body.index;
+          team.productBacklog[req.params.us_id].tasks.splice(index, 1);
+          console.log("Deleted task" + index + "from "+ req.params.us_id);
+          team.save();
+      }
+      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
+  })
+})
+
 app.get("/:team_id/:sprint_id/devStorySelection", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
@@ -634,13 +649,14 @@ app.get("/:team_id/:sprint_id/finishedUserStories", function(req, res){
 
 app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
+    var flag = 0;
       if(err){
           console.log("Error: ", err);
       } else {
             console.log("reached",req.params.status);
             if(req.params.status == "accept"){
-              team.productBacklog[req.params.us_id].status=2;
-              team.sprintPoints[team.productBacklog[req.params.us_id].sprintID-1].burned += team.productBacklog[req.params.us_id].points;
+            flag = 1;
+            // console.log("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories/" + req.params.us_id + "/accept/actualPoints");
             }
             else{
               team.productBacklog[req.params.us_id].takenBy="nought";
@@ -651,8 +667,79 @@ app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req
             }
             team.save();
         }
-      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
+        if(flag)
+            res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories/" + req.params.us_id + "/accept/actualPoints");
+        else
+            res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
     });
+});
+
+app.get("/:team_id/:sprint_id/finishedUserStories/:us_id/accept/actualPoints", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          res.render("actualPoints", {team: team,sprint_id: req.params.sprint_id,us_id: req.params.us_id});
+      }
+  })
+});
+
+app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/accept/actualPoints", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+        team.productBacklog[req.params.us_id].status=2;
+        team.productBacklog[req.params.us_id].points = req.body.actualPoints;
+        team.sprintPoints[req.params.sprint_id-1].burned += req.body.actualPoints;
+        team.save();
+      }
+    res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
+  })
+});
+
+//===============
+// Product Review
+//===============
+
+app.get("/:team_id/productReview", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          res.render("productReview", {team: team});
+      }
+  })
+});
+
+app.get("/:team_id/productReview/update", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          res.render("updateProductReview", {team: team});
+      }
+  })
+});
+
+app.post("/:team_id/productReview/update", function(req, res){
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          team.productReview = req.body.productReview;
+          team.save();
+      }
+      res.redirect("/" + team._id + "/productReview");
+  })
 });
 
 //===============
