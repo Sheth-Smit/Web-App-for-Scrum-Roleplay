@@ -14,25 +14,31 @@
         </thead>
         <tbody>
       <% for(var i = 0; i < team.productBacklog.length; i++){ %>
-      <%    if(team.productBacklog[i].status!=1)
+      <%    if(team.productBacklog[i].status == 0 || team.productBacklog[i].sprintID != sprint_id)
               continue;           %>
           <% var classAlt = "odd" %>
           <% if(flag%2 == 0) {classAlt = "even";} %>
           <% var burnedPoints = 0; %>
           <%for(var j = 0; j < team.productBacklog[i].tasks.length; j++)
                 burnedPoints += team.productBacklog[i].tasks[j].points; %>
+            <% if(team.productBacklog[i].status == 2)
+                      burnedPoints = team.productBacklog[i].points; %>  
             <tr class="<%= classAlt %>" id="<%= team.productBacklog[i]._id %>">
               <td> US <%=i+1%> </td>
               <td> <%= team.productBacklog[i].action  %></td>
               <td> <%= team.productBacklog[i].takenBy   %></td>
               <td> <%= burnedPoints   %></td>
               <td>
-              <form action="/<%= team._id %>/<%= sprint_id %>/finishedUserStories/<%=i%>/accept" method="POST">
-                <button class="btn btn-outline-success" style="margin-top: 1em;">Accept</button>
-              </form>
-              <form action="/<%= team._id %>/<%= sprint_id %>/finishedUserStories/<%=i%>/reject" method="POST">
-                <button class="btn btn-outline-danger">Reject</button>
-              </form>
+                <% if(team.productBacklog[i].status == 1){ %>
+                        <form action="/<%= team._id %>/<%= sprint_id %>/finishedUserStories/<%=i%>/accept" method="POST">
+                          <button class="btn btn-outline-success" style="margin-top: 1em;">Accept</button>
+                        </form>
+                        <form action="/<%= team._id %>/<%= sprint_id %>/finishedUserStories/<%=i%>/reject" method="POST">
+                          <button class="btn btn-outline-danger">Reject</button>
+                        </form>
+               <% } else { %>
+                        <button class="btn btn-success" style="margin-top: 0.5em;" disabled>Completed</button>
+              <% } %>
               </td>
             </tr>
         <% flag++; %>

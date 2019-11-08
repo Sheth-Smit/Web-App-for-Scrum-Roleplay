@@ -1,0 +1,10 @@
+<% include partials/sidebarHeader %>
+<h2>Edit Product Review</h2>
+<form class="" action="/<%=team.id%>/productReview/update" method="post">
+  <% var content = team.productReview; %>
+  <textarea id="psText" name="productReview" rows="14" cols="80" placeholder="Write Product Review... "><%= content %></textarea>
+  <hr>
+  <button id="SubBut" type="submit">Submit</button>
+</form>
+<% include partials/sidebarFooter %>
+<% include partials/footer %>

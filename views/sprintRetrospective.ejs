@@ -1,11 +1,11 @@
 <% include partials/sidebarHeader %>
-<h1 id="retrospectiveHead">Plan Summary</h1>
+<h1>Sprint Retrospective</h1>
 <form class="" action="/<%=team.id%>/<%=sprintNo%>/sprintRetrospective" method="post">
   <% var content = "" %>
   <% if(team.sprint.length >= sprintNo){ %>
   <%    content = team.sprint[sprintNo-1].retrospective;%>
   <% } %>
-  <textarea id="retrospectiveText" name="sprint[retrospective]" rows="14" cols="70" placeholder="Write Sprint Retrospective..."><%= content %></textarea>
+  <textarea id="retrospectiveText" name="sprint[retrospective]" rows="14" cols="80" placeholder="Write Sprint Retrospective..."><%= content %></textarea>
   <button type="submit" id="SubBut" name="submit_button">Submit</button>
 </form>
 <% include partials/sidebarFooter %>
