@@ -86,7 +86,7 @@ app.post("/register",function(req,res){
       });
     }
 });
-  console.log("Regsiter end");
+  console.log("Register end");
 });
 
 app.set("view engine", "ejs");
@@ -123,6 +123,8 @@ app.post("/:team_id/startActivity", function(req, res){
 })
 
 app.get("/:team_id/home", partOfATeam, function (req, res) {
+  if(!req.user)
+      res.redirect("/login");
     Team.findById(req.params.team_id, function(err, team){
         res.render("home.ejs", {team: team});
     });
@@ -134,7 +136,7 @@ app.get("/:team_id/home", partOfATeam, function (req, res) {
 
 app.get("/:team_id/dashBoard", function(req, res){
   if(!req.user)
-      res.redirect("/auth/google");
+      res.redirect("/login");
   Team.findById(req.params.team_id, function(err, team){
       var burned = [];
       var estimate = [];
