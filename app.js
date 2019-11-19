@@ -725,7 +725,7 @@ app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
     }
     else{
       res.locals.currentSprint = req.params.sprintNo;
-      
+
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
         team.sprint.push(req.body.sprint);
         team.save();
@@ -838,6 +838,7 @@ app.post("/team_create",sessionActive, function(req,res){
     var team_id;
 
     Team.create({username:req.body.teamname},function(err,team){
+
       if(err)console.log("Error is:"+err);
       else  {
         team_id = team._id;
@@ -849,35 +850,50 @@ app.post("/team_create",sessionActive, function(req,res){
         }
         team.save();
       }
-      Session.findOne({status:1},function(err,ses){
-          ses.teams.push(team._id);
-          ses.save();
-          req.user.teams.push(team._id);
-          req.user.currentTeam = team._id;
-          req.user.currentSession = ses._id;
-          req.user.save();
+            Session.findOne({status:1},function(err,ses){
+                ses.teams.push(team._id);
+                ses.save();
+                req.user.teams.push(team._id);
+                req.user.currentTeam = team._id;
+                req.user.currentSession = ses._id;
+                req.user.save();
 
-          for (var i = 0; i < req.body.stud.length; i++) {
-              if(req.body.stud[i]!=null){
-                User.findOne({email:req.body.stud[i]},function(err,stud){
-                    if(stud!=null){
-                      stud.invitations.push({
-                        sender:req.user.email,
-                        receiver: req.body.stud1,
-                        teamname: req.body.teamname,
-                        role: req.body.sel1
-                      });
+                for (var i = 0; i < req.body.stud.length; i++) {
+                    if(req.body.stud[i]!=null && req.body.sel[i] == 'Scrum Master'){
+                      User.findOne({email:req.body.stud[i]},function(err,student){
+                          if(student!=null){
 
-                      stud.save();
-                      // User.findByIdAndUpdate(stud.id,stud,function(err,ustud){
-                      //   // console.log(ustud1);
-                      // });
-                    }
-                  });
+                            student.invitations.push({
+                              sender:req.user.email,
+                              teamname: req.body.teamname,
+                              role: "Scrum Master"
+                            });
+
+                            student.save();
+                          }
+                        });
+                      }
                 }
-          }
-          res.redirect("/" + team._id + "/home");
-      });
+
+                for (var i = 0; i < req.body.stud.length; i++) {
+                    if(req.body.stud[i]!=null && req.body.sel[i] == 'Developer'){
+                      User.findOne({email:req.body.stud[i]},function(err,student){
+                          if(student!=null){
+
+                            student.invitations.push({
+                              sender:req.user.email,
+                              teamname: req.body.teamname,
+                              role: "Developer"
+                            });
+
+                            student.save();
+                          }
+                        });
+                      }
+                }
+
+                res.redirect("/" + team._id + "/home");
+            });
     });
 
 });
@@ -917,6 +933,7 @@ app.post("/reject_request/:id",function(req,res){
           invite = null;
       }
   });
+  req.user.save();
   res.redirect("/");
 });
 

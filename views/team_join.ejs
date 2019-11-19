@@ -17,7 +17,7 @@
           <div class="overflow-auto container" style="height: 400px;">
               <% cur_user.invitations.forEach(function(invite){ %>
                 <div class="form-group">
-                  <h7>An inviation from <%=invite.sender %> for joining the team: <%=invite.teamname %> as <%=invite.role%> </h7>
+                  <h7>An invitation from <%=invite.sender %> for joining the team: <%=invite.teamname %> as <%=invite.role%> </h7>
                   <br><br>
                   <form class="btn btn-danger btn-sm" action="/reject_request/<%=invite.teamname%>" method="post">
                     <div name="team" value="<%=invite.teamname%>"></div>
