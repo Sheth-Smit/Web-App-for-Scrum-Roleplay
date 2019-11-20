@@ -61,7 +61,13 @@
                 </a>
               </li>
               <li>
-                  <a href="/<%= currentUser.currentTeam %>/estimateSprintPoints">
+                  <% var date = new Date(); %>
+                  <% var curTime = Date.parse(date); %>
+                  <% if(team.endTime - curTime < totalTime - sprintStart[0]){ %>
+                    <a href="javascript:window.location.href=window.location.href">
+                  <%} else {%>
+                    <a href="/<%= currentUser.currentTeam %>/estimateSprintPoints">
+                  <%}%>
                       <i class="fas fa-chart-line"></i>
                       Estimate Sprint Points
                   </a>
@@ -72,7 +78,6 @@
                     Release Planning
                 </a>
               </li>
-
               <% for(let i = 0; i < 3; i++){ %>
                   <li>
                       <a href="<%= "#homeSubmenu" + i%>" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
@@ -82,9 +87,10 @@
                       <% var date = new Date(); %>
                       <% var curTime = Date.parse(date); %>
                       <% var classList =  "list-unstyled" %>
-                      <% if(team.endTime - curTime < totalTime - sprintEnd[i] || team.endTime - curTime > totalTime - sprintStart[i]){ %>
+                      <% if(currentSprint != i+1 && (team.endTime - curTime < totalTime - sprintEnd[i] || team.endTime - curTime > totalTime - sprintStart[i])){ %>
                           <% classList += " collapse"; %>
                       <% } %>
+
                       <ul class="<%= classList %>" id="<%= "homeSubmenu" + i%>">
                           <li>
                               <% if(team.endTime - curTime > totalTime - sprintStart[i]){ %>
@@ -142,7 +148,7 @@
                 <li>
                     <a href="/<%= currentUser.currentTeam %>/productReview">
                         <i class="fas fa-tasks"></i>
-                        Project Review
+                        Product Review
                     </a>
                 </li>
             </ul>

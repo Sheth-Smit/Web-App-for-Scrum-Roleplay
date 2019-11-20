@@ -79,7 +79,7 @@
 
         var rearrangedIndex = [items.size];
         var index = 0;
-        
+
         // ----- Iterate through each li, extracting the ID embedded as an attribute
         items.each(
             function(intIndex) {
@@ -149,10 +149,9 @@
         var sum = 0;
         var sprintPoints = $(".sprintPoints");
         for(var i = 0; i < sprintPoints.length; i++){
-            sum += parseInt(sprintPoints[i].value); 
+            sum += parseInt(sprintPoints[i].value);
         }
         $("#totalSprintPoints").val(sum);
-        console.log(sum);
     });
 
   });
@@ -160,6 +159,11 @@
 
 <script type="text/javascript">
   $(document).ready(function(){
+      var sprintStart = [5*60*1000, 10*60*1000, 15*60*1000];
+      var sprintEnd = [10*60*1000, 15*60*1000, 20*60*1000];
+      var totalTime = 22*60*1000;
+      var numofSprints = 3;
+
       function getTimeRemaining(endtime) {
         var t = Date.parse(new Date(endtime)) - Date.parse(new Date());
         var seconds = Math.floor((t / 1000) % 60);
@@ -191,6 +195,23 @@
             hoursSpan.innerHTML = ('0' + t.hours).slice(-2);
             minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
             secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
+            var curr = totalTime - (t.hours * 60*60 + t.minutes*60 + t.seconds)*1000;
+            for(var i = 0; i < sprintEnd.length; i++){
+                if(sprintEnd[i] == curr){
+                  console.log("Deleting remaining");
+                    var team_id = $("#clockdiv").attr("teamid");
+                    var url = "/" + team_id + "/" + (i+1) + "/rejectRemainingStories";
+                    var getUrl = "/" + team_id + "/"+ (i + 2) + "/selectStories";
+                    if(i+1 == numofSprints){
+                        getUrl = "/" + team_id + "/productReview";
+                    }
+                    $.post(
+                      url,
+                      function(data, status, jqXHR) {// success callback
+                          window.location.replace(getUrl);
+                    });
+                }
+            }
           }
 
         }
@@ -207,7 +228,7 @@
         var minutesSpan = clock.querySelector('.minutes');
         var secondsSpan = clock.querySelector('.seconds');
         hoursSpan.innerHTML = "00";
-        minutesSpan.innerHTML = "08";
+        minutesSpan.innerHTML = "22";
         secondsSpan.innerHTML = "00";
         $("#timer-button").click(function(){
             var team_id = $("#clockdiv").attr("teamid");
@@ -297,7 +318,7 @@
         },
         toolTip:{
             shared:true
-        },  
+        },
         legend:{
             cursor:"pointer",
             verticalAlign: "bottom",
@@ -324,7 +345,7 @@
         }]
     });
     chart.render();
-    
+
     function toogleDataSeries(e){
         if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
             e.dataSeries.visible = false;
@@ -333,7 +354,7 @@
         }
         chart.render();
     }
-    
+
 })
 
 </script>
