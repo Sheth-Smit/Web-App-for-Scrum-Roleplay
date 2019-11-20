@@ -9,12 +9,21 @@
       <!-- Modal Header -->
       <div class="modal-header">
         <h4 class="modal-title">Add User Story</h4>
+        <%if(team){%>
         <a class="btn close" href="/<%= team._id %>/productBacklog">&times;</a>
+        <%} else{%>
+        <a class="btn close" href="/create_session/productBacklog">&times;</a>
+        <%}%>
       </div>
 
       <!-- Modal body -->
       <div class="modal-body show">
-        <form action="/<%= team._id %>/productBacklog/new" method="post">
+          <%if(team){%>
+            <form action="/<%= team._id %>/productBacklog/new" method="post">
+            <%} else{%>
+              <form action="/create_session/productBacklog/new" method="post">
+            <%}%>
+        
             <div class="form-group">
               <label for="story-role">As a</label>
               <input type="text" name="story[role]" class="form-control" id="story-role" placeholder="Role" required>

@@ -26,7 +26,7 @@
             <tr class="<%= classAlt %>" id="<%= team.productBacklog[i]._id %>">
               <td> US <%=i+1%> </td>
               <td> <%= team.productBacklog[i].action  %></td>
-              <td> <%= team.productBacklog[i].takenBy   %></td>
+              <td> <%= team.productBacklog[i].takenByName   %></td>
               <td> <%= burnedPoints   %></td>
               <td>
                 <% if(team.productBacklog[i].status == 1){ %>

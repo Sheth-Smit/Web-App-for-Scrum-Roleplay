@@ -156,6 +156,11 @@ app.get("/:team_id/dashBoard", function(req, res){
 //============
 // Product Backlog
 //============
+app.get("/create_session/productBacklog", function(req, res){
+  Session.findOne({status:1},function(err,ses){
+      res.render("adminproductBacklog.ejs", {ses: ses});
+  });
+});
 
 app.get("/:team_id/productBacklog", function(req, res){
     if(!req.user)
@@ -163,6 +168,26 @@ app.get("/:team_id/productBacklog", function(req, res){
     Team.findById(req.params.team_id, function(err, team){
         res.render("productBacklog.ejs", {team: team});
     });
+});
+
+app.get("/create_session/productBacklog/new", function(req, res){
+      res.render("addUserStory",{team: undefined});
+});
+
+app.post("/create_session/productBacklog", function(req, res){
+    res.redirect("/");
+});
+
+app.post("/create_session/productBacklog/new", function(req, res){
+  Session.findOne({status:1},function(err,ses){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          ses.productBacklog.push(req.body.story);
+          ses.save();
+      }
+      res.redirect("/create_session/productBacklog");
+  })
 });
 
 app.get("/:team_id/productBacklog/new", function(req, res){
@@ -193,7 +218,6 @@ app.post("/:team_id/productBacklog/new", function(req, res){
       }
       res.redirect("/" + team._id + "/productBacklog");
   })
-
 });
 
 app.post("/:team_id/productBacklog/update", function(req, res){
@@ -214,6 +238,20 @@ app.post("/:team_id/productBacklog/update", function(req, res){
   })
 
 });
+
+app.post("/create_session/productBacklog/delete", function(req, res){
+  Session.findOne({status:1},function(err,ses){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+          var index = req.body.index;
+          ses.productBacklog.splice(index, 1);
+          console.log("Deleted pb" + index);
+          ses.save();
+      }
+      res.redirect("/create_session/productBacklog");
+  })
+})
 
 app.post("/:team_id/productBacklog/delete", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
@@ -470,6 +508,7 @@ app.post("/:team_id/:sprint_id/devStorySelection", function(req, res){
         if(checkeddev && i == checkeddev[index]){
             if(team.productBacklog[i].takenBy == "nought"){
               team.productBacklog[i].takenBy = res.locals.currentUser.email;
+              team.productBacklog[i].takenByName = res.locals.currentUser.name;
             }
             else if(team.productBacklog[i].takenBy != res.locals.currentUser.email){
               f=1;
@@ -479,6 +518,7 @@ app.post("/:team_id/:sprint_id/devStorySelection", function(req, res){
         else {
           if(team.productBacklog[i].takenBy == res.locals.currentUser.email && team.productBacklog[i].sprintID == req.params.sprint_id){
             team.productBacklog[i].takenBy = "nought";
+            team.productBacklog[i].takenByName = "";
           }
         }
       }
@@ -522,6 +562,7 @@ app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req
             }
             else{
               team.productBacklog[req.params.us_id].takenBy="nought";
+              team.productBacklog[req.params.us_id].takenByName="";
               team.productBacklog[req.params.us_id].status=0;
               team.productBacklog[req.params.us_id].sprintID=0;
               team.productBacklog[req.params.us_id].points=0;
@@ -550,6 +591,25 @@ app.get("/:team_id/:sprint_id/finishedUserStories/:us_id/accept/actualPoints", f
   })
 });
 
+app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/accept/actualPoints", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id, function(err, team){
+      if(err){
+          console.log("Error: ", err);
+      } else {
+        if(team.productBacklog[req.params.us_id].status==2){
+          team.sprintPoints[req.params.sprint_id-1].burned -= team.productBacklog[req.params.us_id].points;
+        }
+        team.productBacklog[req.params.us_id].status=2;
+        team.productBacklog[req.params.us_id].points = parseInt(req.body.actualPoints,10);
+        team.sprintPoints[req.params.sprint_id-1].burned += parseInt(req.body.actualPoints,10);
+        team.save();
+      }
+    res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
+  })
+});
+
 app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
@@ -560,6 +620,7 @@ app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
       for(var i = 0; i < team.productBacklog.length; i++){
           if(team.productBacklog[i].sprintID == req.params.sprint_id && team.productBacklog[i].status != 2){
               team.productBacklog[i].takenBy="nought";
+              team.productBacklog[i].takenByName="";
               team.productBacklog[i].status=0;
               team.productBacklog[i].sprintID=0;
               team.productBacklog[i].points=0;
@@ -576,6 +637,7 @@ app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
       }
     });
 });
+
 
 //===================
 // Sprint Text Routes
@@ -728,6 +790,7 @@ app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
     else{
       res.locals.currentSprint = req.params.sprintNo;
       
+
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
         team.sprint.push(req.body.sprint);
         team.save();
@@ -743,21 +806,6 @@ app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
 
 
 
-app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/accept/actualPoints", function(req, res){
-  if(!req.user)
-      res.redirect("/auth/google");
-  Team.findById(req.params.team_id, function(err, team){
-      if(err){
-          console.log("Error: ", err);
-      } else {
-        team.productBacklog[req.params.us_id].status=2;
-        team.productBacklog[req.params.us_id].points = req.body.actualPoints;
-        team.sprintPoints[req.params.sprint_id-1].burned += parseInt(req.body.actualPoints,10);
-        team.save();
-      }
-    res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
-  })
-});
 
 //===============
 // Product Review
@@ -806,24 +854,49 @@ app.post("/:team_id/productReview/update", function(req, res){
 app.get("/create_session",function(req,res){
   res.render("create_session");
 });
-app.post("/session_create",function(req,res){
-  var cnt;
-  Session.count(function(err,count){
-    cnt=count;
-  })
-    console.log("Session Name:"+ req.body.sessionname);
-  if(cnt!=0){
-      Session.updateMany({},{status:0},function(err,ses){
-      //  console.log(ses);
+app.post("/create_session",function(req,res){
+  console.log("Session Name:"+ req.body.sessionname);
+  Session.updateMany({},{status:0},function(err,ses){
+    Session.create({username:req.body.sessionname,status:1,caseTitle:req.body.caseTitle,numofSprints: parseInt(req.body.numofSprints)},function(err,ses){
+      console.log("1st Session: "+ses);
       });
-  }
-
-  Session.create({username:req.body.sessionname,status:1},function(err,ses){
-  //console.log("1st Session: "+ses);
   });
-
-      res.redirect("/");
+  res.redirect("/create_session/timeDetails");
 });
+
+app.get("/create_session/timeDetails",function(req,res){
+    Session.findOne({status:1},function(err,ses){
+      var numofSprints = ses.numofSprints;
+      res.render("timeDetails",{numofSprints: numofSprints});
+    })
+});
+
+app.post("/create_session/timeDetails",function(req,res){
+  Session.findOne({status:1},function(err,ses){
+    ses.pbTime = req.body.pbTime;
+    ses.productReviewTime = req.body.productReviewTime;
+    ses.sprintTime = req.body.sprintTime;
+    ses.save();
+  })
+  res.redirect("/create_session/caseStudyDetails");
+});
+
+app.get("/create_session/caseStudyDetails",function(req,res){
+  Session.findOne({status:1},function(err,ses){
+    var numofSprints = ses.numofSprints;
+    res.render("caseStudyDescription");
+  })
+});
+
+app.post("/create_session/caseStudyDetails",function(req,res){
+  Session.findOne({status:1},function(err,ses){
+    ses.caseStudyDescription = req.body.caseStudyDescription;
+    ses.caseStudyImg = req.body.caseStudyImg;
+    ses.save();
+  })
+  res.redirect("/create_session/productBacklog");
+});
+
 app.get("/team_create", function (req, res) {
   if(req.user){
       res.render("team_create");
@@ -840,6 +913,7 @@ app.post("/team_create",sessionActive, function(req,res){
     var team_id;
 
     Team.create({username:req.body.teamname},function(err,team){
+
       if(err)console.log("Error is:"+err);
       else  {
         team_id = team._id;
@@ -849,37 +923,52 @@ app.post("/team_create",sessionActive, function(req,res){
         for(var i = 0; i < numofSprints; i++){
           team.sprintPoints.push({burned:0,estimate:0});
         }
-        team.save();
       }
-      Session.findOne({status:1},function(err,ses){
-          ses.teams.push(team._id);
-          ses.save();
-          req.user.teams.push(team._id);
-          req.user.currentTeam = team._id;
-          req.user.currentSession = ses._id;
-          req.user.save();
+            Session.findOne({status:1},function(err,ses){
+                ses.teams.push(team._id);
+                ses.save();
+                req.user.teams.push(team._id);
+                req.user.currentTeam = team._id;
+                req.user.currentSession = ses._id;
+                req.user.save();
+                team.productBacklog = ses.productBacklog;
+                team.save();
+                for (var i = 0; i < req.body.stud.length; i++) {
+                    if(req.body.stud[i]!=null && req.body.sel[i] == 'Scrum Master'){
+                      User.findOne({email:req.body.stud[i]},function(err,student){
+                          if(student!=null){
 
-          for (var i = 0; i < req.body.stud.length; i++) {
-              if(req.body.stud[i]!=null){
-                User.findOne({email:req.body.stud[i]},function(err,stud){
-                    if(stud!=null){
-                      stud.invitations.push({
-                        sender:req.user.email,
-                        receiver: req.body.stud1,
-                        teamname: req.body.teamname,
-                        role: req.body.sel1
-                      });
+                            student.invitations.push({
+                              sender:req.user.email,
+                              teamname: req.body.teamname,
+                              role: "Scrum Master"
+                            });
 
-                      stud.save();
-                      // User.findByIdAndUpdate(stud.id,stud,function(err,ustud){
-                      //   // console.log(ustud1);
-                      // });
-                    }
-                  });
+                            student.save();
+                          }
+                        });
+                      }
                 }
-          }
-          res.redirect("/" + team._id + "/home");
-      });
+
+                for (var i = 0; i < req.body.stud.length; i++) {
+                    if(req.body.stud[i]!=null && req.body.sel[i] == 'Developer'){
+                      User.findOne({email:req.body.stud[i]},function(err,student){
+                          if(student!=null){
+
+                            student.invitations.push({
+                              sender:req.user.email,
+                              teamname: req.body.teamname,
+                              role: "Developer"
+                            });
+
+                            student.save();
+                          }
+                        });
+                      }
+                }
+
+                res.redirect("/" + team._id + "/home");
+            });
     });
 
 });
@@ -919,6 +1008,7 @@ app.post("/reject_request/:id",function(req,res){
           invite = null;
       }
   });
+  req.user.save();
   res.redirect("/");
 });
 

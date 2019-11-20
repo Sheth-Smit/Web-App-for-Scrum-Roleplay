@@ -14,13 +14,17 @@
 
       <!-- Modal body -->
       <div class="modal-body show">
-        <form action="/session_create" method="post">
+        <form action="/create_session" method="post">
             <div class="form-group">
               <label for="reg-username">Session Name</label>
               <input type="text" name="sessionname" class="form-control" id="reg-username" placeholder="Enter Session Name" required>
+              <label>Case Study Title</label>
+              <input type="text" name="caseTitle" class="form-control" placeholder="Enter Case Study Title" required>
+              <label >Number of Sprints</label>
+              <input type="number" name="numofSprints" class="form-control" placeholder="Enter Number of Sprints" required>
               <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
             </div>
-            <button type="submit" class="btn btn-primary float-right">Create</button>
+            <button type="submit" class="btn btn-primary float-right">Next</button>
           </form>
           <hr>
           <!-- Link to register -->
