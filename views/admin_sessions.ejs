@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Sessions</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/my_list.css">
+  </head>
+  <body>
+    <% include partials/navbar %>
+    <div class="my-list  overflow-auto">
+      <h2>Sessions</h2>
+      <ul>
+        <% for(var i = 0; i < sessions.length; i++){ %>
+          <% url = "/" + sessions[i].id + "/teams" %>
+          <li><a href="<%= url %>"><%= sessions[i].username %></a></li>
+        <% } %>
+      </ul>
+    </div>
+  </body>
+</html>

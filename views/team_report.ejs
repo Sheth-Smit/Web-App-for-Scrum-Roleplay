@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Teams</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/my_list.css">
+    <link rel="stylesheet" href="/stylesheets/sidebar.css">
+    <link rel="stylesheet" href="/stylesheets/productBacklog.css">
+    <link rel="stylesheet" href="/stylesheets/releasePlan.css">
+    <link rel="stylesheet" href="/stylesheets/planSummary.css">
+    <link rel="stylesheet" href="/stylesheets/sprintReview.css">
+    <link rel="stylesheet" href="/stylesheets/sprintRetrospective.css">
+    <link rel="stylesheet" href="/stylesheets/emptyRetrospective.css">
+    <link rel="stylesheet" href="/stylesheets/currentRetrospective.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  </head>
+  <body>
+    <% include partials/navbar %>
+
+    <div class="jumbotron">
+      <h1 class="display-4"><%= team.username %></h1>
+      <p class="lead">Members:</p>
+      <ol>
+        <% for(var i = 0; i < team.members.length; i++){ %>
+          <li><h5><%= team.members[i].name %> | <%=team.members[i].role%></h5></li>
+        <% } %>
+      </ol>
+    </div>
+
+    <div class="container">
+
+      <!-- Product Backlog -->
+      <h3 style="text-align: center;">User Stories</h3>
+      <hr>
+      <div class="container">
+        <table >
+          <thead>
+            <tr>
+              <th>US Ref</th>
+              <th>Role</th>
+              <th>Action</th>
+              <th>Benefit</th>
+              <th>Value</th>
+              <th>Points</th>
+              <th>Release</th>
+              <th>Taken By</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% for(var i = 0; i < team.productBacklog.length; i++){ %>
+            <% var classAlt = "odd" %>
+            <% if(i%2 == 0) {classAlt = "even";} %>
+                <%if(!team.productBacklog[i]) {%>
+                  <%  continue;%>
+                <% } %>
+                <tr class="<%= classAlt %>" id="<%= team.productBacklog[i]._id %>">
+                  <td> US <%=i+1%> </td>
+                  <td> <%= team.productBacklog[i].role    %></td>
+                  <td> <%= team.productBacklog[i].action  %></td>
+                  <td> <%= team.productBacklog[i].benefit %></td>
+                  <td> <%= team.productBacklog[i].value   %></td>
+                  <td> <%= team.productBacklog[i].points   %></td>
+                  <% if(team.productBacklog[i].releasePlan == "Add to a release"){ %>
+                    <td> No release</td>
+                  <%} else {%>
+                    <td><%= team.productBacklog[i].releasePlan %></td>
+                  <%}%>
+                  <% if(team.productBacklog[i].takenBy == "nought"){ %>
+                    <td>X</td>
+                  <%} else {%>
+                    <td> <%= team.productBacklog[i].takenBy   %></td>
+                  <%}%>
+
+                </tr>
+
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+      <hr>
+
+      <!-- Sprints -->
+      <div class="container">
+        <% for(var i = 0; i < team.sprintPoints.length; i++){ %>
+          <h3 style="text-align: center;">Sprint <%=i+1%></h3>
+          <hr>
+          <h5>Estimated Points: <%= team.sprintPoints[i].estimate %></h5>
+          <h5>Burned Points: <%= team.sprintPoints[i].burned %></h5>
+          <hr>
+          <div class="card-title"><h4>Plan Summary</h4></div>
+          <div class="card">
+            <div class="card-body">
+                <h5 class="text-justify ">
+                  <% if(team.sprint[i]){ %>
+                    <%=team.sprint[i].planSummary%>
+                  <% } %>
+                </h5>
+            </div>
+          </div>
+          <hr>
+          <div class="card-title"><h4>Sprint Retrospective</h4></div>
+          <div class="card">
+            <div class="card-body">
+                <h5 class="text-justify ">
+                  <% if(team.sprint[i]){ %>
+                    <%=team.sprint[i].sprintRetrospective%>
+                  <% } %>
+                  </h5>
+            </div>
+          </div>
+          <hr>
+          <div class="card-title"><h4>Sprint Review</h4></div>
+          <div class="card">
+            <div class="card-body">
+                <h5 class="text-justify ">
+                  <% if(team.sprint[i]){ %>
+                    <%=team.sprint[i].sprintReview%>
+                  <% } %>
+                  </h5>
+            </div>
+          </div>
+          <hr>
+          <br>
+        <% } %>
+      </div>
+
+      <!-- Product Review -->
+      <h3 style="text-align: center;">Product Review</h3>
+      <div class="card">
+        <div class="card-body">
+            <h5 class="text-justify ">
+              <%=team.productReview%>
+              </h5>
+        </div>
+      </div>
+      <hr>
+      <br>
+      <!-- Dashboard -->
+      <%
+        var burned = [];
+        var estimate = [];
+        for(var i = 0; i < numofSprints+1; i++){
+          burned.push({x:0,y:0});
+          estimate.push({x:0,y:0});
+        }
+        estimate[team.sprintPoints.length].x = team.sprintPoints.length+1;
+        estimate[team.sprintPoints.length].y = 0;
+        for(var i = team.sprintPoints.length-1; i >= 0; i--){
+          estimate[i].x = i+1;
+          estimate[i].y = team.sprintPoints[i].estimate + estimate[i+1].y;
+        }
+        burned[0].x = 1;
+        burned[0].y = estimate[0].y;
+        for(var i = 1; i < numofSprints + 1; i++){
+          burned[i].x = i+1;
+          burned[i].y = burned[i-1].y - team.sprintPoints[i-1].burned;
+        }
+       %>
+
+       <h2>Burn Down Chart</h2>
+       <%var burnedStr=""%>
+       <%var estimateStr=""%>
+       <% for( var i = 0; i < burned.length; i++){%>
+           <% burnedStr+= burned[i].x+":"+burned[i].y+","; %>
+           <% estimateStr+= estimate[i].x+":"+estimate[i].y+","; %>
+       <%}%>
+
+
+       <div id="chartContainer" style="height: 370px; width: 100%;" burnedStr="<%=burnedStr%>" estimateStr="<%=estimateStr%>"></div>
+    </div>
+    <br><br><br>
+  </body>
+
+  <script type="text/javascript">
+      $(document).ready(function () {
+      var burnedArray = $("#chartContainer").attr("burnedStr").split(",");
+      var burned=[];
+      for(var i = 0; i < burnedArray.length-1; i++){
+          var temp = burnedArray[i].split(":");
+          burned.push({x: parseInt(temp[0]),y: parseInt(temp[1])});
+      }
+      var estimateArray = $("#chartContainer").attr("estimateStr").split(",");
+      var estimate=[];
+      for(var i = 0; i < estimateArray.length-1; i++){
+          var temp = estimateArray[i].split(":");
+          estimate.push({x:parseInt(temp[0]),y: parseInt(temp[1])});
+      }
+      var chart = new CanvasJS.Chart("chartContainer", {
+          animationEnabled: true,
+          theme: "light2",
+          axisX:{
+              title: "Sprint",
+              interval: 1,
+              includeZero: false,
+              crosshair: {
+                  enabled: true,
+                  snapToDataPoint: true
+              }
+          },
+          axisY: {
+              title: "Points Remaining",
+              crosshair: {
+                  enabled: true
+              }
+          },
+          toolTip:{
+              shared:true
+          },
+          legend:{
+              cursor:"pointer",
+              verticalAlign: "bottom",
+              horizontalAlign: "left",
+              dockInsidePlotArea: true,
+              itemclick: toogleDataSeries
+          },
+          data: [{
+              type: "line",
+              lineThickness: 5,
+              showInLegend: true,
+              name: "Actual",
+              markerType: "square",
+              color: "#F08080",
+              dataPoints: burned
+          },
+          {
+              type: "line",
+              lineThickness: 5,
+              showInLegend: true,
+              name: "Estimate",
+              lineDashType: "dash",
+              dataPoints: estimate
+          }]
+      });
+      chart.render();
+
+      function toogleDataSeries(e){
+          if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+              e.dataSeries.visible = false;
+          } else{
+              e.dataSeries.visible = true;
+          }
+          chart.render();
+      }
+
+  })
+
+  </script>
+
+  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+</html>

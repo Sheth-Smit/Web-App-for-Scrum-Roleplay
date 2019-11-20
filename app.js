@@ -937,6 +937,48 @@ app.post("/reject_request/:id",function(req,res){
   res.redirect("/");
 });
 
+//===============
+// ADMIN Routes
+//===============
+
+app.get('/sessions', function(req, res){
+  if(req.user.role != 'admin')
+    res.redirect('/');
+  Session.find({}, function(err, sessions){
+    if(err){
+      console.log(err);
+      res.redirect('/');
+    } else {
+      res.render("admin_sessions", {sessions: sessions});
+    }
+  });
+});
+
+app.get('/:session_id/teams', function(req, res){
+  if(req.user.role != 'admin')
+    res.redirect('/');
+  Session.findById(req.params.session_id).populate('teams').exec(function(err, session){
+    if(err){
+      console.log(err);
+      res.redirect('/');
+    } else {
+      res.render("admin_teams", {teams: session.teams, session: session.username});
+    }
+  })
+});
+
+app.get('/:team_id/report', function(req, res){
+  if(req.user.role != 'admin')
+    res.redirect('/');
+  Team.findById(req.params.team_id).populate('members').exec(function(err, team){
+    if(err){
+      console.log(err);
+      res.redirect('/');
+    } else {
+      res.render("team_report", {team: team});
+    }
+  })
+});
 
 //===============
 // Auth Routes
