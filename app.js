@@ -42,9 +42,9 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use(function(req, res, next){
   res.locals.currentUser = req.user;
-  res.locals.sprintStart = [5*60*1000, 10*60*1000, 15*60*1000];
-  res.locals.sprintEnd = [10*60*1000, 15*60*1000, 20*60*1000];
-  res.locals.totalTime = 22*60*1000;
+  res.locals.sprintStart = [10*60*1000, 20*60*1000, 30*60*1000];
+  res.locals.sprintEnd = [20*60*1000, 30*60*1000, 40*60*1000];
+  res.locals.totalTime = 45*60*1000;
   res.locals.numofSprints = 3;
   res.locals.currentSprint = 0;
   next();
@@ -103,9 +103,9 @@ app.post("/register",function(req,res){
 });
 
 
-var sprintStart = [5*60*1000, 10*60*1000, 15*60*1000];
-var sprintEnd = [10*60*1000, 15*60*1000, 20*60*1000];
-var totalTime = 22*60*1000;
+var sprintStart = [10*60*1000, 20*60*1000, 30*60*1000];
+var sprintEnd = [20*60*1000, 30*60*1000, 40*60*1000];
+var totalTime = 45*60*1000;
 var numofSprints = 3;
 //============
 // ROUTES
@@ -387,6 +387,7 @@ app.post("/:team_id/releasePlan/new", function(req, res){
 app.get("/:team_id/:sprint_id/selectStories", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
+
   Team.findById(req.params.team_id, function(err, team){
       res.locals.currentSprint = req.params.sprint_id;
       res.render("poSelectStories", {team: team, sprint_id: req.params.sprint_id});
@@ -1037,6 +1038,48 @@ app.post("/reject_request/:id",function(req,res){
   res.redirect("/");
 });
 
+//===============
+// ADMIN Routes
+//===============
+
+app.get('/sessions', function(req, res){
+  if(req.user.role != 'admin')
+    res.redirect('/');
+  Session.find({}, function(err, sessions){
+    if(err){
+      console.log(err);
+      res.redirect('/');
+    } else {
+      res.render("admin_sessions", {sessions: sessions});
+    }
+  });
+});
+
+app.get('/:session_id/teams', function(req, res){
+  if(req.user.role != 'admin')
+    res.redirect('/');
+  Session.findById(req.params.session_id).populate('teams').exec(function(err, session){
+    if(err){
+      console.log(err);
+      res.redirect('/');
+    } else {
+      res.render("admin_teams", {teams: session.teams, session: session.username});
+    }
+  })
+});
+
+app.get('/:team_id/report', function(req, res){
+  if(req.user.role != 'admin')
+    res.redirect('/');
+  Team.findById(req.params.team_id).populate('members').exec(function(err, team){
+    if(err){
+      console.log(err);
+      res.redirect('/');
+    } else {
+      res.render("team_report", {team: team});
+    }
+  })
+});
 
 //===============
 // Auth Routes
