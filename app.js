@@ -40,9 +40,9 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use(function(req, res, next){
   res.locals.currentUser = req.user;
-  res.locals.sprintStart = [5*60*1000, 10*60*1000, 15*60*1000];
-  res.locals.sprintEnd = [10*60*1000, 15*60*1000, 20*60*1000];
-  res.locals.totalTime = 22*60*1000;
+  res.locals.sprintStart = [10*60*1000, 20*60*1000, 30*60*1000];
+  res.locals.sprintEnd = [20*60*1000, 30*60*1000, 40*60*1000];
+  res.locals.totalTime = 45*60*1000;
   res.locals.numofSprints = 3;
   res.locals.currentSprint = 0;
   next();
@@ -86,9 +86,9 @@ app.post("/register",function(req,res){
 app.set("view engine", "ejs");
 mongoose.connect("mongodb://localhost:27017/scrum-roleplay",{useNewUrlParser: true});
 
-var sprintStart = [5*60*1000, 10*60*1000, 15*60*1000];
-var sprintEnd = [10*60*1000, 15*60*1000, 20*60*1000];
-var totalTime = 22*60*1000;
+var sprintStart = [10*60*1000, 20*60*1000, 30*60*1000];
+var sprintEnd = [20*60*1000, 30*60*1000, 40*60*1000];
+var totalTime = 45*60*1000;
 var numofSprints = 3;
 //============
 // ROUTES
@@ -370,7 +370,7 @@ app.post("/:team_id/releasePlan/new", function(req, res){
 app.get("/:team_id/:sprint_id/selectStories", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
-  
+
   Team.findById(req.params.team_id, function(err, team){
       res.locals.currentSprint = req.params.sprint_id;
       res.render("poSelectStories", {team: team, sprint_id: req.params.sprint_id});
@@ -860,9 +860,10 @@ app.post("/create_session",function(req,res){
   Session.updateMany({},{status:0},function(err,ses){
     Session.create({username:req.body.sessionname,status:1,caseTitle:req.body.caseTitle,numofSprints: parseInt(req.body.numofSprints)},function(err,ses){
       console.log("1st Session: "+ses);
+        res.redirect("/create_session/timeDetails");
       });
   });
-  res.redirect("/create_session/timeDetails");
+
 });
 
 app.get("/create_session/timeDetails",function(req,res){

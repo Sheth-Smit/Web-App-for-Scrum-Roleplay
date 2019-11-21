@@ -159,10 +159,10 @@
 
 <script type="text/javascript">
   $(document).ready(function(){
-      var sprintStart = [5*60*1000, 10*60*1000, 15*60*1000];
-      var sprintEnd = [10*60*1000, 15*60*1000, 20*60*1000];
-      var totalTime = 22*60*1000;
-      var numofSprints = 3;
+    var sprintStart = [10*60*1000, 20*60*1000, 30*60*1000];
+    var sprintEnd = [20*60*1000, 30*60*1000, 40*60*1000];
+    var totalTime = 45*60*1000;
+    var numofSprints = 3;
 
       function getTimeRemaining(endtime) {
         var t = Date.parse(new Date(endtime)) - Date.parse(new Date());
@@ -228,7 +228,7 @@
         var minutesSpan = clock.querySelector('.minutes');
         var secondsSpan = clock.querySelector('.seconds');
         hoursSpan.innerHTML = "00";
-        minutesSpan.innerHTML = "22";
+        minutesSpan.innerHTML = "45";
         secondsSpan.innerHTML = "00";
         $("#timer-button").click(function(){
             var team_id = $("#clockdiv").attr("teamid");

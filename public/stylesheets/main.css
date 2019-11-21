@@ -4,7 +4,7 @@ body{
 }
 
 #btn-create{
-  background: #2c7022;
+  background: #2b8da6; /*2c7022*/
   margin: 20% 0 0 37%;
   height: 75px;
   width: 200px;
@@ -12,7 +12,7 @@ body{
 }
 
 #btn-join{
-  background: #2c7022;
+  background: #2b8da6; /*2c7022*/
   margin: 20% 0 0 10px;
   height: 75px;
   width: 200px;
