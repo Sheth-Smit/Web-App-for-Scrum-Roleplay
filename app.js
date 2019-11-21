@@ -806,7 +806,7 @@ app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
     }
     else{
       res.locals.currentSprint = req.params.sprintNo;
-      
+
 
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
         team.sprint.push(req.body.sprint);
@@ -876,13 +876,14 @@ app.post("/create_session",function(req,res){
   Session.updateMany({},{status:0},function(err,ses){
     Session.create({username:req.body.sessionname,status:1,caseTitle:req.body.caseTitle,numofSprints: parseInt(req.body.numofSprints)},function(err,ses){
       console.log("1st Session: "+ses);
+      res.redirect("/create_session/timeDetails");
       });
   });
-  res.redirect("/create_session/timeDetails");
 });
 
 app.get("/create_session/timeDetails",function(req,res){
     Session.findOne({status:1},function(err,ses){
+      console.log(ses);
       var numofSprints = ses.numofSprints;
       res.render("timeDetails",{numofSprints: numofSprints});
     })
@@ -928,7 +929,7 @@ app.post("/team_create",sessionActive, function(req,res){
     req.user.role="Product Owner";
     req.user.save();
     var team_id;
-    
+
     Team.create({username:req.body.teamname},function(err,team){
 
       if(err)console.log("Error is:"+err);
