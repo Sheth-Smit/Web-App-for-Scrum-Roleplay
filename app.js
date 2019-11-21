@@ -853,7 +853,7 @@ app.post("/team_create",sessionActive, function(req,res){
     req.user.role="Product Owner";
     req.user.save();
     var team_id;
-
+    
     Team.create({username:req.body.teamname},function(err,team){
 
       if(err)console.log("Error is:"+err);
@@ -874,6 +874,7 @@ app.post("/team_create",sessionActive, function(req,res){
                 req.user.currentTeam = team._id;
                 req.user.currentSession = ses._id;
                 req.user.save();
+
                 for (var i = 0; i < req.body.stud.length; i++) {
                     if(req.body.stud[i]!=null && req.body.sel[i] == 'Scrum Master'){
                       User.findOne({email:req.body.stud[i]},function(err,student){
