@@ -1,0 +1,59 @@
+<% include partials/header %>
+<% include partials/navbar %>
+
+<link rel="stylesheet" href="/stylesheets/team_create.css">
+  <div class="modal show" id="myModal" aria-modal = "true" style="display: block;" role="dialog" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Create Team</h4>
+        <a class="btn close" href="/">&times;</a>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body show">
+        <div class="overflow-auto container" style="height: 450px;">
+            <form action="/team_create" method="post">
+                <div class="form-group">
+                  <label for="team-name">Team Name</label>
+                  <input type="text" name="teamname" class="form-control" id="team-name" placeholder="Enter your teamname" style="font-weight: bold;" required>
+                  <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+                </div>
+
+                <% for(var i = 0; i < 2; i++) {%>
+                    <div class="form-group">
+                        <label for="team-stud<%=i%>">Student <%= i+1 %></label>
+                        <input type="text" name="stud[<%=i%>]" class="form-control" id="team-stud1" placeholder="Enter student <%=i+1%>'s e-mail" required>
+                        <select name="sel[<%=i%>]" class="form-control">
+                            <option value="Scrum Master">Scrum Master</option>
+                            <option value="Developer">Developer</option>
+                        </select>
+                    </div>
+                <% } %>
+
+                <% for(var i = 2; i < 4; i++) {%>
+                    <div class="form-group">
+                        <label for="team-stud<%=i%>">Student <%= i+1 %></label>
+                        <input type="text" name="stud[<%=i%>]" class="form-control" id="team-stud1" placeholder="Enter student <%=i+1%>'s e-mail">
+                        <select name="sel[<%=i%>]" class="form-control">
+                            <option value="Scrum Master">Scrum Master</option>
+                            <option value="Developer">Developer</option>
+                        </select>
+                    </div>
+                <% } %>
+                <p style="color:red;">Invalid User Entered</p>
+                <button type="submit" class="btn btn-primary float-right">Submit</button>
+              </form>
+            </div>
+          <hr>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop show"></div>
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>
