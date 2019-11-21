@@ -17,6 +17,8 @@ var User=require("./models/user.js");
 var Session=require("./models/session.js");
 var Team=require("./models/team.js");
 
+app.set("view engine", "ejs");
+mongoose.connect("mongodb://localhost:27017/scrum-roleplay",{useNewUrlParser: true});
 app.use(parser.urlencoded({extended:true}));
 app.use(express.static("public"));
 app.use(express.static("models"));
@@ -58,33 +60,48 @@ app.get("/register",function(req,res){
 app.get("/login",function(req,res){
   res.render("login");
 });
+app.get("/login2",function(req,res){
+  res.render("login2");
+});
 app.post("/login",passport.authenticate("local",{
   successRedirect:"/",
-  failureRedirect:"/login"
+  failureRedirect:"/login2"
 }),function(req,res){
   console.log("authentication: ");
 });
 app.post("/register",function(req,res){
   console.log("Register start");
-  User.register(new User({username:req.body.email }), req.body.password, function(err,user){
-    console.log("User created");
+  User.find({username:req.body.email},function(err,user){
+    console.log("User: "+user);
     if(err){
-      console.log("Error Generated : "+err);
-    }else {
-      user.name = req.body.username;
-      user.email = req.body.email;
-      user.save();
-      console.log("Saved");
-      passport.authenticate("local")(req,res,function(){
-        console.log("New User: "+user);
+      console.log("Error: "+err);
+    }
+    if(user==""){
+      User.register(new User({username:req.body.email }), req.body.password, function(err,user){
+        console.log("User created");
+        if(err){
+          console.log("Error Generated : "+err);
+        }else {
+          user.name = req.body.username;
+          user.email = req.body.email;
+          user.save();
+          console.log("Saved");
+          passport.authenticate("local")(req,res,function(){
+            console.log("New User: "+user);
+          });
+          res.redirect("/");
+        }
       });
-      res.redirect("/");
+    }
+    else{
+      console.log("User already exists");
+      res.render("register2");
     }
   });
+
+
 });
 
-app.set("view engine", "ejs");
-mongoose.connect("mongodb://localhost:27017/scrum-roleplay",{useNewUrlParser: true});
 
 var sprintStart = [5*60*1000, 10*60*1000, 15*60*1000];
 var sprintEnd = [10*60*1000, 15*60*1000, 20*60*1000];
@@ -857,7 +874,6 @@ app.post("/team_create",sessionActive, function(req,res){
                 req.user.currentTeam = team._id;
                 req.user.currentSession = ses._id;
                 req.user.save();
-
                 for (var i = 0; i < req.body.stud.length; i++) {
                     if(req.body.stud[i]!=null && req.body.sel[i] == 'Scrum Master'){
                       User.findOne({email:req.body.stud[i]},function(err,student){
@@ -928,10 +944,17 @@ app.post("/accept_request/:tn/:rl",function(req,res){
   //console.log("My team: "+req.params.tn);
 });
 app.post("/reject_request/:id",function(req,res){
+  var invites=[];
   req.user.invitations.forEach(function(invite){
       if(invite.teamname==req.params.id) {
-          invite = null;
+          console.log("Invite: "+ invite);
       }
+      else{
+        invites.push(invite);
+      }
+  });
+  User.findByIdAndUpdate(req.user.id,{invitations:invites},function(err,user){
+    console.log("User invite changes: "+user);
   });
   req.user.save();
   res.redirect("/");
