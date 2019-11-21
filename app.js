@@ -370,6 +370,7 @@ app.post("/:team_id/releasePlan/new", function(req, res){
 app.get("/:team_id/:sprint_id/selectStories", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
+  
   Team.findById(req.params.team_id, function(err, team){
       res.locals.currentSprint = req.params.sprint_id;
       res.render("poSelectStories", {team: team, sprint_id: req.params.sprint_id});
@@ -789,7 +790,7 @@ app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
     }
     else{
       res.locals.currentSprint = req.params.sprintNo;
-      
+
 
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
         team.sprint.push(req.body.sprint);

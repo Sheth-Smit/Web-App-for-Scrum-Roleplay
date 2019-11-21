@@ -1,5 +1,6 @@
 body{
-  background: #1abc9c;
+  /* background: #1abc9c; */
+  background-image: url("scrum1.jpg");
 }
 
 #btn-create{
