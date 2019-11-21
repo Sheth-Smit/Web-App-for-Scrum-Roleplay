@@ -1,0 +1,38 @@
+<% include partials/header %>
+<% include partials/navbar %>
+
+<link rel="stylesheet" href="/stylesheets/team_create.css">
+  <div class="modal show" id="myModal" aria-modal = "true" style="display: block;" role="dialog" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+
+      <div class="modal-header">
+        <h4 class="modal-title">Enter Time Details</h4>
+      </div>
+
+      <div class="modal-body show">
+        <form action="/create_session/timeDetails" method="post">
+            <div class="form-group">
+              <label>Time Required for Product Backlog</label>
+              <input type="number" name="pbTime" class="form-control" required>
+              <% for(var i = 0; i < numofSprints; i++){ %>
+                <label>Time Required for Sprint <%=i+1%></label>
+                <input type="number" name="sprintTime[<%=i%>]" class="form-control" required>
+                <%}%>
+              <label>Time Required for Product Review</label>
+              <input type="number" name="productReviewTime" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary float-right">Next</button>
+          </form>
+          <hr>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop show"></div>
+
+<% include partials/sidebarFooter %>
+<% include partials/footer %>

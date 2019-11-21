@@ -1,0 +1,82 @@
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Scrum Roleplay</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="/stylesheets/chatbox.css" rel="stylesheet" id="bootstrap-css">
+    <link rel="stylesheet" href="/stylesheets/sidebar.css">
+    <link rel="stylesheet" href="/stylesheets/productBacklog.css">
+    <link rel="stylesheet" href="/stylesheets/releasePlan.css">
+    <link rel="stylesheet" href="/stylesheets/planSummary.css">
+    <link rel="stylesheet" href="/stylesheets/sprintReview.css">
+    <link rel="stylesheet" href="/stylesheets/sprintRetrospective.css">
+    <link rel="stylesheet" href="/stylesheets/emptyRetrospective.css">
+    <link rel="stylesheet" href="/stylesheets/currentRetrospective.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $(".apb-delete").click(function(){
+                var index = $(this).attr("index");
+                var url = "/create_session/productBacklog/delete";
+    
+                $.post(
+                    url,
+                    {index: index},
+                    function(data, status, jqXHR){
+                        location.reload(true);
+                    }
+                )
+            })
+        });
+    </script>
+</head>
+
+  <body>
+    <% include partials/navbar %>
+    <div class="container">
+    <form action="/create_session/productBacklog" method="POST">
+    <h2>Admin Product Backlog</h2>
+    <table id="pb-rearrange">
+    <thead>
+        <tr>
+        <th>US Ref</th>
+        <th>Role</th>
+        <th>Action</th>
+        <th>Benefit</th>
+        <th>Value</th>
+        <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <% for(var i = 0; i < ses.productBacklog.length; i++){ %>
+        <% var classAlt = "odd" %>
+        <% if(i%2 == 0) {classAlt = "even";} %>
+            <%if(!ses.productBacklog[i]) {%>
+            <%  continue;%>
+            <% } %>
+            <tr class="<%= classAlt %>" id="<%= ses.productBacklog[i]._id %>">
+            <td> US <%=i+1%> </td>
+            <td> <%= ses.productBacklog[i].role    %></td>
+            <td> <%= ses.productBacklog[i].action  %></td>
+            <td> <%= ses.productBacklog[i].benefit %></td>
+            <td> <%= ses.productBacklog[i].value   %></td>
+                <td class="apb-delete" index="<%= i %>"> <i class="delete fas fa-trash-alt fa-2x"></i></td>
+            </tr>
+
+        <% } %>
+    </tbody>
+    </table>
+        <a class="btn" id="addStoryButton" href="/create_session/productBacklog/new">Add User Story <i class="fas fa-plus"></i></a>
+            <button class="btn release-style float-right">Create Session</button>
+        </form>
+    </div>
+  </body>
+</html>
