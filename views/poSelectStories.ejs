@@ -1,6 +1,6 @@
 <% include partials/sidebarHeader %>
 
-<h2>Select Stories for Current Sprint</h2>
+<h2>Select Stories for Sprint <%= sprint_id %></h2>
 <table>
   <thead>
     <tr>
@@ -14,7 +14,7 @@
   </thead>
 
   <tbody>
-    <% for(var i = 0; i < team.productBacklog.length; i++){ %>
+    <% for(var i = 0; team != undefined && team.productBacklog != undefined && i < team.productBacklog.length; i++){ %>
     <% var classAlt = "odd" %>
     <% if(i%2 == 0) {classAlt = "even";} %>
 
