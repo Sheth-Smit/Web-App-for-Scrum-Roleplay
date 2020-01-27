@@ -1119,6 +1119,15 @@ app.get('/:team_id/report', function(req, res){
 });
 
 //===============
+// Direction Routes
+//===============
+
+app.get("/directions",function(req,res){
+  res.render("directions");
+  console.log("Instructions: done");
+});
+
+//===============
 // Auth Routes
 //===============
 
