@@ -353,9 +353,9 @@ app.post("/:team_id/estimateSprintPoints", function(req, res){
             team.sprintPoints[i].estimate=req.body.estimatedSprintPoints[i];
         }
         team.save();
-      });
       res.redirect("/" + req.params.team_id + "/releasePlan");
     }
+  });
 })
 
 //============
