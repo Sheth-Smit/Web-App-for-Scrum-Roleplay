@@ -98,8 +98,6 @@ app.post("/register",function(req,res){
       res.render("register2");
     }
   });
-
-
 });
 
 
@@ -124,11 +122,17 @@ app.post("/:team_id/startActivity", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
-      var date = new Date();
-      team.endTime = (Date.parse(date) + totalTime).toString();
-      team.timerFlag = 1;
-      team.save();
-      res.redirect("/" + team._id + "/productBacklog");
+      if(err){
+        console.log(err);
+        res.redirect("/");
+      }
+      else{
+        var date = new Date();
+        team.endTime = (Date.parse(date) + totalTime).toString();
+        team.timerFlag = 1;
+        team.save();
+        res.redirect("/" + team._id + "/productBacklog");
+      }
   });
 })
 
@@ -136,6 +140,10 @@ app.get("/:team_id/home", partOfATeam, function (req, res) {
   if(!req.user)
       res.redirect("/login");
     Team.findById(req.params.team_id, function(err, team){
+      if(err){
+        console.log(err);
+        res.redirect("/");
+      }
         res.render("home.ejs", {team: team});
     });
 });
@@ -148,6 +156,10 @@ app.get("/:team_id/dashBoard", function(req, res){
   if(!req.user)
       res.redirect("/login");
   Team.findById(req.params.team_id, function(err, team){
+      if(err){
+        console.log(err);
+        res.redirect("/");
+      }
       var burned = [];
       var estimate = [];
       for(var i = 0; i < numofSprints+1; i++){
@@ -180,6 +192,10 @@ app.get("/create_session/productBacklog", function(req, res){
       res.redirect("/");
   else{
     Session.findOne({status:1},function(err,ses){
+      if(err){
+        console.log(err);
+        res.redirect("/");
+      }
         res.render("adminproductBacklog.ejs", {ses: ses});
     });
   }
@@ -189,6 +205,10 @@ app.get("/:team_id/productBacklog", function(req, res){
     if(!req.user)
         res.redirect("/auth/google");
     Team.findById(req.params.team_id, function(err, team){
+      if(err){
+        console.log(err);
+        res.redirect("/");
+      }
         res.render("productBacklog.ejs", {team: team});
     });
 });
@@ -209,11 +229,12 @@ app.post("/create_session/productBacklog/new", function(req, res){
   Session.findOne({status:1},function(err,ses){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/")
       } else {
           ses.productBacklog.push(req.body.story);
           ses.save();
+          res.redirect("/create_session/productBacklog");
       }
-      res.redirect("/create_session/productBacklog");
   })
 });
 
@@ -240,11 +261,12 @@ app.post("/:team_id/productBacklog/new", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
           team.productBacklog.push(req.body.story);
           team.save();
+          res.redirect("/" + team._id + "/productBacklog");
       }
-      res.redirect("/" + team._id + "/productBacklog");
   })
 });
 
@@ -252,6 +274,7 @@ app.post("/:team_id/productBacklog/update", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
           var rearrangedIndex = req.body.rearrangedIndex
           var temp = []
@@ -260,9 +283,8 @@ app.post("/:team_id/productBacklog/update", function(req, res){
           }
           team.productBacklog = temp;
           team.save();
+          res.redirect("/" + team._id + "/productBacklog");
       }
-
-      res.redirect("/" + team._id + "/productBacklog");
   })
 
 });
@@ -271,12 +293,13 @@ app.post("/create_session/productBacklog/delete", function(req, res){
   Session.findOne({status:1},function(err,ses){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
           var index = req.body.index;
           ses.productBacklog.splice(index, 1);
           ses.save();
+          res.redirect("/create_session/productBacklog");
       }
-      res.redirect("/create_session/productBacklog");
   })
 })
 
@@ -284,13 +307,14 @@ app.post("/:team_id/productBacklog/delete", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
           var index = req.body.index;
           team.productBacklog.splice(index, 1);
           console.log("Deleted pb" + index);
           team.save();
+          res.redirect("/" + team._id + "/productBacklog");
       }
-      res.redirect("/" + team._id + "/productBacklog");
   })
 })
 
@@ -302,24 +326,36 @@ app.get("/:team_id/estimateSprintPoints", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
-      var date = new Date();
-      var curTime = Date.parse(date);
-      if(team.endTime - curTime > totalTime - sprintStart[0]){
-        res.render("estimateSprintPoints", {team: team});
-      } else {
-        res.redirect("/" + team._id + "/productBacklog");
+    if(err){
+        console.log(err);
+        res.redirect("/");
+    }
+    else{
+        var date = new Date();
+        var curTime = Date.parse(date);
+        if(team.endTime - curTime > totalTime - sprintStart[0]){
+          res.render("estimateSprintPoints", {team: team});
+        } else {
+          res.redirect("/" + team._id + "/productBacklog");
+        }
       }
   })
 });
 
 app.post("/:team_id/estimateSprintPoints", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
+     if(err){
+       console.log(err);
+       res.redirect("/");
+     }
+     else{
       for(let i=0;i < numofSprints; i++){
-          team.sprintPoints[i].estimate=req.body.estimatedSprintPoints[i];
-      }
-      team.save();
-    });
-    res.redirect("/" + req.params.team_id + "/releasePlan")
+            team.sprintPoints[i].estimate=req.body.estimatedSprintPoints[i];
+        }
+        team.save();
+      res.redirect("/" + req.params.team_id + "/releasePlan");
+    }
+  });
 })
 
 //============
@@ -332,22 +368,34 @@ app.get("/:team_id/releasePlan", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
-      if(team.timerFlag == 1){
-        res.render("releasePlan.ejs", {team: team});
-      } else {
-        res.redirect("/" + team._id + "/productBacklog");
+      if(err){
+        console.log(err);
+        res.redirect("/");
+      }
+      else{
+        if(team.timerFlag == 1){
+          res.render("releasePlan.ejs", {team: team});
+        } else {
+          res.redirect("/" + team._id + "/productBacklog");
+        }
       }
   })
 });
 
 app.post("/:team_id/releasePlan", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
-      for(let i=0; team.productBacklog != undefined && i < team.productBacklog.length; i++){
-          team.productBacklog[i].releasePlan=req.body.releasePlanValue[i];
+    if(err){
+      console.log(err);
+      res.redirect("/");
+    }
+    else{
+        for(let i=0; team.productBacklog != undefined && i < team.productBacklog.length; i++){
+            team.productBacklog[i].releasePlan=req.body.releasePlanValue[i];
+        }
+        team.save();
+        res.redirect("/" + req.params.team_id + "/releasePlan");
       }
-      team.save();
     });
-    res.redirect("/" + req.params.team_id + "/releasePlan")
 })
 
 app.get("/:team_id/releasePlan/new", function(req, res){
@@ -373,6 +421,7 @@ app.post("/:team_id/releasePlan/new", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
             let f=0;
             if(team.releasePlanName){
@@ -388,8 +437,8 @@ app.post("/:team_id/releasePlan/new", function(req, res){
             else{
               console.log("Release already exists");
             }
+            res.redirect("/" + team._id + "/releasePlan");
         }
-      res.redirect("/" + team._id + "/releasePlan");
     });
 });
 
@@ -403,13 +452,19 @@ app.get("/:team_id/:sprint_id/selectStories", function(req, res){
       res.redirect("/auth/google");
 
   Team.findById(req.params.team_id, function(err, team){
-      var date = new Date();
-      var curTime = Date.parse(date);
-      if(team.timerFlag == 0 || team.endTime - curTime > totalTime - sprintStart[req.params.sprint_id - 1]){
-        res.redirect("/");
-      } else {
-          res.locals.currentSprint = req.params.sprint_id;
-          res.render("poSelectStories", {team: team, sprint_id: req.params.sprint_id});
+    if(err){
+      console.log(err);
+      res.redirect("/");
+    }
+    else{
+        var date = new Date();
+        var curTime = Date.parse(date);
+        if(team.timerFlag == 0 || team.endTime - curTime > totalTime - sprintStart[req.params.sprint_id - 1]){
+          res.redirect("/");
+        } else {
+            res.locals.currentSprint = req.params.sprint_id;
+            res.render("poSelectStories", {team: team, sprint_id: req.params.sprint_id});
+        }
       }
   });
 });
@@ -418,23 +473,34 @@ app.post("/:team_id/:sprint_id/selectStories/update", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
-      var checked = req.body.checked;
-      var index = 0;
-      for(var i = 0; team != undefined && team.productBacklog != undefined && i < team.productBacklog.length; i++){
-        if(i == checked[index]){
-            team.productBacklog[i].sprintID = req.params.sprint_id;
-            index++;
-        }
+      if(err){
+        console.log(err);
+        res.redirect("/");
       }
-      team.save();
-      res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/selectStories");
-  });
+      else{
+        var checked = req.body.checked;
+        var index = 0;
+        for(var i = 0; team != undefined && team.productBacklog != undefined && i < team.productBacklog.length; i++){
+          if(i == checked[index]){
+              team.productBacklog[i].sprintID = req.params.sprint_id;
+              index++;
+          }
+        }
+        team.save();
+        res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/selectStories");
+      }
+    });
 });
 
 app.get("/:team_id/:sprint_id/estimateStories", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
+    if(err){
+      console.log(err);
+      res.redirect("/");
+    } 
+    else{
       var date = new Date();
       var curTime = Date.parse(date);
       if(team.timerFlag == 0 || team.endTime - curTime > totalTime - sprintStart[req.params.sprint_id - 1]){
@@ -443,6 +509,7 @@ app.get("/:team_id/:sprint_id/estimateStories", function(req, res){
         res.locals.currentSprint = req.params.sprint_id;
         res.render("estimate_stories", {team: team, sprint_id: req.params.sprint_id});
       }
+    }
   });
 });
 
@@ -450,15 +517,21 @@ app.post("/:team_id/:sprint_id/estimateStories", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
+    if(err){
+      console.log(err);
+      res.redirect("/");
+    }
+    else{
       var points = req.body.points;
       var index = 0;
-      for(var i = 0; team.productBacklog != undefined && i < team.productBacklog.length; i++){
+      for(var i = 0; team != undefined && team.productBacklog != undefined && i < team.productBacklog.length; i++){
           if(team.productBacklog[i].sprintID == req.params.sprint_id){
               team.productBacklog[i].points = points[index++];
           }
       }
       team.save();
       res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/estimateStories");
+    }
   });
 });
 
@@ -470,14 +543,20 @@ app.get("/:team_id/:sprint_id/devTasks", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
-      var date = new Date();
-      var curTime = Date.parse(date);
-      if(team.timerFlag == 0 || team.endTime - curTime > totalTime - sprintStart[req.params.sprint_id - 1]){
-        res.redirect("/");
-      } else {
-        res.locals.currentSprint = req.params.sprint_id;
-        res.render("devTasks", {team: team, sprint_id: req.params.sprint_id});
-      }
+    if(err){
+      console.log(err);
+      res.redirect("/");
+    }
+    else{
+        var date = new Date();
+        var curTime = Date.parse(date);
+        if(team.timerFlag == 0 || team.endTime - curTime > totalTime - sprintStart[req.params.sprint_id - 1]){
+          res.redirect("/");
+        } else {
+          res.locals.currentSprint = req.params.sprint_id;
+          res.render("devTasks", {team: team, sprint_id: req.params.sprint_id});
+        }
+    }
   });
 });
 
@@ -506,40 +585,49 @@ app.get("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
 });
 ////////////////////////////////////////////////////////////////////////
 app.post("/:team_id/:sprint_id/devTasks/:us_id/new", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
             team.productBacklog[req.params.us_id].tasks.push(req.body.task);
             team.save();
+            res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
         }
-      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
     });
 });
 
 app.post("/:team_id/:sprint_id/devTasks/:us_id/finish", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
             team.productBacklog[req.params.us_id].status=1;
             team.save();
+            res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
         }
-      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
     });
 });
 
 app.post("/:team_id/:sprintID/devTasks/:us_id/delete", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
           var index = req.body.index;
           team.productBacklog[req.params.us_id].tasks.splice(index, 1);
           console.log("Deleted task" + index + "from "+ req.params.us_id);
           team.save();
+          res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
       }
-      res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/devTasks");
   })
 })
 
@@ -547,8 +635,14 @@ app.get("/:team_id/:sprint_id/devStorySelection", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
-      res.locals.currentSprint = req.params.sprint_id;
-      res.render("devStorySelection", {team: team, sprint_id: req.params.sprint_id});
+      if(err){
+          console.log("Error: ", err);
+          res.redirect("/");
+      }
+      else{
+        res.locals.currentSprint = req.params.sprint_id;
+        res.render("devStorySelection", {team: team, sprint_id: req.params.sprint_id});
+      }
   });
 });
 
@@ -556,34 +650,40 @@ app.post("/:team_id/:sprint_id/devStorySelection", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
-      var checkeddev = req.body.checkeddev;
-      var f=0;
-      var index=0;
-      for(var i = 0; i < team.productBacklog.length; i++){
-        if(checkeddev && i == checkeddev[index]){
-            if(team.productBacklog[i].takenBy == "nought"){
-              team.productBacklog[i].takenBy = res.locals.currentUser.email;
-              team.productBacklog[i].takenByName = res.locals.currentUser.name;
+      if(err){
+          console.log("Error: ", err);
+          res.redirect("/");
+      }
+      else{
+        var checkeddev = req.body.checkeddev;
+        var f=0;
+        var index=0;
+        for(var i = 0; team != undefined && team.productBacklog != undefined && i < team.productBacklog.length; i++){
+          if(checkeddev && i == checkeddev[index]){
+              if(team.productBacklog[i].takenBy == "nought"){
+                team.productBacklog[i].takenBy = res.locals.currentUser.email;
+                team.productBacklog[i].takenByName = res.locals.currentUser.name;
+              }
+              else if(team.productBacklog[i].takenBy != res.locals.currentUser.email){
+                f=1;
+              }
+              index++;
+          }
+          else {
+            if(team.productBacklog[i].takenBy == res.locals.currentUser.email && team.productBacklog[i].sprintID == req.params.sprint_id){
+              team.productBacklog[i].takenBy = "nought";
+              team.productBacklog[i].takenByName = "";
             }
-            else if(team.productBacklog[i].takenBy != res.locals.currentUser.email){
-              f=1;
-            }
-            index++;
-        }
-        else {
-          if(team.productBacklog[i].takenBy == res.locals.currentUser.email && team.productBacklog[i].sprintID == req.params.sprint_id){
-            team.productBacklog[i].takenBy = "nought";
-            team.productBacklog[i].takenByName = "";
           }
         }
+        team.save();
+        if(f)
+          console.log("Couldn't Select Overlapping");
+        else {
+          console.log("Selection Done");
+        }
+        res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/devStorySelection");
       }
-      team.save();
-      if(f)
-        console.log("Couldn't Select Overlapping");
-      else {
-        console.log("Selection Done");
-      }
-      res.redirect("/"+req.params.team_id+"/"+req.params.sprint_id+"/devStorySelection");
   });
 });
 
@@ -597,6 +697,7 @@ app.get("/:team_id/:sprint_id/finishedUserStories", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
           res.locals.currentSprint = req.params.sprint_id;
           res.render("finishedUserStories", {team: team,sprint_id: req.params.sprint_id});
@@ -605,10 +706,13 @@ app.get("/:team_id/:sprint_id/finishedUserStories", function(req, res){
 });
 
 app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
     var flag = 0;
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
             console.log("reached",req.params.status);
             if(req.params.status == "accept"){
@@ -624,11 +728,12 @@ app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/:status", function(req
               team.productBacklog[req.params.us_id].tasks=[];
             }
             team.save();
+
+            if(flag)
+                res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories/" + req.params.us_id + "/accept/actualPoints");
+            else
+                res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
         }
-        if(flag)
-            res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories/" + req.params.us_id + "/accept/actualPoints");
-        else
-            res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
     });
 });
 
@@ -639,6 +744,7 @@ app.get("/:team_id/:sprint_id/finishedUserStories/:us_id/accept/actualPoints", f
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
           res.locals.currentSprint = req.params.sprint_id;
           res.render("actualPoints", {team: team,sprint_id: req.params.sprint_id,us_id: req.params.us_id});
@@ -652,6 +758,7 @@ app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/accept/actualPoints", 
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
         if(team.productBacklog[req.params.us_id].status==2){
           team.sprintPoints[req.params.sprint_id-1].burned -= team.productBacklog[req.params.us_id].points;
@@ -660,8 +767,8 @@ app.post("/:team_id/:sprint_id/finishedUserStories/:us_id/accept/actualPoints", 
         team.productBacklog[req.params.us_id].points = parseInt(req.body.actualPoints,10);
         team.sprintPoints[req.params.sprint_id-1].burned += parseInt(req.body.actualPoints,10);
         team.save();
+        res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
       }
-    res.redirect("/" + team._id + "/"+ req.params.sprint_id + "/finishedUserStories");
   })
 });
 
@@ -671,8 +778,9 @@ app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
-      for(var i = 0; i < team.productBacklog.length; i++){
+      for(var i = 0; team != undefined && team.productBacklog != undefined && i < team.productBacklog.length; i++){
           if(team.productBacklog[i].sprintID == req.params.sprint_id && team.productBacklog[i].status != 2){
               team.productBacklog[i].takenBy="nought";
               team.productBacklog[i].takenByName="";
@@ -683,14 +791,15 @@ app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
           }
       }
       team.save();
-      }
       if(req.params.sprint_id < numofSprints){
           res.redirect("/" + team._id + "/"+ (req.params.sprint_id + 1) + "/selectStories");
       } else {
       // Route to project Review
           res.redirect("/" + team._id + "/productReview");
       }
-    });
+    }
+      
+  });
 });
 
 
@@ -699,26 +808,37 @@ app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
 //===================
 
 app.get("/:team_id/:sprintNo/planSummaryDisplay",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id,function(err,team){
-    res.locals.currentSprint = req.params.sprintNo;
-    if(parseInt(req.params.sprintNo,10)>team.sprint.length){
-      res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
+    if(err){
+      console.log(err);
+      res.redirect("/");
     }
     else{
-      if(team.sprint[req.params.sprintNo-1].planSummary=="") {
+      res.locals.currentSprint = req.params.sprintNo;
+      if(parseInt(req.params.sprintNo,10)>team.sprint.length){
         res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
       }
       else{
-        res.render("currentSummary",{team:team,sprintNo:req.params.sprintNo});
+        if(team.sprint[req.params.sprintNo-1].planSummary=="") {
+          res.render("emptySummary",{team:team,sprintNo:req.params.sprintNo});
+        }
+        else{
+          res.render("currentSummary",{team:team,sprintNo:req.params.sprintNo});
+        }
       }
     }
   });
 });
 
 app.get("/:team_id/:sprintNo/planSummary",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id,function(err,team){
     if(err){
       console.log(err);
+      res.redirect("/");
     }
     else{
       res.locals.currentSprint = req.params.sprintNo;
@@ -733,10 +853,14 @@ app.get("/:team_id/:sprintNo/planSummary",function(req,res){
     }
   });
 });
+
 app.post("/:team_id/:sprintNo/planSummary",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id,function(err,team){
     if(err){
       console.log(err);
+      res.redirect("/");
     }
     else{
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
@@ -751,31 +875,43 @@ app.post("/:team_id/:sprintNo/planSummary",function(req,res){
     }
   });
 });
-app.get("/:team_id/:sprintNo/sprintRetrospectiveDisplay",function(req,res){
-  Team.findById(req.params.team_id,function(err,team){
-    res.locals.currentSprint = req.params.sprintNo;
 
-    if(parseInt(req.params.sprintNo,10)>team.sprint.length){
-      res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
-    }
-    else{
-      if(team.sprint[req.params.sprintNo-1].retrospective=="") {
-        res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
-      }
-      else{
-        res.render("currentRetrospective",{team:team,sprintNo:req.params.sprintNo});
-      }
-    }
-  });
-});
-app.get("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
+app.get("/:team_id/:sprintNo/sprintRetrospectiveDisplay",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id,function(err,team){
     if(err){
-      console,log(err);
+      console.log(err);
+      res.redirect("/");
     }
     else{
       res.locals.currentSprint = req.params.sprintNo;
 
+      if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+        res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
+      }
+      else{
+        if(team.sprint[req.params.sprintNo-1].retrospective=="") {
+          res.render("emptyRetrospective",{team:team,sprintNo:req.params.sprintNo});
+        }
+        else{
+          res.render("currentRetrospective",{team:team,sprintNo:req.params.sprintNo});
+        }
+      }``
+    }
+  });
+});
+
+app.get("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console,log(err);
+      res.redirect("/");
+    }
+    else{
+      res.locals.currentSprint = req.params.sprintNo;
       var date = new Date();
       var curTime = Date.parse(date);
       if(team.endTime - curTime > totalTime - sprintEnd[req.params.sprintNo-1]){
@@ -786,10 +922,14 @@ app.get("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
     }
   });
 });
+
 app.post("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id,function(err,team){
     if(err){
       console.log(err);
+      res.redirect("/");
     }
     else{
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
@@ -804,27 +944,40 @@ app.post("/:team_id/:sprintNo/sprintRetrospective",function(req,res){
     }
   });
 });
-app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
-  Team.findById(req.params.team_id,function(err,team){
-    res.locals.currentSprint = req.params.sprintNo;
 
-    if(parseInt(req.params.sprintNo,10)>team.sprint.length){
-      res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
+app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
+  Team.findById(req.params.team_id,function(err,team){
+    if(err){
+      console.log(err);
+      res.redirect("/");
     }
     else{
-        if(team.sprint[req.params.sprintNo-1].review=="") {
-          res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
-        }
-        else{
-          res.render("currentReview",{team:team,sprintNo:req.params.sprintNo});
-        }
+      res.locals.currentSprint = req.params.sprintNo;
+
+      if(parseInt(req.params.sprintNo,10)>team.sprint.length){
+        res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
+      }
+      else{
+          if(team.sprint[req.params.sprintNo-1].review=="") {
+            res.render("emptyReview",{team:team,sprintNo:req.params.sprintNo});
+          }
+          else{
+            res.render("currentReview",{team:team,sprintNo:req.params.sprintNo});
+          }
+      }
     }
   });
 });
+
 app.get("/:team_id/:sprintNo/sprintReview",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id,function(err,team){
     if(err){
       console,log(err);
+      res.redirect("/");
     }
     else{
       var date = new Date();
@@ -837,10 +990,14 @@ app.get("/:team_id/:sprintNo/sprintReview",function(req,res){
     }
   });
 });
+
 app.post("/:team_id/:sprintNo/sprintReview",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id,function(err,team){
     if(err){
       console.log(err);
+      res.redirect("/");
     }
     else{
       res.locals.currentSprint = req.params.sprintNo;
@@ -872,6 +1029,7 @@ app.get("/:team_id/productReview", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
           res.render("productReview", {team: team});
       }
@@ -884,6 +1042,7 @@ app.get("/:team_id/productReview/update", function(req, res){
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.redirect("/");
       } else {
           res.render("updateProductReview", {team: team});
       }
@@ -891,14 +1050,17 @@ app.get("/:team_id/productReview/update", function(req, res){
 });
 
 app.post("/:team_id/productReview/update", function(req, res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
       if(err){
           console.log("Error: ", err);
+          res.render("/");
       } else {
           team.productReview = req.body.productReview;
           team.save();
+          res.redirect("/" + team._id + "/productReview");
       }
-      res.redirect("/" + team._id + "/productReview");
   })
 });
 
@@ -909,48 +1071,95 @@ app.post("/:team_id/productReview/update", function(req, res){
 app.get("/create_session",function(req,res){
   res.render("create_session");
 });
+
 app.post("/create_session",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   console.log("Session Name:"+ req.body.sessionname);
   Session.updateMany({},{status:0},function(err,ses){
+    if(err){
+      console.log(err);
+      res.redirect("/");
+    }
+    else{
     Session.create({username:req.body.sessionname,status:1,caseTitle:req.body.caseTitle,numofSprints: parseInt(req.body.numofSprints)},function(err,ses){
-      console.log("1st Session: "+ses);
-      res.redirect("/create_session/timeDetails");
+      if(err){
+        console.log(err);
+        res.redirect("/");
+      }
+      else{
+        console.log("1st Session: "+ses);
+        res.redirect("/create_session/timeDetails");
+      }
       });
+    }
   });
 });
 
 app.get("/create_session/timeDetails",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
     Session.findOne({status:1},function(err,ses){
-      console.log(ses);
-      var numofSprints = ses.numofSprints;
-      res.render("timeDetails",{numofSprints: numofSprints});
+      if(err){
+        console.log(err);
+        res.redirect("/");
+      }
+      else{
+        console.log(ses);
+        var numofSprints = ses.numofSprints;
+        res.render("timeDetails",{numofSprints: numofSprints});
+      }
     })
 });
 
 app.post("/create_session/timeDetails",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Session.findOne({status:1},function(err,ses){
-    ses.pbTime = req.body.pbTime;
-    ses.productReviewTime = req.body.productReviewTime;
-    ses.sprintTime = req.body.sprintTime;
-    ses.save();
+    if(err){
+      console.log(err);
+      res.redirect("/");
+    }
+    else{
+      ses.pbTime = req.body.pbTime;
+      ses.productReviewTime = req.body.productReviewTime;
+      ses.sprintTime = req.body.sprintTime;
+      ses.save();
+      res.redirect("/create_session/caseStudyDetails");
+    }
   })
-  res.redirect("/create_session/caseStudyDetails");
 });
 
 app.get("/create_session/caseStudyDetails",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Session.findOne({status:1},function(err,ses){
-    var numofSprints = ses.numofSprints;
-    res.render("caseStudyDescription");
+    if(err){
+      console.log(err);
+      res.redirect("/");
+    }
+    else{
+      var numofSprints = ses.numofSprints;
+      res.render("caseStudyDescription");
+    }
   })
 });
 
 app.post("/create_session/caseStudyDetails",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   Session.findOne({status:1},function(err,ses){
-    ses.caseStudyDescription = req.body.caseStudyDescription;
-    ses.caseStudyImg = req.body.caseStudyImg;
-    ses.save();
+    if(err){
+      console.log(err);
+      res.redirect("/");
+    }
+    else{
+      ses.caseStudyDescription = req.body.caseStudyDescription;
+      ses.caseStudyImg = req.body.caseStudyImg;
+      ses.save();
+      res.redirect("/create_session/productBacklog");
+    }
   })
-  res.redirect("/create_session/productBacklog");
 });
 
 app.get("/team_create", function (req, res) {
@@ -964,13 +1173,18 @@ app.get("/team_create", function (req, res) {
 });
 
 app.post("/team_create",sessionActive, function(req,res){
+    if(!req.user)
+    res.redirect("/auth/google");
     req.user.role="Product Owner";
     req.user.save();
     var team_id;
 
     Team.create({username:req.body.teamname},function(err,team){
 
-      if(err)console.log("Error is:"+err);
+      if(err){
+        console.log("Error is:"+err);
+        res.redirect("/");
+      }
       else  {
         team_id = team._id;
         team.members.push(req.user._id);
@@ -979,52 +1193,59 @@ app.post("/team_create",sessionActive, function(req,res){
         for(var i = 0; i < numofSprints; i++){
           team.sprintPoints.push({burned:0,estimate:0});
         }
+        Session.findOne({status:1},function(err,ses){
+          ses.teams.push(team._id);
+          ses.save();
+          req.user.teams.push(team._id);
+          req.user.currentTeam = team._id;
+          req.user.currentSession = ses._id;
+          req.user.save();
+          team.productBacklog = ses.productBacklog;
+          team.save();
+          for (var i = 0; i < req.body.stud.length; i++) {
+              if(req.body.stud[i]!=null && req.body.sel[i] == 'Scrum Master'){
+                User.findOne({email:req.body.stud[i]},function(err,student){
+                    if(student!=null){
+
+                      student.invitations.push({
+                        sender:req.user.email,
+                        teamname: req.body.teamname,
+                        role: "Scrum Master"
+                      });
+
+                      student.save();
+                    }
+                  });
+                }
+          }
+
+          for (var i = 0; i < req.body.stud.length; i++) {
+              if(req.body.stud[i]!=null && req.body.sel[i] == 'Developer'){
+                User.findOne({email:req.body.stud[i]},function(err,student){
+                  if(err){
+                    console.log(err);
+                    res.redirect("/");
+                  }
+                  else{
+                      if(student!=null){
+
+                        student.invitations.push({
+                          sender:req.user.email,
+                          teamname: req.body.teamname,
+                          role: "Developer"
+                        });
+
+                        student.save();
+                      }
+                    }
+                    });
+                }
+          }
+
+          res.redirect("/" + team._id + "/home");
+      });
       }
-            Session.findOne({status:1},function(err,ses){
-                ses.teams.push(team._id);
-                ses.save();
-                req.user.teams.push(team._id);
-                req.user.currentTeam = team._id;
-                req.user.currentSession = ses._id;
-                req.user.save();
-                team.productBacklog = ses.productBacklog;
-                team.save();
-                for (var i = 0; i < req.body.stud.length; i++) {
-                    if(req.body.stud[i]!=null && req.body.sel[i] == 'Scrum Master'){
-                      User.findOne({email:req.body.stud[i]},function(err,student){
-                          if(student!=null){
-
-                            student.invitations.push({
-                              sender:req.user.email,
-                              teamname: req.body.teamname,
-                              role: "Scrum Master"
-                            });
-
-                            student.save();
-                          }
-                        });
-                      }
-                }
-
-                for (var i = 0; i < req.body.stud.length; i++) {
-                    if(req.body.stud[i]!=null && req.body.sel[i] == 'Developer'){
-                      User.findOne({email:req.body.stud[i]},function(err,student){
-                          if(student!=null){
-
-                            student.invitations.push({
-                              sender:req.user.email,
-                              teamname: req.body.teamname,
-                              role: "Developer"
-                            });
-
-                            student.save();
-                          }
-                        });
-                      }
-                }
-
-                res.redirect("/" + team._id + "/home");
-            });
+            
     });
 
 });
@@ -1038,27 +1259,44 @@ app.get("/team_join", function (req, res) {
   }
 });
 app.post("/accept_request/:tn/:rl",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   var team_id;
   User.findById(req.user.id,function(err,user){
-      user.role=req.params.rl;
-      user.invitations=[];
-      user.save();
-      Team.findOne({username:req.params.tn},function(err,team){
-          team.members.push(req.user._id);
-          team.save();
-          team_id = team.id;
-          Session.findOne({status:1},function(err,session){
-              user.teams.push(team._id);
-              user.currentTeam = team._id;
-              user.currentSession = session._id;
-              user.save();
-              res.redirect("/" + team._id + "/home");
-          });
-      });
+      if(err){
+        console.log(err);
+        res.redirect("/");
+      }
+      else{
+        user.role=req.params.rl;
+        user.invitations=[];
+        user.save();
+        Team.findOne({username:req.params.tn},function(err,team){
+          if(err){
+            console.log(err);
+            res.redirect("/");
+          }
+          else{
+              team.members.push(req.user._id);
+              team.save();
+              team_id = team.id;
+              Session.findOne({status:1},function(err,session){
+                  user.teams.push(team._id);
+                  user.currentTeam = team._id;
+                  user.currentSession = session._id;
+                  user.save();
+                  res.redirect("/" + team._id + "/home");
+              });
+            }
+        });
+      }
   });
   //console.log("My team: "+req.params.tn);
 });
+
 app.post("/reject_request/:id",function(req,res){
+  if(!req.user)
+      res.redirect("/auth/google");
   var invites=[];
   req.user.invitations.forEach(function(invite){
       if(invite.teamname==req.params.id) {
@@ -1069,7 +1307,12 @@ app.post("/reject_request/:id",function(req,res){
       }
   });
   User.findByIdAndUpdate(req.user.id,{invitations:invites},function(err,user){
-    console.log("User invite changes: "+user);
+    if(err){
+      console.log(err);
+    }
+    else{
+      console.log("User invite changes: "+user);
+    }
   });
   req.user.save();
   res.redirect("/");
@@ -1167,7 +1410,6 @@ function sessionActive(req, res, next){
 
 function partOfATeam(req, res, next){
     Session.findOne({status: 1}, function(err, session){
-
         if(!req.user){
             res.redirect("/auth/google");
         }
