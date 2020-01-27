@@ -98,8 +98,6 @@ app.post("/register",function(req,res){
       res.render("register2");
     }
   });
-
-
 });
 
 
@@ -526,7 +524,7 @@ app.post("/:team_id/:sprint_id/estimateStories", function(req, res){
     else{
       var points = req.body.points;
       var index = 0;
-      for(var i = 0; team.productBacklog != undefined && i < team.productBacklog.length; i++){
+      for(var i = 0; team != undefined && team.productBacklog != undefined && i < team.productBacklog.length; i++){
           if(team.productBacklog[i].sprintID == req.params.sprint_id){
               team.productBacklog[i].points = points[index++];
           }
@@ -660,7 +658,7 @@ app.post("/:team_id/:sprint_id/devStorySelection", function(req, res){
         var checkeddev = req.body.checkeddev;
         var f=0;
         var index=0;
-        for(var i = 0; i < team.productBacklog.length; i++){
+        for(var i = 0; team != undefined && team.productBacklog != undefined && i < team.productBacklog.length; i++){
           if(checkeddev && i == checkeddev[index]){
               if(team.productBacklog[i].takenBy == "nought"){
                 team.productBacklog[i].takenBy = res.locals.currentUser.email;
@@ -782,7 +780,7 @@ app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
           console.log("Error: ", err);
           res.redirect("/");
       } else {
-      for(var i = 0; i < team.productBacklog.length; i++){
+      for(var i = 0; team != undefined && team.productBacklog != undefined && i < team.productBacklog.length; i++){
           if(team.productBacklog[i].sprintID == req.params.sprint_id && team.productBacklog[i].status != 2){
               team.productBacklog[i].takenBy="nought";
               team.productBacklog[i].takenByName="";
@@ -1224,17 +1222,23 @@ app.post("/team_create",sessionActive, function(req,res){
           for (var i = 0; i < req.body.stud.length; i++) {
               if(req.body.stud[i]!=null && req.body.sel[i] == 'Developer'){
                 User.findOne({email:req.body.stud[i]},function(err,student){
-                    if(student!=null){
+                  if(err){
+                    console.log(err);
+                    res.redirect("/");
+                  }
+                  else{
+                      if(student!=null){
 
-                      student.invitations.push({
-                        sender:req.user.email,
-                        teamname: req.body.teamname,
-                        role: "Developer"
-                      });
+                        student.invitations.push({
+                          sender:req.user.email,
+                          teamname: req.body.teamname,
+                          role: "Developer"
+                        });
 
-                      student.save();
+                        student.save();
+                      }
                     }
-                  });
+                    });
                 }
           }
 
