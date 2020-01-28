@@ -15,7 +15,7 @@
       <!-- Modal body -->
       <div class="modal-body show">
         <form action="/<%= team._id %>/estimateSprintPoints" method="post">
-            <% for(var i = 0 ; i < 3; i++){ %>
+            <% for(var i = 0 ; i < numofSprints; i++){ %>
                 <div class="form-group">
                 <label for="estimatedSprintPoints-<%=i+1%>">Sprint <%=i+1%></label>
                 <input type="number" name="estimatedSprintPoints[<%=i%>]" class="form-control sprintPoints" id="estimatedSprintPoints-<%=i+1%>" value="<%=team.sprintPoints[i].estimate%>">

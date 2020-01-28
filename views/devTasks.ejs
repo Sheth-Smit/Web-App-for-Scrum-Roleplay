@@ -1,7 +1,7 @@
 <% include partials/sidebarHeader %>
 <h1 class="text-center" >User Story Tasks</h1>
 
-<%for (var i = 0; i<team.productBacklog.length; i++){ %>
+<%for (var i = 0; i < team.productBacklog.length; i++){ %>
   <%  if(team.productBacklog[i].takenBy == currentUser.email && team.productBacklog[i].sprintID == sprint_id ){ %>
       <%  var x=0;
         var sumTasks=0; %>
@@ -10,7 +10,7 @@
         }
         %>
         <hr>
-        <div><h5><span>US: <%=i+1%> Action: <%=team.productBacklog[i].action%>  Estimate in points(sum of tasks): <%=sumTasks%></span></h5></div>
+        <div><h5><span>User Story: <%=i+1%> <br> Estimate in points(Sum of tasks) : <%=sumTasks%></span></h5></div>
         <table >
             <tr>
                 <th></th>
