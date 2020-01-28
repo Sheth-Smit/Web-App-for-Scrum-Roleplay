@@ -1179,7 +1179,7 @@ app.post("/team_create",sessionActive, function(req,res){
     req.user.save();
     var team_id;
 
-    Team.create({username:req.body.teamname},function(err,team){
+    Team.create({name:req.body.teamname},function(err,team){
 
       if(err){
         console.log("Error is:"+err);
@@ -1188,6 +1188,7 @@ app.post("/team_create",sessionActive, function(req,res){
       else  {
         team_id = team._id;
         team.members.push(req.user._id);
+        team.username = team._id;
         team.productBacklog = [];
         team.releasePlanName.push({name: "Add to a release"});
         for(var i = 0; i < numofSprints; i++){

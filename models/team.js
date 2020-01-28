@@ -2,6 +2,7 @@ var mongoose=require("mongoose");
 var passportLocalMongoose=require("passport-local-mongoose");
 var teamSchema=new mongoose.Schema({
   username: String,
+  name: String,
   members:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:"User"
