@@ -499,7 +499,7 @@ app.get("/:team_id/:sprint_id/estimateStories", function(req, res){
     if(err){
       console.log(err);
       res.redirect("/");
-    } 
+    }
     else{
       var date = new Date();
       var curTime = Date.parse(date);
@@ -798,7 +798,7 @@ app.post("/:team_id/:sprint_id/rejectRemainingStories", function(req, res){
           res.redirect("/" + team._id + "/productReview");
       }
     }
-      
+
   });
 });
 
@@ -953,7 +953,7 @@ app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
       console.log(err);
       res.redirect("/");
     }
-    else{
+    else{s
       res.locals.currentSprint = req.params.sprintNo;
 
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
@@ -1178,34 +1178,73 @@ app.post("/team_create",sessionActive, function(req,res){
     req.user.role="Product Owner";
     req.user.save();
     var team_id;
-
-    Team.create({name:req.body.teamname},function(err,team){
-
-      if(err){
-        console.log("Error is:"+err);
-        res.redirect("/");
+    var flag = 0;
+    // for (var j = 0; j < req.body.stud.length;j++){
+    //   if(req.body.stud[j] != null){
+    //     while(k==j-1){
+    //       ;
+    //     }
+    //     User.findOne({email:req.body.stud[j]},function(err,student){
+    //         if(err || student == null){
+    //           flag = 1;
+    //           console.log(student,j);
+    //         }
+    //         k++;
+    //         console.log("k: ", k);
+    //       });
+    //       console.log("Started: ", j);
+    //
+    //       console.log("Ended: ", j);
+    //     }
+    //     else {
+    //       k = j+1;
+    //     }
+    //   }
+    var countnull = 0;
+    console.log(req.body.stud);
+    for(var i = 0; i < req.body.stud.length; i++ ){
+      if(req.body.stud[i].length == 0){
+        countnull++;
       }
-      else  {
-        team_id = team._id;
-        team.members.push(req.user._id);
-        team.username = team._id;
-        team.productBacklog = [];
-        team.releasePlanName.push({name: "Add to a release"});
-        for(var i = 0; i < numofSprints; i++){
-          team.sprintPoints.push({burned:0,estimate:0});
-        }
-        Session.findOne({status:1},function(err,ses){
-          ses.teams.push(team._id);
-          ses.save();
-          req.user.teams.push(team._id);
-          req.user.currentTeam = team._id;
-          req.user.currentSession = ses._id;
-          req.user.save();
-          team.productBacklog = ses.productBacklog;
-          team.save();
-          for (var i = 0; i < req.body.stud.length; i++) {
-              if(req.body.stud[i]!=null && req.body.sel[i] == 'Scrum Master'){
-                User.findOne({email:req.body.stud[i]},function(err,student){
+    }
+    console.log(countnull);
+    User.find({email:req.body.stud},function(err,student){
+      console.log(student);
+      if(student.length != req.body.stud.length - countnull){
+        flag = 1;
+      }
+      console.log(flag);
+      if(flag == 1){
+        res.render("team_create2");
+      }
+      else{
+        Team.create({name:req.body.teamname},function(err,team){
+
+          if(err){
+            console.log("Error is:"+err);
+            res.redirect("/");
+          }
+          else  {
+
+            team_id = team._id;
+            team.members.push(req.user._id);
+            team.username = team._id;
+            team.productBacklog = [];
+            team.releasePlanName.push({name: "Add to a release"});
+            for(var i = 0; i < numofSprints; i++){
+              team.sprintPoints.push({burned:0,estimate:0});
+            }
+            Session.findOne({status:1},function(err,ses){
+              ses.teams.push(team._id);
+              ses.save();
+              req.user.teams.push(team._id);
+              req.user.currentTeam = team._id;
+              req.user.currentSession = ses._id;
+              req.user.save();
+              team.productBacklog = ses.productBacklog;
+              team.save();
+              if(req.body.stud[0]!=null){
+                User.findOne({email:req.body.stud[0]},function(err,student){
                     if(student!=null){
 
                       student.invitations.push({
@@ -1216,39 +1255,39 @@ app.post("/team_create",sessionActive, function(req,res){
 
                       student.save();
                     }
+                    User.find({email:req.body.stud},function(err,student){
+                      for (var i = 0; i < student.length; i++) {
+                          if(student[i] != req.body.stud[0] ){
+                              if(err){
+                                console.log(err);
+                                res.redirect("/");
+                              }
+                              else{
+                                  if(student[i]!=undefined){
+
+                                    student[i].invitations.push({
+                                      sender:req.user.email,
+                                      teamname: req.body.teamname,
+                                      role: "Developer"
+                                    });
+
+                                    student[i].save();
+                                  }
+                                }
+                            }
+                      }
+                      res.redirect("/" + team._id + "/home");
+                    });
                   });
                 }
-          }
-
-          for (var i = 0; i < req.body.stud.length; i++) {
-              if(req.body.stud[i]!=null && req.body.sel[i] == 'Developer'){
-                User.findOne({email:req.body.stud[i]},function(err,student){
-                  if(err){
-                    console.log(err);
-                    res.redirect("/");
-                  }
-                  else{
-                      if(student!=null){
-
-                        student.invitations.push({
-                          sender:req.user.email,
-                          teamname: req.body.teamname,
-                          role: "Developer"
-                        });
-
-                        student.save();
-                      }
-                    }
-                    });
+                else{
+                  res.render("team_create1");
                 }
+          });
           }
-
-          res.redirect("/" + team._id + "/home");
-      });
+        });
       }
-            
     });
-
 });
 app.get("/team_join", function (req, res) {
   if(req.user){
