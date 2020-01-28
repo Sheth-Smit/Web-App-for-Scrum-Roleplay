@@ -1210,7 +1210,8 @@ app.post("/team_create",sessionActive, function(req,res){
 
                       student.invitations.push({
                         sender:req.user.email,
-                        teamname: req.body.teamname,
+                        teamname: team._id,
+                        team_name: req.body.teamname,
                         role: "Scrum Master"
                       });
 
@@ -1232,7 +1233,8 @@ app.post("/team_create",sessionActive, function(req,res){
 
                         student.invitations.push({
                           sender:req.user.email,
-                          teamname: req.body.teamname,
+                          team_name: req.body.teamname,
+                          teamname: team._id,
                           role: "Developer"
                         });
 
