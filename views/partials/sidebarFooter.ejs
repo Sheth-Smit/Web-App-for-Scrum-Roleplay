@@ -290,13 +290,22 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-    var burnedArray = $("#chartContainer").attr("burnedStr").split(",");
+    
+    var burnedArray = $("#chartContainer").attr("burnedStr");
+    if(burnedArray)
+        burnedArray = burnedArray.split(",");
+    else
+        burnedArray = [];
     var burned=[];
     for(var i = 0; i < burnedArray.length-1; i++){
         var temp = burnedArray[i].split(":");
         burned.push({x: parseInt(temp[0]),y: parseInt(temp[1])});
     }
-    var estimateArray = $("#chartContainer").attr("estimateStr").split(",");
+    var estimateArray = $("#chartContainer").attr("estimateStr");
+    if(estimateArray)
+        estimateArray = estimateArray.split(",");
+    else 
+        estimateArray = [];
     var estimate=[];
     for(var i = 0; i < estimateArray.length-1; i++){
         var temp = estimateArray[i].split(":");
