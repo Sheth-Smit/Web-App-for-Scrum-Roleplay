@@ -40,14 +40,36 @@ var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+var sprintStart = [];
+var sprintEnd = [];
+var totalTime = 0;
+var numofSprints = 3;
+
 app.use(function(req, res, next){
   res.locals.currentUser = req.user;
-  res.locals.sprintStart = [10*60*1000, 20*60*1000, 30*60*1000];
-  res.locals.sprintEnd = [20*60*1000, 30*60*1000, 40*60*1000];
-  res.locals.totalTime = 45*60*1000;
-  res.locals.numofSprints = 3;
   res.locals.currentSprint = 0;
-  next();
+
+  Session.findOne({status:1},function(err,ses){
+      numofSprints = ses.numofSprints;
+      res.locals.numofSprints = ses.numofSprints;
+      var tempStart = [];
+      var tempEnd = [];
+      var curTime = ses.pbTime; //////////////
+      var tempTotalTime = 0;
+      for (var i = 0; i < ses.sprintTime.length; i++) {
+          tempStart.push(parseInt(curTime)*60*1000);
+          curTime += parseInt(ses.sprintTime[i]);
+          tempEnd.push(parseInt(curTime)*60*1000);
+      }
+      tempTotalTime += parseInt(curTime) + parseInt(ses.productReviewTime);
+      sprintStart = tempStart;
+      sprintEnd = tempEnd;
+      totalTime = tempTotalTime*60*1000;
+      res.locals.sprintStart = tempStart;
+      res.locals.sprintEnd = tempEnd;
+      res.locals.totalTime = totalTime;
+      next();
+    });
 });
 
 app.get('/auth/google',function(req,res){
@@ -101,10 +123,13 @@ app.post("/register",function(req,res){
 });
 
 
-var sprintStart = [10*60*1000, 20*60*1000, 30*60*1000];
-var sprintEnd = [20*60*1000, 30*60*1000, 40*60*1000];
-var totalTime = 45*60*1000;
-var numofSprints = 3;
+// var sprintStart = [10*60*1000, 20*60*1000, 30*60*1000];
+// var sprintEnd = [20*60*1000, 30*60*1000, 40*60*1000];
+// var totalTime = 45*60*1000;
+// var numofSprints = 3;
+
+
+
 //============
 // ROUTES
 //============
@@ -122,17 +147,36 @@ app.post("/:team_id/startActivity", function(req, res){
   if(!req.user)
       res.redirect("/auth/google");
   Team.findById(req.params.team_id, function(err, team){
-      if(err){
-        console.log(err);
-        res.redirect("/");
-      }
-      else{
+    Session.findOne({status:1},function(err,ses){
+        if(err){
+          console.log(err);
+          res.redirect("/");
+        }
+        numofSprints = ses.numofSprints;
+        res.locals.numofSprints = ses.numofSprints;
+        var tempStart = [];
+        var tempEnd = [];
+        var curTime = 0;
+        var tempTotalTime = ses.pbTime;
+        for (var i = 0; i < ses.sprintTime.length; i++) {
+            tempStart.push(parseInt(curTime)*60*1000);
+            curTime += parseInt(ses.sprintTime[i]);
+            tempEnd.push(parseInt(curTime)*60*1000);
+        }
+        tempTotalTime += parseInt(curTime) + parseInt(ses.productReviewTime);
+        sprintStart = tempStart;
+        sprintEnd = tempEnd;
+        totalTime = tempTotalTime*60*1000;
+        res.locals.sprintStart = tempStart;
+        res.locals.sprintEnd = tempEnd;
+        res.locals.totalTime = totalTime;
+
         var date = new Date();
         team.endTime = (Date.parse(date) + totalTime).toString();
         team.timerFlag = 1;
         team.save();
         res.redirect("/" + team._id + "/productBacklog");
-      }
+    });
   });
 })
 
@@ -140,11 +184,33 @@ app.get("/:team_id/home", partOfATeam, function (req, res) {
   if(!req.user)
       res.redirect("/login");
     Team.findById(req.params.team_id, function(err, team){
-      if(err){
-        console.log(err);
-        res.redirect("/");
-      }
-        res.render("home.ejs", {team: team});
+        Session.findOne({status:1},function(err,ses){
+            if(err){
+              console.log(err);
+              res.redirect("/");
+            }
+            numofSprints = ses.numofSprints;
+            res.locals.numofSprints = ses.numofSprints;
+            var tempStart = [];
+            var tempEnd = [];
+            var curTime = 0;
+            var tempTotalTime = ses.pbTime;
+            for (var i = 0; i < ses.sprintTime.length; i++) {
+                tempStart.push(parseInt(curTime)*60*1000);
+                curTime += parseInt(ses.sprintTime[i]);
+                tempEnd.push(parseInt(curTime)*60*1000);
+            }
+            tempTotalTime += parseInt(curTime) + parseInt(ses.productReviewTime);
+            sprintStart = tempStart;
+            sprintEnd = tempEnd;
+            totalTime = tempTotalTime*60*1000;
+            res.locals.sprintStart = tempStart;
+            res.locals.sprintEnd = tempEnd;
+            res.locals.totalTime = totalTime;
+
+
+            res.render("home.ejs", {team: team, session: ses});
+        });
     });
 });
 
@@ -1462,7 +1528,7 @@ function partOfATeam(req, res, next){
             console.log("Error: ", err);
             res.redirect("/");
         } else {
-            if(req.user.currentSession == session._id){
+            if(req.user && req.user.currentSession == session._id){
                 return next();
             }
             // alert the user that he is not part of any team
