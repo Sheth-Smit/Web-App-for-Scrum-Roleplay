@@ -1258,7 +1258,9 @@ app.post("/team_create",sessionActive, function(req,res){
                     }
                     User.find({email:req.body.stud},function(err,student){
                       for (var i = 0; i < student.length; i++) {
-                          if(student[i] != req.body.stud[0] ){
+                        console.log(student[i].email,req.body.stud[0]);
+                          if( student[i].email != req.body.stud[0] ){
+                            console.log(student[i].email);
                               if(err){
                                 console.log(err);
                                 res.redirect("/");
