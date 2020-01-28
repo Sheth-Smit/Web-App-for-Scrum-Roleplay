@@ -10,7 +10,7 @@
 <% var curTime = Date.parse(date); %>
 <% if(team.endTime - curTime > totalTime - sprintEnd[sprintNo-1]){ %>
   <form class="" action="/<%=team.id%>/<%=sprintNo%>/planSummary" method="get">
-    <button type="submit" id="SubBut" name="button">Update</button>
+    <center><button type="submit" id="SubBut" name="button">Update</button></center>
   </form>
 <% } %>
 

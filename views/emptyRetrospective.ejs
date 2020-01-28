@@ -6,7 +6,7 @@
 <% if(team.endTime - curTime > totalTime - sprintEnd[sprintNo-1]){ %>
     <h4 align="center" class="h4text">Please Enter the Sprint Retrospective</h4>
     <form class="" action="/<%=team.id%>/<%=sprintNo%>/sprintRetrospective" method="get">
-      <button align="center" type="submit" id="SubBut" name="button">Create</button>
+      <center><button type="submit" id="SubBut" name="button">Create</button></center>
     </form>
 <% } %>
 
