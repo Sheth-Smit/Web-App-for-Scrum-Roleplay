@@ -10,7 +10,8 @@ var userSchema=new mongoose.Schema({
     sender: String,
     receiver:String,
     role: String,
-    teamname: String
+    teamname: String,
+    team_name: String
   }],
   teams: [
     {
