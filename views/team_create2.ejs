@@ -31,7 +31,7 @@
                 <% for(var i = 0; i < 2; i++) {%>
                     <div class="form-group">
                         <label for="team-stud<%=i%>">Student <%= i+2 %></label>
-                        <input type="text" name="stud[<%=i%>]" class="form-control" id="team-stud1" placeholder="Enter student <%=i+1%>'s e-mail" required>
+                        <input type="text" name="stud[<%=i%>]" class="form-control" id="team-stud1" placeholder="Enter student <%=i+2%>'s e-mail" required>
                         <select name="sel[<%=i%>]" class="form-control">
                           <% if(i == 0){ %>
                             <option value="Scrum Master">Scrum Master</option>
@@ -45,7 +45,7 @@
                 <% for(var i = 2; i < 4; i++) {%>
                     <div class="form-group">
                         <label for="team-stud<%=i%>">Student <%= i+2 %></label>
-                        <input type="text" name="stud[<%=i%>]" class="form-control" id="team-stud1" placeholder="Enter student <%=i+1%>'s e-mail">
+                        <input type="text" name="stud[<%=i%>]" class="form-control" id="team-stud1" placeholder="Enter student <%=i+2%>'s e-mail">
                         <select name="sel[<%=i%>]" class="form-control">
                             <!-- <option value="Scrum Master">Scrum Master</option> -->
                             <option value="Developer">Developer</option>
