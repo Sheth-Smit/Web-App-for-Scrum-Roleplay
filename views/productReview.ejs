@@ -1,10 +1,14 @@
 <% include partials/sidebarHeader %>
+<% var date = new Date(); %>
+<% var curTime = Date.parse(date); %>
 <% if( team.productReview == "" ){ %>
     <h2>No Product Review</h2>
-    <form action="/<%=team.id%>/productReview/update" method="get">
-      <h4 align="center" class="h4text">Please enter the Product Review</h4>
-      <button id="SubBut" type="submit" class="btn release-style float-centre" name="button">Create</button>
-    </form>
+    <% if(team.endTime - curTime > 0){ %>
+      <form action="/<%=team.id%>/productReview/update" method="get">
+        <h4 align="center" class="h4text">Please enter the Product Review</h4>
+        <center><button id="SubBut" type="submit" class="btn release-style" name="button">Create</button></center>
+      </form>
+    <% } %>
 <% } else { %>
     <div class="card-title" style="text-align: center;"><h2>Product Review</h2></div>
     <div class="card">
@@ -12,9 +16,11 @@
         <h5 class="text-justify "><%=team.productReview%></h5>
     </div>
     </div>
-    <form action="/<%=team.id%>/productReview/update" method="get">
-        <button id="SubBut" class="btn release-style float-centre" type="submit" name="button">Update</button>
-    </form>
+    <% if(team.endTime - curTime > 0){ %>
+      <form action="/<%=team.id%>/productReview/update" method="get">
+          <center><button id="SubBut" class="btn release-style" type="submit" name="button">Update</button></center>
+      </form>
+    <% } %>
 <% } %>
 <% include partials/sidebarFooter %>
 <% include partials/footer %>

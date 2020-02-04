@@ -38,6 +38,13 @@
             </div>
 
           <!-- TIMER -->
+
+          <%
+            var curSprintStart = sprintStart;
+            var curSprintEnd = sprintEnd;
+            var curTotalTime = totalTime;
+          %>
+
           <div id="clockdiv" teamid="<%= team._id %>" timerFlag="<%= team.timerFlag %>" endTime="<%= team.endTime %>">
             <div>
               <span class="hours"></span>
