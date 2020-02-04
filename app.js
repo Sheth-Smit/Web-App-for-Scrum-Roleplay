@@ -1410,7 +1410,10 @@ app.get('/:team_id/report', function(req, res){
 //===============
 
 app.get("/directions",function(req,res){
-  res.render("directions");
+  Session.find({status:1},function(err,ses){
+    res.render("directions",{ses:ses});
+
+  });
   console.log("Instructions: done");
 });
 
