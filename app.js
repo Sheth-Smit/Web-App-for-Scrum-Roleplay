@@ -1476,8 +1476,10 @@ app.get('/:team_id/report', function(req, res){
 //===============
 
 app.get("/directions",function(req,res){
-  res.render("directions");
-  console.log("Instructions: done");
+  Session.findOne({status:1},function(err,ses){
+    res.render("directions",{ses:ses});
+    console.log("Instructions: done:"+ ses.sprinTime);
+  });
 });
 
 //===============
