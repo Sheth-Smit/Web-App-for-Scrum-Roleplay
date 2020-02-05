@@ -5,14 +5,14 @@
     <title></title>
     <style>
       h1{
-        color:blue;
+        color:#196e9c;
 
       }
       li{
-        color:black;
+        color:#000000;
       }
       body{
-        background-image: url("https://www.accgov.com/ImageRepository/Document?documentID=30830");
+        background-image: url("https://images.unsplash.com/photo-1489065094455-c2d576ff27a0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
       }
     </style>
   </head>
@@ -20,6 +20,10 @@
     <h1><center>Instructions to operate</center></h1>
     <ul>
       <li> For registration and login purposes users must only use their bits mail and student id which helps to recognize progress of individual student</li>
+      <li> The time for filling Product Backlog is <%=ses.productReviewTime%> minutes & The time for sprint are as follows : <% for(var i=0 ; i<ses.sprintTime.length ; i++){ %>
+        sprint<%=i+1%>=<%=ses.sprintTime[i];%> minutes ,
+      <% } %>
+      </li>
       <li> Click on the register button on the top right corner and complete the procedure</li>
       <li> Click on the login button in the top right corner and complete the procedure</li>
       <li> The PO must create a team and send the joining request to team members by entering their email id's(not their names)</li>
@@ -29,13 +33,13 @@
       <li> The "save" button accessible only to PO must be clicked after every changes made in order for changes to be visible to everyone else in the group</li>
       <li> The points to be burnt in each sprint are estimated in "estimate sprint points" section</li>
       <li> The creation of new realese and allocation of user stories in a particular release plan is done in the "release planning" section</li>
-      <li> The sprint 1 can be accessed only after a span of few minutes after which users cannot go back to change product backlog or realese planning</li>
+      <li> The sprint 1 can be accessed only after <%=ses.productReviewTime%> minutes, after which users cannot go back to change product backlog or realese planning</li>
       <li> During the sprint the story selection is done by PO, completing the stories is done by developers(PO and SM can also do this) and finally review and retrospective is completed by SM</li>
       <li> The user stories can be broken into smaller tasks under the 'Add tasks to the stories' section</li>
       <li> PO has the authority to reject or accept the user stories completed by developers and assign points burnt to them which can be accessed under 'view user stories' section</li>
       <li> The sprints are of fixed duration after which new sprint is unlocked and no changes can be made to previous sprint progress</li>
-      <li> The scrum progress or burn down charts can accessed in the 'dashboard section' in the nav-bar</li>
-      <li> After finally completing the product review users will be given a google doc for feedback purpose</li>
+      <li> The scrum progress or burn down charts can accessed in the 'dashboard' section in the nav-bar</li>
+      <li> After finally completing the product review users are required to complete the feedback form</li>
       </ul>
   </body>
 </html>
