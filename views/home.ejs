@@ -1,18 +1,43 @@
 <% include partials/sidebarHeader %>
-<div class="card-title" style="text-align: center;"><h2><%= session.caseTitle %></h2></div>
+<div class="card-title" style="text-align: center;"><h2>Oyo Rooms - Business description</h2></div>
 <div class="card">
   <div class="card-body">
     <h5>
-        <%= session.caseStudyDescription %>
+      Oyo Rooms is the largest branded network of hotels currently operating 450,000 listings in 5,000 cities in India,
+Malaysia, UAE, Nepal, China and Indonesia. The company started its operations by building its business model
+around the  aggregator business model  but things have changed since 2018.</h5>
+<h5>
+Oyo Rooms business model used to be a hotel aggregator. However, it was different from  Airbnb’s business
+model  as Oyo focused on the standardized quality of the services provided. The customers used to buy the
+services (by reserving hotel rooms) from the brand Oyo rooms and did not care who the partner was. Just like
+Uber, Oyo provided rooms with standardized quality and price. This model was a mix of aggregator business
+model and  franchise business model .</h5>
+<h5>However, as time passed, the company built its brand equity and the
+founders decided to shift its business model to a pure franchise business model. The focus, however, still is the
+quality of the service provided. Hence, to maintain the brand image, they make the partners provide services at
+predetermined standards while they make them more visible to their user-base.</h5>
+<h5>The revenue model has also transformed as the business model changed from aggregator to franchise. Earlier the
+brand used to lease hotels at a predetermined price and offered them to the users at a take-up rate. This has been
+changed to a commission-based revenue model. Oyo rooms charges a commission of about 22% from its hotel
+partners. The actual percentage of commission does vary according to the services provided by the franchises.
+Commissions made through reservations of hotel rooms offered by franchises account for about 90% of the Oyo
+Rooms revenue. Since the hotel owners act as the franchisees, they are bound to operate as per the pre-
+determined standards.</h5>
+<h5>The screenshot (shown below) depicts a typical reservation of one or more hotel rooms
+with possible options for services and payment with Oyo Money (in addition to other forms of payment such as
+debit and credit cards). When a customer cancels a reservation, he/she is refunded the amount paid at the time of
+reservation after deducting a cancelation fee.</h5>
+<h5 style="color: red;">In this simulation exercise, your team is responsible for preparing the product backlog and releases to be
+completed in three sprints for the reservation system for Oyo Rooms.
     </h5>
   </div>
-    <img style="height:40%; width:50%;margin:auto;" src="<%= session.caseStudyImg %>" alt="">
+    <img style="height:40%; width:50%;margin:auto;" src="/stylesheets/oyo_main.PNG" alt="">
 
 </div>
 
 <% if(currentUser.role == "Product Owner"){ %>
     <button class="btn" id="timer-button">Start</button>
 <% } %>
-<a href="https://forms.gle/MevynTKQzDimktPA6" class="btn float-right" id="feedback-button" target = "_blank">Feedback</a>
+<%# <a href="https://forms.gle/MevynTKQzDimktPA6" class="btn float-right" id="feedback-button" target = "_blank">Feedback</a> %>
 <% include partials/sidebarFooter %>
 <% include partials/footer%>
