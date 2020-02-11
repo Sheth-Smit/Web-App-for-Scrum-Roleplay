@@ -181,8 +181,10 @@ app.post("/:team_id/startActivity", function(req, res){
 })
 
 app.get("/:team_id/home", partOfATeam, function (req, res) {
-  if(!req.user)
+  if(!req.user){
+      console.log("No user logged in");
       res.redirect("/login");
+    }
     Team.findById(req.params.team_id, function(err, team){
         Session.findOne({status:1},function(err,ses){
             if(err){
@@ -1019,7 +1021,7 @@ app.get("/:team_id/:sprintNo/sprintReviewDisplay",function(req,res){
       console.log(err);
       res.redirect("/");
     }
-    else{s
+    else{
       res.locals.currentSprint = req.params.sprintNo;
 
       if(parseInt(req.params.sprintNo,10)>team.sprint.length){
@@ -1378,19 +1380,21 @@ app.post("/accept_request/:tn/:rl",function(req,res){
         res.redirect("/");
       }
       else{
-        user.role=req.params.rl;
-        user.invitations=[];
-        user.save();
+        // user.role=req.params.rl;
+        // user.invitations=[];
+        // user.save();
         Team.findOne({username:req.params.tn},function(err,team){
           if(err){
             console.log(err);
             res.redirect("/");
           }
           else{
-              team.members.push(req.user._id);
-              team.save();
-              team_id = team.id;
               Session.findOne({status:1},function(err,session){
+                  user.role=req.params.rl;
+                  user.invitations=[];
+                  team.members.push(req.user._id);
+                  team.save();
+                  team_id = team.id;
                   user.teams.push(team._id);
                   user.currentTeam = team._id;
                   user.currentSession = session._id;
@@ -1478,7 +1482,6 @@ app.get('/:team_id/report', function(req, res){
 app.get("/directions",function(req,res){
   Session.findOne({status:1},function(err,ses){
     res.render("directions",{ses:ses});
-    console.log("Instructions: done:"+ ses.sprinTime);
   });
 });
 
@@ -1526,7 +1529,7 @@ function partOfATeam(req, res, next){
             res.redirect("/auth/google");
         }
 
-        if(err){
+        else if(err){
             console.log("Error: ", err);
             res.redirect("/");
         } else {

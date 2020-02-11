@@ -3,20 +3,19 @@
     <li>
       <a class="navbar-brand" href="/">Scrum</a>
     </li>
-    <% if(currentUser&&currentUser.currentTeam!=""){             %>
+
     <li class="nav-item">
       <% var homePath = "/";                                    %>
       <% var dashPath = "/";                                    %>
-      <%                                                        %>
+    <% if(currentUser&&currentUser.currentTeam!=""){             %>
       <% homePath = "/" + currentUser.currentTeam + "/home";     %>
       <% dashPath = "/" + currentUser.currentTeam + "/dashboard"; %>
-      <%                                                          %>
+      <% } %>
       <a class="nav-link" href="<%= homePath %>">Home</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="<%= dashPath %>">Dashboard</a>
     </li>
-    <% } %>
   </ul>
 
   <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
@@ -39,7 +38,7 @@
             <li>
               <div class="btn-group">
                 <li class="nav-item">
-                  <a href="/directions"><button class="fa fa-question-circle" style="font-size:1.5em; color:white; margin-top:0.3em;"></button></a>
+                  <a href="/directions" target = "_blank"><button class="fa fa-question-circle" style="font-size:1.5em; color:white; margin-top:0.3em;"></button></a>
                 </li>
             </div>
           </li>
