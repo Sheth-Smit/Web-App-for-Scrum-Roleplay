@@ -1,6 +1,9 @@
+h1{
+  text-align: center;
+}
 #retrospectiveText{
   margin-top: 2em;
-  margin-left: 14em;
+  margin-left: 5em;
 }
 #retrospectiveHead{
   margin-left: 9.75em;

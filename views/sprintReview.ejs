@@ -5,7 +5,7 @@
   <% if(team.sprint.length >= sprintNo){ %>
   <%    content = team.sprint[sprintNo-1].review;%>
   <% } %>
-  <textarea id="reviewText" name="sprint[review]" rows="14" cols="80" placeholder="Write Sprint Review..."><%= content %></textarea>
+  <textarea id="reviewText" name="sprint[review]" rows="14" cols="50" placeholder="Write Sprint Review..."><%= content %></textarea>
   <center><button type="submit" id="SubBut" name="submit_button">Submit</button></center>
 </form>
 <% include partials/sidebarFooter %>
