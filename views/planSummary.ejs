@@ -5,8 +5,8 @@
   <% if(team.sprint.length >= sprintNo){ %>
   <%    content = team.sprint[sprintNo-1].planSummary;%>
   <% } %>
-  <textarea id="psText" name="sprint[planSummary]" rows="14" cols="70" placeholder="Write Plan Summary... "><%= content %></textarea>
-  <button type="submit" id="SubBut" name="submit_button">Submit</button>
+  <textarea id="psText" name="sprint[planSummary]" rows="14" cols="50" placeholder="Write Plan Summary... "><%= content %></textarea>
+  <center><button type="submit" id="SubBut" name="submit_button">Submit</button></center>
 </form>
 <% include partials/sidebarFooter %>
 <% include partials/footer %>

@@ -195,7 +195,31 @@
             minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
             secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
             var curr = totalTime - (t.hours * 60*60 + t.minutes*60 + t.seconds)*1000;
+
+            /**/
+            if(sprintEnd[sprintEnd.length-1] - curr == 5*60*1000){
+              alert("Starting Product Review in 5 minutes");
+            }
+            if(sprintEnd[sprintEnd.length-1] - curr == 1*60*1000){
+              alert("Starting Sprint Product Review in 1 minute");
+            }
+            /**/
+
+            if(curr == sprintStart[0]){
+              var team_id = $("#clockdiv").attr("teamid");
+              var getUrl = "/" + team_id + "/1/selectStories";
+              window.location.replace(getUrl);
+            }
+
             for(var i = 0; i < sprintEnd.length; i++){
+                /**/
+                if(sprintStart[i] - curr == 5*60*1000){
+                  alert("Starting Sprint " + (i+1) + " in 5 minutes");
+                }
+                if(sprintStart[i] - curr == 1*60*1000){
+                  alert("Starting Sprint " + (i+1) + " in 1 minute");
+                }
+                /**/
                 if(sprintEnd[i] == curr){
                   console.log("Deleting remaining");
                     var team_id = $("#clockdiv").attr("teamid");
@@ -290,7 +314,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-    
+
     var burnedArray = $("#chartContainer").attr("burnedStr");
     if(burnedArray)
         burnedArray = burnedArray.split(",");
@@ -304,7 +328,7 @@
     var estimateArray = $("#chartContainer").attr("estimateStr");
     if(estimateArray)
         estimateArray = estimateArray.split(",");
-    else 
+    else
         estimateArray = [];
     var estimate=[];
     for(var i = 0; i < estimateArray.length-1; i++){

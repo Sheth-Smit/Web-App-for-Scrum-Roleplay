@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Teams</title>
+    <title><%= team.name %> Report</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="/stylesheets/my_list.css">
     <link rel="stylesheet" href="/stylesheets/sidebar.css">
@@ -23,7 +23,7 @@
       <p class="lead">Members:</p>
       <ol>
         <% for(var i = 0; i < team.members.length; i++){ %>
-          <li><h5><%= team.members[i].name %> | <%=team.members[i].role%></h5></li>
+          <li><h5><%= team.members[i].name %> | <%=team.members[i].email.substr(0, 9)%> | <%=team.members[i].role%></h5></li>
         <% } %>
       </ol>
     </div>
@@ -45,6 +45,7 @@
               <th>Points</th>
               <th>Release</th>
               <th>Taken By</th>
+              <th>Sprint No.</th>
             </tr>
           </thead>
 
@@ -70,8 +71,10 @@
                   <% if(team.productBacklog[i].takenBy == "nought"){ %>
                     <td>X</td>
                   <%} else {%>
-                    <td> <%= team.productBacklog[i].takenBy   %></td>
+                    <td> <%= team.productBacklog[i].takenByName   %></td>
                   <%}%>
+
+                  <td><strong><%= team.productBacklog[i].sprintID %></strong></td>
 
                 </tr>
 
